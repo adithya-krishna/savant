@@ -11,7 +11,7 @@ import {
 import {
   HelpCircleIcon,
   Home,
-  LayoutDashboardIcon,
+  Rocket,
   SettingsIcon,
   UsersIcon,
 } from "lucide-react";
@@ -21,13 +21,13 @@ import { NavSecondary } from "./nav-secondary";
 
 const navMain = [
   {
-    title: "Dashboard",
-    href: "/dashboard",
-    icon: LayoutDashboardIcon,
+    title: "Leads",
+    href: "/leads",
+    icon: Rocket,
   },
   {
     title: "Team",
-    href: "/team",
+    href: "/team-members",
     icon: UsersIcon,
   },
 ];
