@@ -11,7 +11,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { DeleteCounselorButton } from "@/components/DeleteCounselorButton";
+import { DeleteCounselorButton } from "@/components/delete-counselor-button";
 
 export default async function TeamMembersPage() {
   const counselors = await db.counselors.findMany({

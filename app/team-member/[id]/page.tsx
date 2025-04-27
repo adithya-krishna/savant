@@ -1,12 +1,13 @@
 import { db } from "@/db";
 import { notFound } from "next/navigation";
-import CounselorForm from "@/components/CounselorForm";
+import CounselorForm from "@/components/counselor-form";
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export default async function TeamMemberPage({ params: { id } }: PageProps) {
+export default async function TeamMemberPage({ params }: PageProps) {
+  const { id } = await params;
   let counselor = null;
   if (id !== "new") {
     counselor = await db.counselors.findUnique({ where: { id } });
