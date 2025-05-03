@@ -41,9 +41,9 @@ const CounselorForm: React.FC<CounselorFormProps> = ({ initialData, id }) => {
           last_name: initialData.last_name,
           email: initialData.email ?? "",
           phone: initialData.phone,
-          country_code: initialData.country_code,
+          country_code: initialData.country_code ?? "+91",
           role: initialData.role ?? "",
-          active: initialData.active,
+          active: initialData.active ?? false,
         }
       : {
           first_name: "",

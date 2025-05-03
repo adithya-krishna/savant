@@ -12,17 +12,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { DeleteItemButton } from "@/components/delete-item-button";
 
-export default async function TeamMembersPage() {
-  const counselors = await db.counselors.findMany({
+export default async function LeadsPage() {
+  const leads = await db.leads.findMany({
     orderBy: { create_date: "desc" },
   });
 
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold">Team Members</h1>
-        <Link href="/team-member/new">
-          <Button>Add Team Member</Button>
+        <h1 className="text-2xl font-semibold">Leads</h1>
+        <Link href="/lead/new">
+          <Button>Add Lead</Button>
         </Link>
       </div>
 
@@ -30,29 +30,37 @@ export default async function TeamMembersPage() {
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>
-            <TableHead>Email</TableHead>
             <TableHead>Phone</TableHead>
-            <TableHead>Role</TableHead>
-            <TableHead>Active</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead>Stage</TableHead>
+            <TableHead>Walk-in</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
 
         <TableBody>
-          {counselors.map((c) => (
-            <TableRow key={c.id}>
-              <TableCell>{`${c.first_name} ${c.last_name}`}</TableCell>
-              <TableCell>{c.email ?? "—"}</TableCell>
-              <TableCell>{`${c.country_code} ${c.phone}`}</TableCell>
-              <TableCell>{c.role ?? "—"}</TableCell>
-              <TableCell>{c.active ? "Yes" : "No"}</TableCell>
+          {leads.map((l) => (
+            <TableRow key={l.id}>
+              <TableCell>
+                {l.first_name} {l.last_name ?? ""}
+              </TableCell>
+              <TableCell>
+                {l.country_code ?? ""} {l.phone}
+              </TableCell>
+              <TableCell>{l.email ?? "—"}</TableCell>
+              <TableCell>{l.stage ?? "—"}</TableCell>
+              <TableCell>
+                {l.walkin_date
+                  ? new Date(l.walkin_date).toLocaleDateString()
+                  : "—"}
+              </TableCell>
               <TableCell className="space-x-2">
-                <Link href={`/team-member/${c.id}`}>
+                <Link href={`/lead/${l.id}`}>
                   <Button variant="outline" size="sm">
                     Edit
                   </Button>
                 </Link>
-                <DeleteItemButton type="counselor" id={c.id} />
+                <DeleteItemButton type="lead" id={l.id} />
               </TableCell>
             </TableRow>
           ))}

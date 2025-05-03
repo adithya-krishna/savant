@@ -1,6 +1,7 @@
 import React from "react";
 import { SidebarTrigger } from "./sidebar";
 import { Separator } from "./separator";
+import { ModeToggle } from "../mode-toggle";
 
 const header = () => {
   return (
@@ -12,6 +13,7 @@ const header = () => {
           className="mx-2 data-[orientation=vertical]:h-4"
         />
         <h1 className="text-base font-medium">Documents</h1>
+        {/* <ModeToggle /> */}
       </div>
     </header>
   );

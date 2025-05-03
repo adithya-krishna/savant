@@ -15,3 +15,10 @@ export async function POST(request: Request) {
 
   return NextResponse.json(counselor, { status: 201 });
 }
+
+export async function GET() {
+  const counselors = await db.counselors.findMany({
+    orderBy: { first_name: "asc" },
+  });
+  return NextResponse.json(counselors);
+}

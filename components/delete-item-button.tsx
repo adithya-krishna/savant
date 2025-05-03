@@ -15,13 +15,19 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 
-export function DeleteCounselorButton({ id }: { id: string }) {
+interface DeleteItemButtonProps {
+  id: string;
+  type: "counselor" | "lead";
+}
+
+export function DeleteItemButton({ id, type }: DeleteItemButtonProps) {
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
+  const apiPath = type === "counselor" ? "/api/team-member" : "/api/leads";
 
   const handleDelete = async () => {
     try {
-      const res = await fetch(`/api/team-member/${id}`, { method: "DELETE" });
+      const res = await fetch(`${apiPath}/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error(`Status ${res.status}`);
       router.refresh();
     } catch (err) {
@@ -41,8 +47,8 @@ export function DeleteCounselorButton({ id }: { id: string }) {
         <AlertDialogHeader>
           <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete this team member? This action cannot
-            be undone.
+            Are you sure you want to delete this {type}? <br />
+            This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
