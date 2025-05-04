@@ -23,7 +23,7 @@ interface DeleteItemButtonProps {
 export function DeleteItemButton({ id, type }: DeleteItemButtonProps) {
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
-  const apiPath = type === "counselor" ? "/api/team-member" : "/api/leads";
+  const apiPath = type === "counselor" ? "/api/team-members" : "/api/leads";
 
   const handleDelete = async () => {
     try {

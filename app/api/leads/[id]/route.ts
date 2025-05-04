@@ -33,7 +33,9 @@ export async function PUT(request: NextRequest) {
     expected_budget: parsed.expected_budget
       ? new Decimal(parsed.expected_budget)
       : undefined,
-    stage: parsed.stage || undefined,
+    stage: {
+      connect: { id: parsed.stage_id! },
+    },
     demo_taken: parsed.demo_taken,
     color_code: parsed.color_code || undefined,
     number_of_contact_attempts: parsed.number_of_contact_attempts,
@@ -43,7 +45,9 @@ export async function PUT(request: NextRequest) {
     next_followup: parsed.next_followup
       ? new Date(parsed.next_followup)
       : undefined,
-    counselor_id: parsed.counselor_id || undefined,
+    counselors: {
+      connect: { id: parsed.counselor_id! },
+    },
   };
 
   // 3) Persist

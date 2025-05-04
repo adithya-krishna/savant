@@ -15,7 +15,7 @@ export const createLeadSchema = z.object({
   location_name: z.string().optional(),
   subject_interested: z.string().optional(),
   expected_budget: z.string().optional(),
-  stage: z.string().optional(),
+  stage_id: z.string().optional(),
   demo_taken: z.boolean().default(false).optional(),
   color_code: z.string().optional(),
   number_of_contact_attempts: z.number().default(0).optional(),

@@ -37,7 +37,8 @@ model leads {
   location_name              String?     @db.VarChar(255)
   subject_interested         String?     @db.VarChar(100)
   expected_budget            Decimal?    @db.Decimal(10, 2)
-  stage                      String?     @db.VarChar(50)
+  stage_id                   String?     @db.VarChar(20)
+  stage                      stages?     @relation(fields: [stage_id], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_stage")
   demo_taken                 Boolean?    @default(false)
   color_code                 String?     @db.VarChar(7)
   number_of_contact_attempts Int?        @default(0)
@@ -46,5 +47,11 @@ model leads {
   create_date                DateTime?   @default(now()) @db.Timestamp(6)
   updated_date               DateTime?   @default(now()) @db.Timestamp(6)
   counselor_id               String?     @db.VarChar(20)
-  counselors                 counselors? @relation(fields: [counselor_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_counselor")
+  counselors                 counselors? @relation(fields: [counselor_id], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_counselor")
+}
+
+model stages {
+  id    String  @id @db.VarChar(20)
+  name  String  @unique @db.VarChar(100)
+  leads leads[]
 }

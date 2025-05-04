@@ -8,6 +8,10 @@ import { Decimal } from "@prisma/client/runtime/library";
 export async function GET() {
   const leads = await db.leads.findMany({
     orderBy: { create_date: "desc" },
+    include: {
+      stage: true,
+      counselors: true,
+    },
   });
   return NextResponse.json(leads);
 }
@@ -40,7 +44,9 @@ export async function POST(request: Request) {
       expected_budget: data.expected_budget
         ? new Decimal(data.expected_budget)
         : undefined,
-      stage: data.stage,
+      stage: {
+        connect: { id: data.stage_id! },
+      },
       demo_taken: data.demo_taken,
       color_code: data.color_code,
       number_of_contact_attempts: data.number_of_contact_attempts,
@@ -50,7 +56,9 @@ export async function POST(request: Request) {
       next_followup: data.next_followup
         ? new Date(data.next_followup)
         : undefined,
-      counselor_id: data.counselor_id,
+      counselors: {
+        connect: { id: data.counselor_id! },
+      },
     },
   });
 

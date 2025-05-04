@@ -57,7 +57,7 @@ const CounselorForm: React.FC<CounselorFormProps> = ({ initialData, id }) => {
   });
 
   const onSubmit = async (values: CreateCounselorInput) => {
-    const url = isNew ? "/api/team-member" : `/api/team-member/${id}`;
+    const url = isNew ? "/api/team-members" : `/api/team-members/${id}`;
     const method = isNew ? "POST" : "PUT";
 
     const res = await fetch(url, {

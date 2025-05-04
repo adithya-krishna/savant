@@ -15,6 +15,10 @@ import { DeleteItemButton } from "@/components/delete-item-button";
 export default async function LeadsPage() {
   const leads = await db.leads.findMany({
     orderBy: { create_date: "desc" },
+    include: {
+      stage: true,
+      counselors: true,
+    },
   });
 
   return (
@@ -48,7 +52,7 @@ export default async function LeadsPage() {
                 {l.country_code ?? ""} {l.phone}
               </TableCell>
               <TableCell>{l.email ?? "—"}</TableCell>
-              <TableCell>{l.stage ?? "—"}</TableCell>
+              <TableCell>{l.stage?.name ?? "—"}</TableCell>
               <TableCell>
                 {l.walkin_date
                   ? new Date(l.walkin_date).toLocaleDateString()

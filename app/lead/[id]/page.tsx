@@ -33,7 +33,7 @@ export default async function LeadPage({ params }: PageProps) {
       location_name: raw.location_name ?? "",
       subject_interested: raw.subject_interested ?? "",
       expected_budget: raw.expected_budget?.toString() ?? "",
-      stage: raw.stage ?? "",
+      stage_id: raw.stage_id ?? "",
       demo_taken: raw.demo_taken ?? false,
       color_code: raw.color_code ?? "#000000",
       number_of_contact_attempts: raw.number_of_contact_attempts ?? 0,

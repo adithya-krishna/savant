@@ -34,7 +34,10 @@ interface CounselorOption {
   first_name: string;
   last_name: string;
 }
-
+interface StageOption {
+  id: string;
+  name: string;
+}
 interface LeadFormProps {
   initialData: CreateLeadInput | null;
   id: string;
@@ -44,6 +47,7 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
   const router = useRouter();
   const isNew = id === "new";
   const [counselors, setCounselors] = useState<CounselorOption[] | null>(null);
+  const [stages, setStages] = useState<StageOption[]>([]);
 
   useEffect(() => {
     fetch("/api/team-members")
@@ -53,6 +57,14 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
         console.error("Failed to load counselors", err);
         setCounselors([]);
       });
+  }, []);
+
+  // fetch stages
+  useEffect(() => {
+    fetch("/api/stages")
+      .then((res) => res.json())
+      .then(setStages)
+      .catch(() => setStages([]));
   }, []);
 
   const form = useForm<CreateLeadInput>({
@@ -73,7 +85,7 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
           location_name: initialData.location_name ?? "",
           subject_interested: initialData.subject_interested ?? "",
           expected_budget: initialData.expected_budget ?? "",
-          stage: initialData.stage ?? "",
+          stage_id: initialData.stage_id ?? "",
           demo_taken: initialData.demo_taken ?? false,
           color_code: initialData.color_code ?? "#000000",
           number_of_contact_attempts:
@@ -97,7 +109,7 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
           location_name: "",
           subject_interested: "",
           expected_budget: "",
-          stage: "",
+          stage_id: "",
           demo_taken: false,
           color_code: "#000000",
           number_of_contact_attempts: 0,
@@ -242,12 +254,27 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
         {/* Stage */}
         <FormField
           control={form.control}
-          name="stage"
+          name="stage_id"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Stage</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value}
+                  disabled={stages.length === 0}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select stage" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {stages.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </FormControl>
               <FormMessage />
             </FormItem>
