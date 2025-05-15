@@ -1,0 +1,108 @@
+model Leads {
+  id                         String      @id @db.VarChar(20)
+  first_name                 String      @db.VarChar(100)
+  last_name                  String?     @db.VarChar(100)
+  country_code               String?     @default("+91") @db.VarChar(5)
+  phone                      String      @db.VarChar(15)
+  email                      String?     @unique @db.VarChar(255)
+  parent_first_name          String?     @db.VarChar(100)
+  parent_last_name           String?     @db.VarChar(100)
+  source_id                  String?     @db.VarChar(20)
+  source                     Sources? @relation(fields: [source_id], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_source")
+  walkin_date                DateTime?   @db.Date
+  address                    String?     @db.Text
+  gmaps_place_id             String?     @db.VarChar(255)
+  gmaps_url                  String?     @db.VarChar(1024)
+  gmaps_latitude             Decimal?    @db.Decimal(10, 8)
+  gmaps_longitude            Decimal?    @db.Decimal(11, 8)
+  subject_id                 String?     @db.VarChar(20)
+  subject                    Courses?   @relation(fields: [subject_id], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_subject")
+  expected_budget            Decimal?    @db.Decimal(10, 2)
+  stage_id                   String?     @db.VarChar(20)
+  stage                      stages?     @relation(fields: [stage_id], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_stage")
+  demo_taken                 Boolean?    @default(false)
+  color_code                 String?     @db.VarChar(7)
+  number_of_contact_attempts Int?        @default(0)
+  last_contacted_date        DateTime?   @db.Timestamp(6)
+  next_followup              DateTime?   @db.Timestamp(6)
+  create_date                DateTime?   @default(now()) @db.Timestamp(6)
+  updated_date               DateTime?   @default(now()) @db.Timestamp(6)
+  counselor_id               String?     @db.VarChar(20)
+  counselors                 counselors? @relation(fields: [counselor_id], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_counselor")
+}
+
+model Sources {
+  id           String   @id @db.VarChar(20)
+  source       String   @db.VarChar(100)
+  description  String?  @db.VarChar(255)
+  Leads        Leads[]
+}
+
+model Courses {
+  id           String   @id @db.VarChar(20)
+  name         String   @db.VarChar(100)
+  description  String?  @db.VarChar(255)
+  Leads        Leads[]
+}
+
+model Student {
+  id              String       @id @default(cuid()) @db.VarChar(20)
+  lead_id         String       @unique @db.VarChar(20)
+  lead            Lead         @relation(fields: [lead_id], references: [id], onDelete: Cascade)
+  first_name      String       @db.VarChar(100)
+  last_name       String?      @db.VarChar(100)
+  dob             DateTime     @db.Date
+  gender          String       @db.VarChar(20)
+  email           String?      @db.VarChar(100)
+  primary_contact String       @db.VarChar(20)
+  secondary_contact String?    @db.VarChar(20)
+  address         String       @db.Text
+  intended_subject String?     @db.VarChar(100)
+  learning_goal   String?      @db.VarChar(100)
+  enrollments     Enrollment[]
+  create_date     DateTime     @default(now()) @db.Timestamp(6)
+  updated_date    DateTime     @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model Enrollment {
+  id                  String    @id @default(cuid()) @db.VarChar(20)
+  student_id          String    @db.VarChar(20)
+  student             Student   @relation(fields: [student_id], references: [id], onDelete: Cascade)
+  subject             String    @db.VarChar(100)
+  plan_code           String    @db.VarChar(10)
+  plan_name           String    @db.VarChar(20)
+  amount_paid         Int       @db.Integer
+  start_date          DateTime  @db.Date
+  preferred_timings   String?   @db.VarChar(50)
+  preferred_days      String?   @db.VarChar(50)
+  teacher_name        String?   @db.VarChar(100)
+  classes_remaining   Int       @default(0)
+  create_date         DateTime  @default(now()) @db.Timestamp(6)
+  updated_date        DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model Plan {
+  code     String @id @db.VarChar(10)
+  name     String @db.VarChar(20)
+  price    Int    @db.Integer
+}
+
+model Stage {
+  id    String @id @db.VarChar(20)
+  name  String @unique @db.VarChar(100)
+  Leads Lead[]
+}
+
+model Counselor {
+  id           String @id @db.VarChar(20)
+  first_name   String @db.VarChar(100)
+  last_name    String @db.VarChar(100)
+  email        String? @unique @db.VarChar(255)
+  phone        String  @db.VarChar(15)
+  country_code String? @default("+91") @db.VarChar(5)
+  role         String? @db.VarChar(50)
+  active       Boolean? @default(true)
+  create_date  DateTime? @default(now()) @db.Timestamp(6)
+  updated_date DateTime? @default(now()) @updatedAt @db.Timestamp(6)
+  Leads        Lead[]
+}

@@ -14,16 +14,34 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
+import { DropdownMenuItem } from "./ui/dropdown-menu";
+import { SectionTypes } from "@/app/global-types";
 
 interface DeleteItemButtonProps {
   id: string;
-  type: "counselor" | "lead";
+  type: SectionTypes;
+  variant?: "default" | "menu-item";
 }
 
-export function DeleteItemButton({ id, type }: DeleteItemButtonProps) {
+export function DeleteItemButton({
+  id,
+  type,
+  variant = "default",
+}: DeleteItemButtonProps) {
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
-  const apiPath = type === "counselor" ? "/api/team-members" : "/api/leads";
+  const apiPath = type === "team-member" ? "/api/team-members" : "/api/leads";
+
+  const triggerContent =
+    variant === "menu-item" ? (
+      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+        <span className="text-red-600 text-sm">Delete</span>
+      </DropdownMenuItem>
+    ) : (
+      <Button variant="destructive" size="sm">
+        Delete
+      </Button>
+    );
 
   const handleDelete = async () => {
     try {
@@ -38,11 +56,7 @@ export function DeleteItemButton({ id, type }: DeleteItemButtonProps) {
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild>
-        <Button variant="destructive" size="sm">
-          Delete
-        </Button>
-      </AlertDialogTrigger>
+      <AlertDialogTrigger asChild>{triggerContent}</AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>

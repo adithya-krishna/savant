@@ -10,7 +10,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { DeleteItemButton } from "@/components/delete-item-button";
+import TableDropdownMenu from "@/components/table-dropdown";
 
 export default async function LeadsPage() {
   const leads = await db.leads.findMany({
@@ -58,13 +58,8 @@ export default async function LeadsPage() {
                   ? new Date(l.walkin_date).toLocaleDateString()
                   : "—"}
               </TableCell>
-              <TableCell className="space-x-2">
-                <Link href={`/lead/${l.id}`}>
-                  <Button variant="outline" size="sm">
-                    Edit
-                  </Button>
-                </Link>
-                <DeleteItemButton type="lead" id={l.id} />
+              <TableCell>
+                <TableDropdownMenu id={l.id} type={"lead"} />
               </TableCell>
             </TableRow>
           ))}

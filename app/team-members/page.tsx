@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { DeleteItemButton } from "@/components/delete-item-button";
+import TableDropdownMenu from "@/components/table-dropdown";
 
 export default async function TeamMembersPage() {
   const counselors = await db.counselors.findMany({
@@ -46,13 +47,8 @@ export default async function TeamMembersPage() {
               <TableCell>{`${c.country_code} ${c.phone}`}</TableCell>
               <TableCell>{c.role ?? "—"}</TableCell>
               <TableCell>{c.active ? "Yes" : "No"}</TableCell>
-              <TableCell className="space-x-2">
-                <Link href={`/team-member/${c.id}`}>
-                  <Button variant="outline" size="sm">
-                    Edit
-                  </Button>
-                </Link>
-                <DeleteItemButton type="counselor" id={c.id} />
+              <TableCell>
+                <TableDropdownMenu id={c.id} type="team-member" />
               </TableCell>
             </TableRow>
           ))}

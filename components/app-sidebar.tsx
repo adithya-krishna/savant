@@ -9,6 +9,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import {
+  CalendarClock,
   HelpCircleIcon,
   Home,
   Rocket,
@@ -29,6 +30,11 @@ const navMain = [
     title: "Team",
     href: "/team-members",
     icon: UsersIcon,
+  },
+  {
+    title: "Slots",
+    href: "/slots",
+    icon: CalendarClock,
   },
 ];
 
