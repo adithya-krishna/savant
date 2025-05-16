@@ -15,7 +15,6 @@ export default async function LeadPage({ params }: PageProps) {
     const raw = await db.leads.findUnique({ where: { id } });
     if (!raw) notFound();
 
-    // Convert Decimal and Date fields to primitives
     initialData = {
       first_name: raw.first_name,
       last_name: raw.last_name ?? "",
@@ -48,11 +47,19 @@ export default async function LeadPage({ params }: PageProps) {
   }
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-semibold mb-6">
-        {id === "new" ? "Add Lead" : "Edit Lead"}
-      </h1>
-      <LeadForm initialData={initialData} id={id} />
+    <div className="flex h-screen w-full flex-col md:flex-row">
+      <div className="flex w-full flex-col p-4 md:w-72 md:shrink-0">
+        <h1 className="mb-2 text-2xl font-semibold">
+          {id === "new" ? "Add Lead" : "Edit Lead"}
+        </h1>
+        <p className="text-sm text-gray-400">
+          Update lead details, assign team members, and track changes to keep
+          your pipeline accurate and current.
+        </p>
+      </div>
+      <div className="flex h-full w-full md:h-auto p-4">
+        <LeadForm initialData={initialData} id={id} />
+      </div>
     </div>
   );
 }

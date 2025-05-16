@@ -4,11 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  createLeadSchema,
-  updateLeadSchema,
-  CreateLeadInput,
-} from "@/lib/validators/lead";
+import { createLeadSchema, CreateLeadInput } from "@/lib/validators/lead";
 import {
   Form,
   FormField,
@@ -28,6 +24,8 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { PhoneInput } from "./phone-input";
+import { parsePhoneNumber } from "react-phone-number-input";
 
 interface CounselorOption {
   id: string;
@@ -43,6 +41,101 @@ interface LeadFormProps {
   id: string;
 }
 
+type PhoneInputValue = {
+  country_code: string;
+  phone: string;
+};
+
+// move to utils
+function getCountryCodeAndPhoneNumber(phoneValue: string): PhoneInputValue {
+  const parsedNumber = parsePhoneNumber(phoneValue);
+  let result = null;
+
+  if (parsedNumber) {
+    result = {
+      country_code: `+${parsedNumber.countryCallingCode}`,
+      phone: parsedNumber.nationalNumber,
+    };
+  } else {
+    // Fallback for when parsing fails
+    const plusIndex = phoneValue.indexOf("+");
+    if (plusIndex >= 0) {
+      const spaceIndex = phoneValue.indexOf(" ");
+      if (spaceIndex > plusIndex) {
+        result = {
+          country_code: phoneValue.substring(plusIndex, spaceIndex),
+          phone: phoneValue.substring(spaceIndex + 1),
+        };
+      } else {
+        // If no space, try to split after the country code (assuming 1-3 digits after +)
+        const countryCodeEnd = Math.min(plusIndex + 4, phoneValue.length);
+        result = {
+          country_code: phoneValue.substring(plusIndex, countryCodeEnd),
+          phone: phoneValue.substring(countryCodeEnd),
+        };
+      }
+    } else {
+      result = { country_code: "", phone: phoneValue };
+    }
+  }
+
+  return result;
+}
+
+// types.ts
+export type FetchResult<T> = {
+  data: T | null;
+  error: string | null;
+  endpoint: string;
+};
+
+export async function fetchEndpointsParallel<T = any>(
+  endpoints: string[],
+  options?: RequestInit
+): Promise<FetchResult<T>[]> {
+  try {
+    const responses = await Promise.all(
+      endpoints.map((endpoint) => fetch(endpoint, options))
+    );
+
+    const results: Promise<FetchResult<T>>[] = responses.map(
+      async (res, index) => {
+        if (!res.ok) {
+          return {
+            data: null,
+            error: `Request failed with status ${res.status} for ${endpoints[index]}`,
+            endpoint: endpoints[index],
+          };
+        }
+
+        try {
+          const data = await res.json();
+          return {
+            data,
+            error: null,
+            endpoint: endpoints[index],
+          };
+        } catch (parseError) {
+          return {
+            data: null,
+            error: `Failed to parse JSON for ${endpoints[index]}`,
+            endpoint: endpoints[index],
+          };
+        }
+      }
+    );
+
+    return await Promise.all(results);
+  } catch (error) {
+    // Handle network errors or other fetch failures
+    return endpoints.map((endpoint) => ({
+      data: null,
+      error: `Network error occurred while fetching ${endpoint}`,
+      endpoint,
+    }));
+  }
+}
+// move to utils end
 export default function LeadForm({ initialData, id }: LeadFormProps) {
   const router = useRouter();
   const isNew = id === "new";
@@ -50,21 +143,31 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
   const [stages, setStages] = useState<StageOption[]>([]);
 
   useEffect(() => {
-    fetch("/api/team-members")
-      .then((res) => res.json())
-      .then(setCounselors)
-      .catch((err) => {
-        console.error("Failed to load counselors", err);
-        setCounselors([]);
-      });
-  }, []);
+    const fetchData = async () => {
+      const results = await fetchEndpointsParallel([
+        "/api/team-members",
+        "/api/stages",
+      ]);
 
-  // fetch stages
-  useEffect(() => {
-    fetch("/api/stages")
-      .then((res) => res.json())
-      .then(setStages)
-      .catch(() => setStages([]));
+      // Process results
+      results.forEach((result) => {
+        if (result.error) {
+          console.error(result.error);
+          // You could also set these errors in state to display to the user
+        }
+
+        switch (result.endpoint) {
+          case "/api/team-members":
+            setCounselors(result.data || []);
+            break;
+          case "/api/stages":
+            setStages(result.data || []);
+            break;
+        }
+      });
+    };
+
+    fetchData();
   }, []);
 
   const form = useForm<CreateLeadInput>({
@@ -123,10 +226,13 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
     const url = isNew ? "/api/leads" : `/api/leads/${id}`;
     const method = isNew ? "POST" : "PUT";
 
+    // split phone number and country code
+    const parsedPhoneNumber = getCountryCodeAndPhoneNumber(values.phone);
+
     const res = await fetch(url, {
       method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...values, id }),
+      body: JSON.stringify({ ...values, ...parsedPhoneNumber, id }),
     });
 
     if (res.ok) {
@@ -140,41 +246,44 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 max-w-lg"
+        className="flex flex-col w-full space-y-6"
       >
-        {/* First Name */}
-        <FormField
-          control={form.control}
-          name="first_name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>First Name</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormDescription>Lead's given name.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="flex flex-col md:flex-row w-full gap-4">
+          <FormField
+            control={form.control}
+            name="first_name"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel>First Name</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormDescription className="text-xs">
+                  Lead's given name.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        {/* Last Name */}
-        <FormField
-          control={form.control}
-          name="last_name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Last Name</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormDescription>Optional surname.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="last_name"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel>Last Name</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormDescription className="text-xs">
+                  Optional surname.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
-        {/* Phone */}
         <FormField
           control={form.control}
           name="phone"
@@ -182,15 +291,20 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
             <FormItem>
               <FormLabel>Phone</FormLabel>
               <FormControl>
-                <Input {...field} type="tel" />
+                <PhoneInput
+                  placeholder="Enter a phone number"
+                  defaultCountry="IN"
+                  {...field}
+                />
               </FormControl>
-              <FormDescription>Primary contact number.</FormDescription>
+              <FormDescription className="text-xs">
+                Primary contact number.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        {/* Email */}
         <FormField
           control={form.control}
           name="email"
@@ -200,13 +314,14 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
               <FormControl>
                 <Input {...field} type="email" />
               </FormControl>
-              <FormDescription>Optional business email.</FormDescription>
+              <FormDescription className="text-xs">
+                Optional business email.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        {/* Walk-in Date */}
         <FormField
           control={form.control}
           name="walkin_date"
@@ -221,7 +336,6 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
           )}
         />
 
-        {/* Next Follow-up */}
         <FormField
           control={form.control}
           name="next_followup"
@@ -236,7 +350,6 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
           )}
         />
 
-        {/* Expected Budget */}
         <FormField
           control={form.control}
           name="expected_budget"
@@ -251,7 +364,6 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
           )}
         />
 
-        {/* Stage */}
         <FormField
           control={form.control}
           name="stage_id"
@@ -281,7 +393,6 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
           )}
         />
 
-        {/* Demo Taken */}
         <FormField
           control={form.control}
           name="demo_taken"
@@ -301,7 +412,6 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
           )}
         />
 
-        {/* Counselor Picker */}
         <FormField
           control={form.control}
           name="counselor_id"
@@ -331,7 +441,6 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
           )}
         />
 
-        {/* Color Code */}
         <FormField
           control={form.control}
           name="color_code"
@@ -341,13 +450,19 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
               <FormControl>
                 <Input {...field} />
               </FormControl>
-              <FormDescription>Hex code, e.g. #a1b2c3</FormDescription>
+              <FormDescription className="text-xs">
+                Hex code, e.g. #a1b2c3
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <Button type="submit" disabled={form.formState.isSubmitting}>
+        <Button
+          className="max-w-36"
+          type="submit"
+          disabled={form.formState.isSubmitting}
+        >
           {isNew ? "Create Lead" : "Update Lead"}
         </Button>
       </form>
