@@ -18,19 +18,14 @@ export default async function LeadPage({ params }: PageProps) {
     initialData = {
       first_name: raw.first_name,
       last_name: raw.last_name ?? "",
-      country_code: raw.country_code ?? "+91",
       phone: raw.phone,
       email: raw.email ?? "",
-      parent_name: raw.parent_name ?? "",
-      parent_phone: raw.parent_phone ?? "",
-      source: raw.source ?? "",
-      source_detail: raw.source_detail ?? "",
-      how_heard_about_us: raw.how_heard_about_us ?? "",
+      source_id: raw.source_id ?? "",
       walkin_date: raw.walkin_date
         ? raw.walkin_date.toISOString().split("T")[0]
         : "",
-      location_name: raw.location_name ?? "",
-      subject_interested: raw.subject_interested ?? "",
+      address: raw.address ?? "",
+      instrument_id: raw.instrument_id ?? "",
       expected_budget: raw.expected_budget?.toString() ?? "",
       stage_id: raw.stage_id ?? "",
       demo_taken: raw.demo_taken ?? false,
@@ -42,7 +37,7 @@ export default async function LeadPage({ params }: PageProps) {
       next_followup: raw.next_followup
         ? raw.next_followup.toISOString().slice(0, 16)
         : "",
-      counselor_id: raw.counselor_id ?? "",
+      team_member_id: raw.team_member_id ?? "",
     };
   }
 

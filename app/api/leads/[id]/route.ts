@@ -19,17 +19,16 @@ export async function PUT(request: NextRequest) {
   const updateData: Parameters<typeof db.leads.update>[0]["data"] = {
     first_name: parsed.first_name,
     last_name: parsed.last_name || undefined,
-    country_code: parsed.country_code,
     phone: parsed.phone,
     email: parsed.email || undefined,
-    parent_name: parsed.parent_name || undefined,
-    parent_phone: parsed.parent_phone || undefined,
-    source: parsed.source || undefined,
-    source_detail: parsed.source_detail || undefined,
-    how_heard_about_us: parsed.how_heard_about_us || undefined,
+    source: {
+      connect: { id: parsed.source_id! },
+    },
     walkin_date: parsed.walkin_date ? new Date(parsed.walkin_date) : undefined,
-    location_name: parsed.location_name || undefined,
-    subject_interested: parsed.subject_interested || undefined,
+    address: parsed.address || undefined,
+    instrument: {
+      connect: { id: parsed.instrument_id! },
+    },
     expected_budget: parsed.expected_budget
       ? new Decimal(parsed.expected_budget)
       : undefined,
@@ -45,8 +44,8 @@ export async function PUT(request: NextRequest) {
     next_followup: parsed.next_followup
       ? new Date(parsed.next_followup)
       : undefined,
-    counselors: {
-      connect: { id: parsed.counselor_id! },
+    team_member: {
+      connect: { id: parsed.team_member_id! },
     },
   };
 

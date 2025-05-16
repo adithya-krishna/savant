@@ -14,7 +14,7 @@ import { DeleteItemButton } from "@/components/delete-item-button";
 import TableDropdownMenu from "@/components/table-dropdown";
 
 export default async function TeamMembersPage() {
-  const counselors = await db.counselors.findMany({
+  const teamMembers = await db.teamMember.findMany({
     orderBy: { create_date: "desc" },
   });
 
@@ -40,15 +40,15 @@ export default async function TeamMembersPage() {
         </TableHeader>
 
         <TableBody>
-          {counselors.map((c) => (
-            <TableRow key={c.id}>
-              <TableCell>{`${c.first_name} ${c.last_name}`}</TableCell>
-              <TableCell>{c.email ?? "—"}</TableCell>
-              <TableCell>{`${c.country_code} ${c.phone}`}</TableCell>
-              <TableCell>{c.role ?? "—"}</TableCell>
-              <TableCell>{c.active ? "Yes" : "No"}</TableCell>
+          {teamMembers.map((tm) => (
+            <TableRow key={tm.id}>
+              <TableCell>{`${tm.first_name} ${tm.last_name}`}</TableCell>
+              <TableCell>{tm.email ?? "—"}</TableCell>
+              <TableCell>{tm.phone}</TableCell>
+              <TableCell>{tm.role ?? "—"}</TableCell>
+              <TableCell>{tm.active ? "Yes" : "No"}</TableCell>
               <TableCell>
-                <TableDropdownMenu id={c.id} type="team-member" />
+                <TableDropdownMenu id={tm.id} type="team-member" />
               </TableCell>
             </TableRow>
           ))}

@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { notFound } from "next/navigation";
-import CounselorForm from "@/components/counselor-form";
+import TeamMemberForm from "@/components/team-member-form";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -8,10 +8,10 @@ interface PageProps {
 
 export default async function TeamMemberPage({ params }: PageProps) {
   const { id } = await params;
-  let counselor = null;
+  let teamMember = null;
   if (id !== "new") {
-    counselor = await db.counselors.findUnique({ where: { id } });
-    if (!counselor) notFound();
+    teamMember = await db.teamMember.findUnique({ where: { id } });
+    if (!teamMember) notFound();
   }
 
   return (
@@ -19,7 +19,7 @@ export default async function TeamMemberPage({ params }: PageProps) {
       <h1 className="text-2xl font-semibold mb-6">
         {id === "new" ? "Add Team Member" : "Edit Team Member"}
       </h1>
-      <CounselorForm initialData={counselor} id={id} />
+      <TeamMemberForm initialData={teamMember} id={id} />
     </div>
   );
 }

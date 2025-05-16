@@ -1,24 +1,24 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { createCounselorSchema } from "@/lib/validators/counselor";
+import { createTeamMemberSchema } from "@/lib/validators/team-member";
 import { nanoid } from "nanoid";
 
 export async function POST(request: Request) {
   const body = await request.json();
-  const data = createCounselorSchema.parse(body);
+  const data = createTeamMemberSchema.parse(body);
 
   const id = nanoid(14);
 
-  const counselor = await db.counselors.create({
+  const teamMember = await db.teamMember.create({
     data: { id, ...data },
   });
 
-  return NextResponse.json(counselor, { status: 201 });
+  return NextResponse.json(teamMember, { status: 201 });
 }
 
 export async function GET() {
-  const counselors = await db.counselors.findMany({
+  const teamMember = await db.teamMember.findMany({
     orderBy: { first_name: "asc" },
   });
-  return NextResponse.json(counselors);
+  return NextResponse.json(teamMember);
 }

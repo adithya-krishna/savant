@@ -11,7 +11,7 @@ export async function PUT(request: NextRequest) {
   const body = await request.json();
   const data = updateStageSchema.parse({ id, ...body });
 
-  const stage = await db.stages.update({
+  const stage = await db.stage.update({
     where: { id },
     data: { name: data.name },
   });
@@ -21,6 +21,6 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   const id = getIdFromReq(request);
-  await db.stages.delete({ where: { id } });
+  await db.stage.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { updateCounselorSchema } from "@/lib/validators/counselor";
+import { updateTeamMemberSchema } from "@/lib/validators/team-member";
 
 function getIdFromReq(req: NextRequest) {
   const segments = new URL(req.url).pathname.split("/");
@@ -10,18 +10,18 @@ function getIdFromReq(req: NextRequest) {
 export async function PUT(request: NextRequest) {
   const id = getIdFromReq(request);
   const body = await request.json();
-  const data = updateCounselorSchema.parse({ id, ...body });
+  const data = updateTeamMemberSchema.parse({ id, ...body });
 
-  const counselor = await db.counselors.update({
+  const teamMember = await db.teamMember.update({
     where: { id },
     data,
   });
 
-  return NextResponse.json(counselor);
+  return NextResponse.json(teamMember);
 }
 
 export async function DELETE(request: NextRequest) {
   const id = getIdFromReq(request);
-  await db.counselors.delete({ where: { id } });
+  await db.teamMember.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }

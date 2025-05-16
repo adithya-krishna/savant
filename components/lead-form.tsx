@@ -27,7 +27,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { PhoneInput } from "./phone-input";
 import { parsePhoneNumber } from "react-phone-number-input";
 
-interface CounselorOption {
+interface TeamMemberOption {
   id: string;
   first_name: string;
   last_name: string;
@@ -136,10 +136,13 @@ export async function fetchEndpointsParallel<T = any>(
   }
 }
 // move to utils end
+
 export default function LeadForm({ initialData, id }: LeadFormProps) {
   const router = useRouter();
   const isNew = id === "new";
-  const [counselors, setCounselors] = useState<CounselorOption[] | null>(null);
+  const [teamMembers, setTeamMembers] = useState<TeamMemberOption[] | null>(
+    null
+  );
   const [stages, setStages] = useState<StageOption[]>([]);
 
   useEffect(() => {
@@ -158,7 +161,7 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
 
         switch (result.endpoint) {
           case "/api/team-members":
-            setCounselors(result.data || []);
+            setTeamMembers(result.data || []);
             break;
           case "/api/stages":
             setStages(result.data || []);
@@ -172,67 +175,34 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
 
   const form = useForm<CreateLeadInput>({
     resolver: zodResolver(createLeadSchema),
-    defaultValues: initialData
-      ? {
-          first_name: initialData.first_name,
-          last_name: initialData.last_name ?? "",
-          country_code: initialData.country_code ?? "+91",
-          phone: initialData.phone,
-          email: initialData.email ?? "",
-          parent_name: initialData.parent_name ?? "",
-          parent_phone: initialData.parent_phone ?? "",
-          source: initialData.source ?? "",
-          source_detail: initialData.source_detail ?? "",
-          how_heard_about_us: initialData.how_heard_about_us ?? "",
-          walkin_date: initialData.walkin_date ?? "",
-          location_name: initialData.location_name ?? "",
-          subject_interested: initialData.subject_interested ?? "",
-          expected_budget: initialData.expected_budget ?? "",
-          stage_id: initialData.stage_id ?? "",
-          demo_taken: initialData.demo_taken ?? false,
-          color_code: initialData.color_code ?? "#000000",
-          number_of_contact_attempts:
-            initialData.number_of_contact_attempts ?? 0,
-          last_contacted_date: initialData.last_contacted_date ?? "",
-          next_followup: initialData.next_followup ?? "",
-          counselor_id: initialData.counselor_id ?? "",
-        }
-      : {
-          first_name: "",
-          last_name: "",
-          country_code: "+91",
-          phone: "",
-          email: "",
-          parent_name: "",
-          parent_phone: "",
-          source: "",
-          source_detail: "",
-          how_heard_about_us: "",
-          walkin_date: "",
-          location_name: "",
-          subject_interested: "",
-          expected_budget: "",
-          stage_id: "",
-          demo_taken: false,
-          color_code: "#000000",
-          number_of_contact_attempts: 0,
-          last_contacted_date: "",
-          next_followup: "",
-          counselor_id: "",
-        },
+    defaultValues: {
+      first_name: "",
+      last_name: "",
+      phone: "",
+      email: "",
+      source_id: "",
+      walkin_date: "",
+      address: "",
+      instrument_id: "",
+      expected_budget: "",
+      stage_id: "",
+      demo_taken: false,
+      color_code: "#000000",
+      number_of_contact_attempts: 0,
+      last_contacted_date: "",
+      next_followup: "",
+      team_member_id: "",
+    },
   });
 
   const onSubmit = async (values: CreateLeadInput) => {
     const url = isNew ? "/api/leads" : `/api/leads/${id}`;
     const method = isNew ? "POST" : "PUT";
 
-    // split phone number and country code
-    const parsedPhoneNumber = getCountryCodeAndPhoneNumber(values.phone);
-
     const res = await fetch(url, {
       method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...values, ...parsedPhoneNumber, id }),
+      body: JSON.stringify({ ...values, id }),
     });
 
     if (res.ok) {
@@ -273,7 +243,7 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
               <FormItem className="w-full">
                 <FormLabel>Last Name</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} value={field.value ?? ""} />
                 </FormControl>
                 <FormDescription className="text-xs">
                   Optional surname.
@@ -312,7 +282,7 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input {...field} type="email" />
+                <Input {...field} value={field.value ?? ""} type="email" />
               </FormControl>
               <FormDescription className="text-xs">
                 Optional business email.
@@ -329,7 +299,7 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
             <FormItem>
               <FormLabel>Walk-in Date</FormLabel>
               <FormControl>
-                <Input {...field} type="date" />
+                <Input {...field} value={field.value ?? ""} type="date" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -343,7 +313,11 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
             <FormItem>
               <FormLabel>Next Follow-up</FormLabel>
               <FormControl>
-                <Input {...field} type="datetime-local" />
+                <Input
+                  {...field}
+                  value={field.value ?? ""}
+                  type="datetime-local"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -357,7 +331,12 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
             <FormItem>
               <FormLabel>Expected Budget (₹)</FormLabel>
               <FormControl>
-                <Input {...field} type="number" step="0.01" />
+                <Input
+                  {...field}
+                  value={field.value ?? ""}
+                  type="number"
+                  step="0.01"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -373,7 +352,7 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
               <FormControl>
                 <Select
                   onValueChange={field.onChange}
-                  value={field.value}
+                  value={field.value ?? ""}
                   disabled={stages.length === 0}
                 >
                   <SelectTrigger>
@@ -414,23 +393,23 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
 
         <FormField
           control={form.control}
-          name="counselor_id"
+          name="team_member_id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Assign Counselor</FormLabel>
+              <FormLabel>Assign Team Member</FormLabel>
               <FormControl>
                 <Select
                   onValueChange={field.onChange}
-                  value={field.value}
-                  disabled={!counselors}
+                  value={field.value ?? ""}
+                  disabled={!teamMembers}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select counselor" />
+                    <SelectValue placeholder="Select team member" />
                   </SelectTrigger>
                   <SelectContent>
-                    {counselors?.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>
-                        {c.first_name} {c.last_name}
+                    {teamMembers?.map((tm) => (
+                      <SelectItem key={tm.id} value={tm.id}>
+                        {tm.first_name} {tm.last_name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -448,7 +427,7 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
             <FormItem>
               <FormLabel>Color Code</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} value={field.value ?? ""} />
               </FormControl>
               <FormDescription className="text-xs">
                 Hex code, e.g. #a1b2c3

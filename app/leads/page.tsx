@@ -17,7 +17,9 @@ export default async function LeadsPage() {
     orderBy: { create_date: "desc" },
     include: {
       stage: true,
-      counselors: true,
+      // team_member: true,
+      // instrument: true,
+      // source: true,
     },
   });
 
@@ -48,9 +50,7 @@ export default async function LeadsPage() {
               <TableCell>
                 {l.first_name} {l.last_name ?? ""}
               </TableCell>
-              <TableCell>
-                {l.country_code ?? ""} {l.phone}
-              </TableCell>
+              <TableCell>{l.phone}</TableCell>
               <TableCell>{l.email ?? "—"}</TableCell>
               <TableCell>{l.stage?.name ?? "—"}</TableCell>
               <TableCell>

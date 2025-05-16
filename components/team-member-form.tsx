@@ -4,10 +4,9 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  createCounselorSchema,
-  updateCounselorSchema,
-  CreateCounselorInput,
-} from "@/lib/validators/counselor";
+  createTeamMemberSchema,
+  CreateTeamMemberInput,
+} from "@/lib/validators/team-member";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -20,43 +19,31 @@ import {
   FormLabel,
   FormMessage,
 } from "./ui/form";
-import type { counselors } from "@prisma/client";
+import type { TeamMember } from "@prisma/client";
+import { TeamMemberRole } from "@/lib/enums";
 
-interface CounselorFormProps {
-  initialData: counselors | null;
+interface TeamMemberFormProps {
+  initialData: TeamMember | null;
   id: string;
 }
 
-const CounselorForm: React.FC<CounselorFormProps> = ({ initialData, id }) => {
+const TeamMemberForm: React.FC<TeamMemberFormProps> = ({ initialData, id }) => {
   const router = useRouter();
   const isNew = id === "new";
 
-  const form = useForm<CreateCounselorInput>({
-    resolver: zodResolver(
-      isNew ? createCounselorSchema : updateCounselorSchema
-    ),
-    defaultValues: initialData
-      ? {
-          first_name: initialData.first_name,
-          last_name: initialData.last_name,
-          email: initialData.email ?? "",
-          phone: initialData.phone,
-          country_code: initialData.country_code ?? "+91",
-          role: initialData.role ?? "",
-          active: initialData.active ?? false,
-        }
-      : {
-          first_name: "",
-          last_name: "",
-          email: "",
-          phone: "",
-          country_code: "+91",
-          role: "",
-          active: true,
-        },
+  const form = useForm<CreateTeamMemberInput>({
+    resolver: zodResolver(createTeamMemberSchema),
+    defaultValues: {
+      first_name: "",
+      last_name: "",
+      email: "",
+      phone: "",
+      role: TeamMemberRole.STAFF,
+      active: true,
+    },
   });
 
-  const onSubmit = async (values: CreateCounselorInput) => {
+  const onSubmit = async (values: CreateTeamMemberInput) => {
     const url = isNew ? "/api/team-members" : `/api/team-members/${id}`;
     const method = isNew ? "POST" : "PUT";
 
@@ -114,21 +101,12 @@ const CounselorForm: React.FC<CounselorFormProps> = ({ initialData, id }) => {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input {...field} type="email" id="email" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="country_code"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Country Code</FormLabel>
-              <FormControl>
-                <Input {...field} id="country_code" />
+                <Input
+                  {...field}
+                  value={field.value ?? ""}
+                  type="email"
+                  id="email"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -170,7 +148,7 @@ const CounselorForm: React.FC<CounselorFormProps> = ({ initialData, id }) => {
             <FormItem className="flex flex-row items-start space-x-3 space-y-0">
               <FormControl>
                 <Switch
-                  checked={field.value}
+                  checked={field.value ?? false}
                   onCheckedChange={field.onChange}
                   id="active"
                 />
@@ -191,4 +169,4 @@ const CounselorForm: React.FC<CounselorFormProps> = ({ initialData, id }) => {
   );
 };
 
-export default CounselorForm;
+export default TeamMemberForm;

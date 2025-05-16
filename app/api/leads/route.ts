@@ -10,7 +10,9 @@ export async function GET() {
     orderBy: { create_date: "desc" },
     include: {
       stage: true,
-      counselors: true,
+      team_member: true,
+      source: true,
+      instrument: true,
     },
   });
   return NextResponse.json(leads);
@@ -30,17 +32,16 @@ export async function POST(request: Request) {
       id,
       first_name: data.first_name,
       last_name: data.last_name,
-      country_code: data.country_code,
       phone: data.phone,
       email: data.email,
-      parent_name: data.parent_name,
-      parent_phone: data.parent_phone,
-      source: data.source,
-      source_detail: data.source_detail,
-      how_heard_about_us: data.how_heard_about_us,
+      source: {
+        connect: { id: data.source_id! },
+      },
       walkin_date: data.walkin_date ? new Date(data.walkin_date) : undefined,
-      location_name: data.location_name,
-      subject_interested: data.subject_interested,
+      address: data.address,
+      instrument: {
+        connect: { id: data.instrument_id! },
+      },
       expected_budget: data.expected_budget
         ? new Decimal(data.expected_budget)
         : undefined,
@@ -56,8 +57,8 @@ export async function POST(request: Request) {
       next_followup: data.next_followup
         ? new Date(data.next_followup)
         : undefined,
-      counselors: {
-        connect: { id: data.counselor_id! },
+      team_member: {
+        connect: { id: data.team_member_id! },
       },
     },
   });
