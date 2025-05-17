@@ -14,6 +14,7 @@ import { Switch } from "./ui/switch";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -21,6 +22,16 @@ import {
 } from "./ui/form";
 import type { TeamMember } from "@prisma/client";
 import { TeamMemberRole } from "@/lib/enums";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { PhoneInput } from "./phone-input";
 
 interface TeamMemberFormProps {
   initialData: TeamMember | null;
@@ -34,12 +45,12 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({ initialData, id }) => {
   const form = useForm<CreateTeamMemberInput>({
     resolver: zodResolver(createTeamMemberSchema),
     defaultValues: {
-      first_name: "",
-      last_name: "",
-      email: "",
-      phone: "",
-      role: TeamMemberRole.STAFF,
-      active: true,
+      first_name: initialData?.first_name ?? "",
+      last_name: initialData?.last_name ?? "",
+      email: initialData?.email ?? "",
+      phone: initialData?.phone ?? "",
+      role: initialData?.role ?? TeamMemberRole.STAFF,
+      active: initialData?.active ?? false,
     },
   });
 
@@ -64,106 +75,164 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({ initialData, id }) => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 max-w-lg"
+        className="flex flex-col p-2 md:p-5 w-full mx-auto gap-2"
       >
-        <FormField
-          control={form.control}
-          name="first_name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>First Name</FormLabel>
-              <FormControl>
-                <Input {...field} id="first_name" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="last_name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Last Name</FormLabel>
-              <FormControl>
-                <Input {...field} id="last_name" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  value={field.value ?? ""}
-                  type="email"
-                  id="email"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
+        <div className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2">
+          <FormField
+            control={form.control}
+            name="first_name"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel>
+                  First Name<span className="text-sm text-red-400">*</span>
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter your first name"
+                    type={"text"}
+                    value={field.value}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      field.onChange(val);
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="last_name"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel>
+                  Last Name<span className="text-sm text-red-400">*</span>
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter your last name"
+                    type={"text"}
+                    value={field.value}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      field.onChange(val);
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         <FormField
           control={form.control}
           name="phone"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Phone</FormLabel>
+            <FormItem className="w-full">
+              <FormLabel>
+                Phone<span className="text-sm text-red-400">*</span>
+              </FormLabel>
               <FormControl>
-                <Input {...field} id="phone" />
+                <PhoneInput
+                  placeholder="Enter a phone number"
+                  defaultCountry="IN"
+                  {...field}
+                />
               </FormControl>
+              <FormDescription>
+                Please enter a phone number for us to reach out to you
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-
         <FormField
           control={form.control}
-          name="role"
+          name="email"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Role</FormLabel>
+            <FormItem className="w-full">
+              <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input {...field} id="role" />
+                <Input
+                  placeholder="Enter your email"
+                  type={"email"}
+                  value={field.value ?? ""}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    field.onChange(val);
+                  }}
+                />
               </FormControl>
+              <FormDescription>
+                Please enter an email for us to reach out to you
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
+        />
+        <FormField
+          control={form.control}
+          name="role"
+          render={({ field }) => {
+            return (
+              <FormItem className="flex flex-col gap-2 w-full py-1">
+                <FormLabel>
+                  Team Member Role
+                  <span className="text-sm text-red-400">*</span>
+                </FormLabel>
+                <FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value ?? ""}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Team member roles</SelectLabel>
+                        {Object.values(TeamMemberRole).map((tm, tmi) => (
+                          <SelectItem key={`${tm}_${tmi}`} value={tm}>
+                            {tm}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormDescription>
+                  Select a role for the team member
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
         />
 
         <FormField
           control={form.control}
           name="active"
           render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-              <FormControl>
-                <Switch
-                  checked={field.value ?? false}
-                  onCheckedChange={field.onChange}
-                  id="active"
-                />
-              </FormControl>
-              <div className="space-y-1">
-                <FormLabel className="font-normal">Active</FormLabel>
-                <FormMessage />
+            <FormItem className="flex flex-col p-3 justify-center w-full border rounded">
+              <div className="flex items-center justify-between h-full">
+                <FormLabel>Is Team Member Active?</FormLabel>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
               </div>
+              <FormDescription>Turn on or off.</FormDescription>
             </FormItem>
           )}
         />
-
-        <Button type="submit" disabled={form.formState.isSubmitting}>
-          {`${isNew ? "Create " : "Update"} Team Member`}
-        </Button>
+        <div className="flex justify-end items-center w-full pt-3">
+          <Button className="rounded-lg" size="sm">
+            {`${isNew ? "Create " : "Update"} Team Member`}
+          </Button>
+        </div>
       </form>
     </Form>
   );

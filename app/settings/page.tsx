@@ -1,5 +1,4 @@
 import React from "react";
-import Link from "next/link";
 import { db } from "@/db";
 import {
   Table,
@@ -11,43 +10,61 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { DeleteItemButton } from "@/components/delete-item-button";
+import StageForm from "@/components/stage-form";
+import { Pencil, Plus } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export default async function SettingsPage() {
-  const stages = await db.stages.findMany({ orderBy: { name: "asc" } });
+  const stage = await db.stage.findMany({ orderBy: { name: "asc" } });
 
   return (
-    <div className="p-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold">Stage Settings</h1>
-        <Link href="/stages/new">
-          <Button>Add Stage</Button>
-        </Link>
-      </div>
+    <div className="p-6">
+      <Card className="max-w-xl">
+        <CardHeader>
+          <CardTitle className="flex justify-between items-center">
+            <h1 className="text-xl font-semibold">Stage Settings</h1>
+            <StageForm id="new">
+              <Button variant="outline" size="icon">
+                <Plus />
+              </Button>
+            </StageForm>
+          </CardTitle>
+          <CardDescription>Add or Edit stages for leads</CardDescription>
+        </CardHeader>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
 
-        <TableBody>
-          {stages.map((stage) => (
-            <TableRow key={stage.id}>
-              <TableCell>{stage.name}</TableCell>
-              <TableCell className="space-x-2">
-                <Link href={`/stages/${stage.id}`}>
-                  <Button variant="outline" size="sm">
-                    Edit
-                  </Button>
-                </Link>
-                <DeleteItemButton type="stage" id={stage.id} />
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+            <TableBody>
+              {stage.map((s) => (
+                <TableRow key={s.id}>
+                  <TableCell className="w-full">{s.name}</TableCell>
+                  <TableCell className="space-x-2">
+                    <StageForm initialData={s} id={s.id}>
+                      <Button variant="outline" size="icon">
+                        <Pencil />
+                      </Button>
+                    </StageForm>
+                    <DeleteItemButton type="stage" variant="icon" id={s.id} />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 }

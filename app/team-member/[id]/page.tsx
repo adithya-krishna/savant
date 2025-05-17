@@ -15,11 +15,19 @@ export default async function TeamMemberPage({ params }: PageProps) {
   }
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-semibold mb-6">
-        {id === "new" ? "Add Team Member" : "Edit Team Member"}
-      </h1>
-      <TeamMemberForm initialData={teamMember} id={id} />
+    <div className="flex h-screen w-full flex-col md:flex-row">
+      <div className="flex w-full flex-col p-4 md:w-72 md:shrink-0">
+        <h1 className="mb-2 text-2xl font-semibold">
+          {id === "new" ? "Add Team Member" : "Edit Team Member"}
+        </h1>
+        <p className="text-sm text-gray-400">
+          Update Team Member details, track changes to keep your pipeline
+          accurate and current.
+        </p>
+      </div>
+      <div className="flex h-full w-full md:h-auto p-4">
+        <TeamMemberForm initialData={teamMember} id={id} />
+      </div>
     </div>
   );
 }

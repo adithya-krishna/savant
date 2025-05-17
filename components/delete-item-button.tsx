@@ -16,11 +16,36 @@ import {
 } from "@/components/ui/alert-dialog";
 import { DropdownMenuItem } from "./ui/dropdown-menu";
 import { SectionTypes } from "@/app/global-types";
+import { Trash2 } from "lucide-react";
 
+type Vairants = "default" | "menu-item" | "icon";
 interface DeleteItemButtonProps {
   id: string;
   type: SectionTypes;
-  variant?: "default" | "menu-item";
+  variant?: Vairants;
+}
+
+function getTriggerComponent(variant: Vairants) {
+  switch (variant) {
+    case "menu-item":
+      return (
+        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+          <span className="text-red-600 text-sm">Delete</span>
+        </DropdownMenuItem>
+      );
+    case "icon":
+      return (
+        <Button variant="destructive" size="icon">
+          <Trash2 />
+        </Button>
+      );
+    default:
+      return (
+        <Button variant="destructive" size="sm">
+          Delete
+        </Button>
+      );
+  }
 }
 
 export function DeleteItemButton({
@@ -30,27 +55,17 @@ export function DeleteItemButton({
 }: DeleteItemButtonProps) {
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
-  const apiPath = type === "team-member" ? "/api/team-members" : "/api/leads";
 
-  const triggerContent =
-    variant === "menu-item" ? (
-      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-        <span className="text-red-600 text-sm">Delete</span>
-      </DropdownMenuItem>
-    ) : (
-      <Button variant="destructive" size="sm">
-        Delete
-      </Button>
-    );
+  const triggerContent = getTriggerComponent(variant);
 
   const handleDelete = async () => {
     try {
-      const res = await fetch(`${apiPath}/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/${type}s/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error(`Status ${res.status}`);
       router.refresh();
     } catch (err) {
       console.error(err);
-      alert("Failed to delete the team member.");
+      alert(`Failed to delete the ${type}`);
     }
   };
 
