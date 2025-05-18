@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const PlansSchema = z.object({
-  code: z.string().length(14, "Invalid ID"),
+  code: z.string().length(6, "Invalid ID"),
   name: z.string().nonempty("A Plan name is required"),
   price: z
     .number({

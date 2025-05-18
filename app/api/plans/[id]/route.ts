@@ -9,7 +9,7 @@ function getIdFromReq(req: NextRequest) {
 export async function PUT(request: NextRequest) {
   const id = getIdFromReq(request);
   const body = await request.json();
-  const data = UpdatePlanSchema.parse({ id, ...body });
+  const data = UpdatePlanSchema.parse({ code: id, ...body });
 
   const stage = await db.plans.update({
     where: { code: id },

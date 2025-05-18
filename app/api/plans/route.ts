@@ -15,7 +15,7 @@ export async function POST(request: Request) {
   const data = CreatePlanSchema.parse(body);
 
   const stage = await db.plans.create({
-    data: { code: nanoid(14), ...data },
+    data: { code: nanoid(6), ...data },
   });
 
   return NextResponse.json(stage, { status: 201 });
