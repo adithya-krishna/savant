@@ -22,7 +22,7 @@ export const LeadsSchema = z.object({
   next_followup: z.string().optional().nullable(),
   stage_id: z.string().max(20).optional().nullable(),
   team_member_id: z.string().max(20).optional().nullable(),
-  instrument_id: z.string().max(20).optional().nullable(),
+  instrument_ids: z.array(z.string().max(20)).optional(),
   source_id: z.string().max(20).optional().nullable(),
   create_date: z.date().optional().default(new Date()),
   updated_date: z.date().optional().default(new Date()),
@@ -46,7 +46,7 @@ export const createLeadSchema = LeadsSchema.omit({
   next_followup: true,
   stage_id: true,
   team_member_id: true,
-  instrument_id: true,
+  instrument_ids: true,
   source_id: true,
 });
 

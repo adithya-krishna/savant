@@ -8,31 +8,30 @@ datasource db {
 }
 
 model Leads {
-    id                         String       @id @db.VarChar(20)
-    first_name                 String       @db.VarChar(100)
-    last_name                  String?      @db.VarChar(100)
-    phone                      String       @db.VarChar(15)
-    email                      String?      @unique @db.VarChar(255)
-    address                    String?      @db.Text
-    area                       String?      @db.VarChar(255)
-    walkin_date                DateTime?    @db.Date
-    expected_budget            Decimal?     @db.Decimal(10, 2)
-    demo_taken                 Boolean?     @default(false)
-    color_code                 String?      @db.VarChar(7)
-    number_of_contact_attempts Int?         @default(0)
-    last_contacted_date        DateTime?    @db.Timestamp(6)
-    next_followup              DateTime?    @db.Timestamp(6)
-    stage_id                   String?      @db.VarChar(20)
-    stage                      Stage?       @relation(fields: [stage_id], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_stage")
-    team_member_id             String?      @db.VarChar(20)
-    team_member                TeamMember?  @relation(fields: [team_member_id], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_team_member")
-    instrument_id              String?      @db.VarChar(20)
-    instrument                 Instruments? @relation(fields: [instrument_id], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_instrument")
-    source_id                  String?      @db.VarChar(20)
-    source                     Sources?     @relation(fields: [source_id], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_source")
+    id                         String        @id @db.VarChar(20)
+    first_name                 String        @db.VarChar(100)
+    last_name                  String?       @db.VarChar(100)
+    phone                      String        @db.VarChar(15)
+    email                      String?       @unique @db.VarChar(255)
+    address                    String?       @db.Text
+    area                       String?       @db.VarChar(255)
+    walkin_date                DateTime?     @db.Date
+    expected_budget            Decimal?      @db.Decimal(10, 2)
+    demo_taken                 Boolean?      @default(false)
+    color_code                 String?       @default("#99a1af") @db.VarChar(10)
+    number_of_contact_attempts Int?          @default(0)
+    last_contacted_date        DateTime?     @db.Timestamp(6)
+    next_followup              DateTime?     @db.Timestamp(6)
+    stage_id                   String?       @db.VarChar(20)
+    stage                      Stage?        @relation(fields: [stage_id], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_stage")
+    team_member_id             String?       @db.VarChar(20)
+    team_member                TeamMember?   @relation(fields: [team_member_id], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_team_member")
+    instruments                Instruments[] @relation("LeadInstrument")
+    source_id                  String?       @db.VarChar(20)
+    source                     Sources?      @relation(fields: [source_id], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_source")
     student                    Student?
-    create_date                DateTime?    @default(now()) @db.Timestamp(6)
-    updated_date               DateTime?    @default(now()) @updatedAt @db.Timestamp(6)
+    create_date                DateTime?     @default(now()) @db.Timestamp(6)
+    updated_date               DateTime?     @default(now()) @updatedAt @db.Timestamp(6)
 }
 
 model Sources {
@@ -43,13 +42,11 @@ model Sources {
 }
 
 model Instruments {
-    id           String    @id @db.VarChar(20)
-    name         String    @unique @db.VarChar(50)
-    description  String?   @db.VarChar(255)
-    create_date  DateTime? @default(now()) @db.Timestamp(6)
-    updated_date DateTime? @default(now()) @updatedAt @db.Timestamp(6)
-    leads        Leads[]
-    courses      Course[]
+    id          String   @id @db.VarChar(20)
+    name        String   @unique @db.VarChar(50)
+    description String?  @db.VarChar(255)
+    leads       Leads[]  @relation("LeadInstrument")
+    courses     Course[]
 }
 
 model Course {
@@ -57,6 +54,8 @@ model Course {
     name          String            @db.VarChar(100)
     difficulty    CourseDifficulty? @default(FOUNDATION)
     description   String?           @db.VarChar(255)
+    create_date   DateTime          @default(now()) @db.Timestamp(6)
+    updated_date  DateTime          @default(now()) @updatedAt @db.Timestamp(6)
     instrument_id String?           @db.VarChar(20)
     instrument    Instruments?      @relation(fields: [instrument_id], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_instrument")
     teacher_id    String?           @db.VarChar(20)
@@ -65,12 +64,12 @@ model Course {
 }
 
 model Student {
-    id                String       @id @default(cuid()) @db.VarChar(20)
+    id                String       @id @db.VarChar(20)
     lead_id           String?      @unique @db.VarChar(20)
     lead              Leads?       @relation(fields: [lead_id], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_lead")
     first_name        String       @db.VarChar(100)
     last_name         String?      @db.VarChar(100)
-    parent_first_name String?      @db.VarChar(100)
+    parent_first_name String       @db.VarChar(100)
     parent_last_name  String?      @db.VarChar(100)
     parent_phone      String?      @db.VarChar(15)
     address           String?      @db.Text
@@ -79,7 +78,7 @@ model Student {
     gmaps_latitude    Decimal?     @db.Decimal(10, 8)
     gmaps_longitude   Decimal?     @db.Decimal(11, 8)
     dob               DateTime     @db.Date
-    gender            String       @db.VarChar(20)
+    gender            String?      @db.VarChar(20)
     email             String?      @db.VarChar(100)
     primary_contact   String       @db.VarChar(20)
     secondary_contact String?      @db.VarChar(20)
@@ -96,8 +95,8 @@ model Enrollment {
     student           Student? @relation(fields: [student_id], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_student")
     plan_code         String?  @db.VarChar(10)
     plan_name         Plans?   @relation(fields: [plan_code], references: [code], onDelete: SetNull, onUpdate: Cascade, map: "fk_plan_name")
-    course_id         String?  @db.VarChar(20)
-    course            Course?  @relation(fields: [course_id], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_course")
+    course_id         String   @db.VarChar(20)
+    course            Course   @relation(fields: [course_id], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_course")
     amount_paid       Int      @db.Integer
     start_date        DateTime @db.Date
     preferred_timings String?  @db.VarChar(50)
@@ -109,15 +108,19 @@ model Enrollment {
 }
 
 model Plans {
-    code       String       @id @db.VarChar(10)
-    name       String       @db.VarChar(20)
-    price      Int          @db.Integer
-    enrollment Enrollment[]
+    code         String       @id @db.VarChar(10)
+    name         String       @db.VarChar(20)
+    price        Int          @db.Integer
+    description  String?      @db.VarChar(255)
+    create_date  DateTime     @default(now()) @db.Timestamp(6)
+    updated_date DateTime     @default(now()) @updatedAt @db.Timestamp(6)
+    enrollment   Enrollment[]
 }
 
 model Stage {
     id    String  @id @db.VarChar(20)
     name  String  @unique @db.VarChar(100)
+    color String? @default("#99a1af") @db.VarChar(10)
     leads Leads[]
 }
 
@@ -129,8 +132,8 @@ model TeamMember {
     phone        String         @db.VarChar(15)
     role         TeamMemberRole @default(STAFF)
     active       Boolean?       @default(true)
-    create_date  DateTime?      @default(now()) @db.Timestamp(6)
-    updated_date DateTime?      @default(now()) @updatedAt @db.Timestamp(6)
+    create_date  DateTime       @default(now()) @db.Timestamp(6)
+    updated_date DateTime       @default(now()) @updatedAt @db.Timestamp(6)
     leads        Leads[]
     Course       Course[]
 }

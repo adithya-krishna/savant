@@ -1,20 +1,20 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { nanoid } from "nanoid";
-import { CreateInstrumentSchema } from "@/lib/validators/instruments";
+import { CreateSourceSchema } from "@/lib/validators/sources";
 
 export async function GET() {
-  const instruments = await db.instruments.findMany({
-    orderBy: { name: "asc" },
+  const instruments = await db.sources.findMany({
+    orderBy: { source: "asc" },
   });
   return NextResponse.json(instruments);
 }
 
 export async function POST(request: Request) {
   const body = await request.json();
-  const data = CreateInstrumentSchema.parse(body);
+  const data = CreateSourceSchema.parse(body);
 
-  const stage = await db.instruments.create({
+  const stage = await db.sources.create({
     data: { id: nanoid(14), ...data },
   });
 

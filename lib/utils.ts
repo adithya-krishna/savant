@@ -54,3 +54,24 @@ export function connectIfDefined<T>(
 
   return { [key]: { connect: { id } } };
 }
+
+/**
+ * Conditionally returns a Prisma `connect` clause for a list of related records
+ * if the provided array of IDs is defined and non-empty.
+ *
+ * Useful for safely constructing many-to-many `connect` clauses in Prisma `create` or `update` operations
+ * when related IDs may be optional.
+ *
+ * @template T - The type of the IDs (typically string or number).
+ * @param {string} key - The name of the relation field in the Prisma schema (e.g., "instruments").
+ * @param {T[] | null | undefined} ids - An array of IDs to connect. May be null, undefined, or an empty array.
+ * @returns {object | undefined} - An object with the structure `{ [key]: { connect: [{ id }, ...] } }` if the array is valid; otherwise `undefined`.
+ *
+ */
+export function connectManyIfDefined<T>(
+  key: string,
+  ids: T[] | null | undefined
+) {
+  if (!Array.isArray(ids) || ids.length === 0) return undefined;
+  return { [key]: { connect: ids.map((id) => ({ id })) } };
+}

@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { db } from "@/db";
 import { updateLeadSchema } from "@/lib/validators/lead";
 import { Decimal } from "@prisma/client/runtime/library";
-import { connectIfDefined } from "@/lib/utils";
+import { connectIfDefined, connectManyIfDefined } from "@/lib/utils";
 
 function getIdFromReq(req: NextRequest) {
   const segments = new URL(req.url).pathname.split("/");
@@ -36,7 +36,7 @@ export async function PUT(request: NextRequest) {
       ? new Date(parsed.next_followup)
       : undefined,
     ...connectIfDefined("source", parsed.source_id),
-    ...connectIfDefined("instrument", parsed.instrument_id),
+    ...connectManyIfDefined("instruments", parsed.instrument_ids),
     ...connectIfDefined("stage", parsed.stage_id),
     ...connectIfDefined("team_member", parsed.team_member_id),
   };

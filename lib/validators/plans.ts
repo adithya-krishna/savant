@@ -1,0 +1,31 @@
+import { z } from "zod";
+
+const PlansSchema = z.object({
+  code: z.string().length(14, "Invalid ID"),
+  name: z.string().nonempty("A Plan name is required"),
+  price: z
+    .number({
+      required_error: "Price is required.",
+      invalid_type_error: "Price must be a number.",
+    })
+    .nonnegative("Price must be a non-negative number."),
+  description: z.string().optional().nullable(),
+});
+
+export const CreatePlanSchema = PlansSchema.omit({
+  code: true,
+})
+  .partial({
+    description: true,
+  })
+  .required({
+    name: true,
+    price: true,
+  });
+
+export const UpdatePlanSchema = PlansSchema.partial().required({
+  code: true,
+});
+
+export type CreatePlanInput = z.infer<typeof CreatePlanSchema>;
+export type UpdatePlanInput = z.infer<typeof UpdatePlanSchema>;

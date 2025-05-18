@@ -3,7 +3,7 @@ import { db } from "@/db";
 import { createLeadSchema } from "@/lib/validators/lead";
 import { nanoid } from "nanoid";
 import { Decimal } from "@prisma/client/runtime/library";
-import { connectIfDefined } from "@/lib/utils";
+import { connectIfDefined, connectManyIfDefined } from "@/lib/utils";
 
 export async function GET() {
   const leads = await db.leads.findMany({
@@ -12,7 +12,7 @@ export async function GET() {
       stage: true,
       team_member: true,
       source: true,
-      instrument: true,
+      instruments: true,
     },
   });
   return NextResponse.json(leads);
@@ -48,10 +48,10 @@ export async function POST(request: Request) {
       next_followup: data.next_followup
         ? new Date(data.next_followup)
         : undefined,
-      ...connectIfDefined("source_id", data.source_id),
-      ...connectIfDefined("instrument_id", data.instrument_id),
-      ...connectIfDefined("stage_id", data.stage_id),
-      ...connectIfDefined("team_member_id", data.team_member_id),
+      ...connectIfDefined("source", data.source_id),
+      ...connectManyIfDefined("instruments", data.instrument_ids),
+      ...connectIfDefined("stage", data.stage_id),
+      ...connectIfDefined("team_member", data.team_member_id),
     },
   });
 
