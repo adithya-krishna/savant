@@ -88,7 +88,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({ initialData, id }) => {
                 </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="Enter your first name"
+                    placeholder="e.g., John"
                     type={"text"}
                     value={field.value}
                     onChange={(e) => {
@@ -111,7 +111,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({ initialData, id }) => {
                 </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="Enter your last name"
+                    placeholder="e.g., Doe"
                     type={"text"}
                     value={field.value}
                     onChange={(e) => {
@@ -135,14 +135,11 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({ initialData, id }) => {
               </FormLabel>
               <FormControl>
                 <PhoneInput
-                  placeholder="Enter a phone number"
+                  placeholder="e.g., 12345 67890"
                   defaultCountry="IN"
                   {...field}
                 />
               </FormControl>
-              <FormDescription>
-                Please enter a phone number for us to reach out to you
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -155,7 +152,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({ initialData, id }) => {
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Enter your email"
+                  placeholder="e.g., john@example.com"
                   type={"email"}
                   value={field.value ?? ""}
                   onChange={(e) => {
@@ -164,9 +161,6 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({ initialData, id }) => {
                   }}
                 />
               </FormControl>
-              <FormDescription>
-                Please enter an email for us to reach out to you
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -201,9 +195,6 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({ initialData, id }) => {
                     </SelectContent>
                   </Select>
                 </FormControl>
-                <FormDescription>
-                  Select a role for the team member
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             );

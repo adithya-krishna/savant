@@ -139,7 +139,6 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
       source_id: "",
       walkin_date: "",
       address: "",
-      instrument_id: "",
       expected_budget: "",
       stage_id: "",
       demo_taken: false,

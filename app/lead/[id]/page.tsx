@@ -25,7 +25,6 @@ export default async function LeadPage({ params }: PageProps) {
         ? raw.walkin_date.toISOString().split("T")[0]
         : "",
       address: raw.address ?? "",
-      instrument_id: raw.instrument_id ?? "",
       expected_budget: raw.expected_budget?.toString() ?? "",
       stage_id: raw.stage_id ?? "",
       demo_taken: raw.demo_taken ?? false,
