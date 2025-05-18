@@ -13,7 +13,8 @@ model Leads {
     last_name                  String?      @db.VarChar(100)
     phone                      String       @db.VarChar(15)
     email                      String?      @unique @db.VarChar(255)
-    address                    String       @db.Text
+    address                    String?      @db.Text
+    area                       String?      @db.VarChar(255)
     walkin_date                DateTime?    @db.Date
     expected_budget            Decimal?     @db.Decimal(10, 2)
     demo_taken                 Boolean?     @default(false)
@@ -31,7 +32,7 @@ model Leads {
     source                     Sources?     @relation(fields: [source_id], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_source")
     student                    Student?
     create_date                DateTime?    @default(now()) @db.Timestamp(6)
-    updated_date               DateTime?    @default(now()) @db.Timestamp(6)
+    updated_date               DateTime?    @default(now()) @updatedAt @db.Timestamp(6)
 }
 
 model Sources {
@@ -42,11 +43,13 @@ model Sources {
 }
 
 model Instruments {
-    id          String   @id @db.VarChar(20)
-    name        String   @unique @db.VarChar(50)
-    description String?  @db.VarChar(255)
-    leads       Leads[]
-    courses     Course[]
+    id           String    @id @db.VarChar(20)
+    name         String    @unique @db.VarChar(50)
+    description  String?   @db.VarChar(255)
+    create_date  DateTime? @default(now()) @db.Timestamp(6)
+    updated_date DateTime? @default(now()) @updatedAt @db.Timestamp(6)
+    leads        Leads[]
+    courses      Course[]
 }
 
 model Course {

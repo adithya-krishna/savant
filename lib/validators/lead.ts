@@ -2,11 +2,12 @@ import { z } from "zod";
 
 export const LeadsSchema = z.object({
   id: z.string().length(14, "Invalid ID"),
-  first_name: z.string().max(100).nonempty("First name is required"),
+  first_name: z.string().max(100).nonempty("First name is required."),
   last_name: z.string().max(100).optional().nullable(),
-  phone: z.string().max(15).nonempty("Phone is required"),
-  email: z.string().max(255).email("Invalid email").optional().nullable(),
-  address: z.string().nonempty("An address is required"),
+  phone: z.string().max(15).nonempty("Phone is required."),
+  email: z.string().max(255).email("Invalid email.").optional().nullable(),
+  address: z.string().optional().nullable(),
+  area: z.string().optional().nullable(),
   walkin_date: z.string().optional().nullable(),
   expected_budget: z.string().optional().nullable(),
   demo_taken: z.boolean().optional().default(false),
@@ -33,6 +34,8 @@ export const createLeadSchema = LeadsSchema.omit({
   updated_date: true,
 }).partial({
   last_name: true,
+  address: true,
+  area: true,
   email: true,
   walkin_date: true,
   expected_budget: true,

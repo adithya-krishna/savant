@@ -1,0 +1,278 @@
+"use client";
+
+import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  // FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { PhoneInput } from "@/components/phone-input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CreateLeadInput, createLeadSchema } from "@/lib/validators/lead";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
+import { useEffect, useState } from "react";
+import { fetchEndpointsParallel } from "./lead-form";
+import { TeamMemberOption } from "@/app/global-types";
+import { useRouter } from "next/navigation";
+
+export default function LeadFormDialog({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const router = useRouter();
+  const form = useForm<CreateLeadInput>({
+    resolver: zodResolver(createLeadSchema),
+    defaultValues: {
+      first_name: "",
+      last_name: "",
+      phone: "",
+      email: "",
+      address: "",
+      source_id: "",
+      instrument_id: "",
+      team_member_id: "",
+      stage_id: "",
+    },
+  });
+  const [teamMembers, setTeamMembers] = useState<TeamMemberOption[] | null>(
+    null
+  );
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const results = await fetchEndpointsParallel(["/api/team-members"]);
+
+      results.forEach((result) => {
+        if (result.error) {
+          console.error(result.error);
+        }
+
+        switch (result.endpoint) {
+          case "/api/team-members":
+            setTeamMembers(result.data || []);
+            break;
+        }
+      });
+    };
+
+    fetchData();
+  }, []);
+
+  const onSubmit = async (values: CreateLeadInput) => {
+    const res = await fetch("/api/leads", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...values, id: "new" }),
+    });
+
+    if (res.ok) {
+      form.reset();
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+      router.refresh();
+    } else {
+      console.error("Failed to save lead");
+    }
+  };
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Create Lead</DialogTitle>
+          <DialogDescription>Add a new Lead to your pipeline</DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+            <div className="grid grid-cols-12 gap-4">
+              <div className="col-span-6">
+                <FormField
+                  control={form.control}
+                  name="first_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>First Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., John"
+                          type="text"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="col-span-6">
+                <FormField
+                  control={form.control}
+                  name="last_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Last Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., Doe"
+                          type="text"
+                          {...field}
+                          value={field.value ?? ""}
+                        />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            <FormField
+              control={form.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Address</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="e.g., 221B Baker Street, Koramangala, Bengaluru, Karnataka 560034"
+                      className="resize-none"
+                      {...field}
+                      value={field.value ?? ""}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem className="flex flex-col items-start">
+                  <FormLabel>Phone number</FormLabel>
+                  <FormControl className="w-full">
+                    <PhoneInput
+                      placeholder="e.g., 12345 67890"
+                      {...field}
+                      defaultCountry="IN"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g., john@example.com"
+                      type="email"
+                      {...field}
+                      value={field.value ?? ""}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* <FormField
+          control={form.control}
+          name="source_id"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Source</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                value={field.value ?? ""}
+                disabled={!teamMembers}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select team member" />
+                </SelectTrigger>
+                <SelectContent>
+                  {teamMembers?.map((tm) => (
+                    <SelectItem key={tm.id} value={tm.id}>
+                      {tm.first_name} {tm.last_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormDescription>
+                Tell us how you found out about this.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        /> */}
+
+            <FormField
+              control={form.control}
+              name="team_member_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Assign Team Member</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value ?? ""}
+                    disabled={!teamMembers}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select team member" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teamMembers?.map((tm) => (
+                        <SelectItem key={tm.id} value={tm.id}>
+                          {tm.first_name} {tm.last_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter>
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                Submit
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}

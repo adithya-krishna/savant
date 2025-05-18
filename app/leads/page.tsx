@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import TableDropdownMenu from "@/components/table-dropdown";
+import LeadFormDialog from "@/components/lead-form-dialog";
 
 export default async function LeadsPage() {
   const leads = await db.leads.findMany({
@@ -27,9 +28,9 @@ export default async function LeadsPage() {
     <div className="p-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold">Leads</h1>
-        <Link href="/lead/new">
+        <LeadFormDialog>
           <Button>Add Lead</Button>
-        </Link>
+        </LeadFormDialog>
       </div>
 
       <Table>

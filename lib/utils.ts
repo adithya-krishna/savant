@@ -31,3 +31,26 @@ export function getWeekDates(
   }
   return days;
 }
+
+/**
+ * Conditionally returns a Prisma `connect` object for a relational field
+ * if the provided ID is defined, non-null, and non-empty.
+ *
+ * Useful for safely constructing `connect` clauses in Prisma `create` or `update` operations
+ * when related IDs may be optional.
+ *
+ * @template T - The type of the ID (typically string or number).
+ * @param {string} key - The name of the relational field in the Prisma schema.
+ * @param {T | null | undefined | ""} id - The ID to connect, which may be null, undefined, or an empty string.
+ * @returns {object | undefined} - An object with the structure `{ [key]: { connect: { id } } }` if the ID is valid; otherwise `undefined`.
+ */
+export function connectIfDefined<T>(
+  key: string,
+  id: T | null | undefined | ""
+) {
+  if (id === null || id === undefined || id === "") {
+    return undefined;
+  }
+
+  return { [key]: { connect: { id } } };
+}

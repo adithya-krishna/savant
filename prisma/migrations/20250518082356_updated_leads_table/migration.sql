@@ -1,0 +1,7 @@
+-- AlterTable
+ALTER TABLE "Instruments" ADD COLUMN     "create_date" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "updated_date" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "Leads" ADD COLUMN     "area" VARCHAR(255),
+ALTER COLUMN "address" DROP NOT NULL;

@@ -25,13 +25,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PhoneInput } from "./phone-input";
-import { parsePhoneNumber } from "react-phone-number-input";
+import { TeamMemberOption } from "@/app/global-types";
 
-interface TeamMemberOption {
-  id: string;
-  first_name: string;
-  last_name: string;
-}
 interface StageOption {
   id: string;
   name: string;
@@ -41,46 +36,7 @@ interface LeadFormProps {
   id: string;
 }
 
-type PhoneInputValue = {
-  country_code: string;
-  phone: string;
-};
-
 // move to utils
-function getCountryCodeAndPhoneNumber(phoneValue: string): PhoneInputValue {
-  const parsedNumber = parsePhoneNumber(phoneValue);
-  let result = null;
-
-  if (parsedNumber) {
-    result = {
-      country_code: `+${parsedNumber.countryCallingCode}`,
-      phone: parsedNumber.nationalNumber,
-    };
-  } else {
-    // Fallback for when parsing fails
-    const plusIndex = phoneValue.indexOf("+");
-    if (plusIndex >= 0) {
-      const spaceIndex = phoneValue.indexOf(" ");
-      if (spaceIndex > plusIndex) {
-        result = {
-          country_code: phoneValue.substring(plusIndex, spaceIndex),
-          phone: phoneValue.substring(spaceIndex + 1),
-        };
-      } else {
-        // If no space, try to split after the country code (assuming 1-3 digits after +)
-        const countryCodeEnd = Math.min(plusIndex + 4, phoneValue.length);
-        result = {
-          country_code: phoneValue.substring(plusIndex, countryCodeEnd),
-          phone: phoneValue.substring(countryCodeEnd),
-        };
-      }
-    } else {
-      result = { country_code: "", phone: phoneValue };
-    }
-  }
-
-  return result;
-}
 
 // types.ts
 export type FetchResult<T> = {
