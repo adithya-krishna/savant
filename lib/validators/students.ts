@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { idSchema } from "./common";
 
 const decimalSchema = z
   .string({
@@ -9,11 +10,7 @@ const decimalSchema = z
   });
 
 const studentBaseSchema = z.object({
-  id: z
-    .string({
-      required_error: "ID is required",
-    })
-    .max(20, "ID must be 20 characters or less"),
+  id: idSchema,
 
   first_name: z
     .string({

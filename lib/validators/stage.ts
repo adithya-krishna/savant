@@ -1,11 +1,12 @@
 import { z } from "zod";
+import { idSchema } from "./common";
 
 export const createStageSchema = z.object({
   name: z.string().nonempty("Stage name is required"),
 });
 
 export const updateStageSchema = createStageSchema.extend({
-  id: z.string().length(14, "Invalid ID"),
+  id: idSchema,
 });
 
 export type CreateStageInput = z.infer<typeof createStageSchema>;

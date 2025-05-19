@@ -1,7 +1,8 @@
 import { z } from "zod";
+import { idSchema } from "./common";
 
 const SourceSchema = z.object({
-  id: z.string().length(14, "Invalid ID"),
+  id: idSchema,
   source: z.string().nonempty("A Source name is required"),
   description: z.string().optional().nullable(),
 });

@@ -1,7 +1,8 @@
 import { z } from "zod";
+import { idSchema } from "./common";
 
 export const LeadsSchema = z.object({
-  id: z.string().length(14, "Invalid ID"),
+  id: idSchema,
   first_name: z.string().max(100).nonempty("First name is required."),
   last_name: z.string().max(100).optional().nullable(),
   phone: z.string().max(15).nonempty("Phone is required."),
