@@ -13,7 +13,7 @@ const CourseBaseSchema = z.object({
   id: idSchema,
   name: z
     .string()
-    .min(1, { message: "Name is required" })
+    .min(2, { message: "Name is required" })
     .max(100, { message: "Name must be 100 characters or less" }),
   difficulty: difficultySchema.optional(),
   description: z

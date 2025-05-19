@@ -1,42 +1,8 @@
 import { db } from "@/db";
+import { handleAPIError } from "@/lib/utils/api-error-handler";
+import { getIdFromReq } from "@/lib/utils/api-utils";
 import { updateStudentSchema } from "@/lib/validators/students";
-import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
-
-function handleResponseError(error: unknown) {
-  if (error instanceof z.ZodError) {
-    return NextResponse.json(
-      {
-        errors: error.flatten().fieldErrors,
-        message: "Validation failed",
-      },
-      { status: 400 }
-    );
-  }
-
-  if (error instanceof Prisma.PrismaClientKnownRequestError) {
-    if (error.code === "P2025") {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Student not found",
-        },
-        { status: 404 }
-      );
-    }
-  }
-
-  return NextResponse.json(
-    { message: "Internal server error" },
-    { status: 500 }
-  );
-}
-
-function getIdFromReq(req: NextRequest) {
-  const segments = new URL(req.url).pathname.split("/");
-  return segments.pop()!;
-}
 
 export async function PUT(request: NextRequest) {
   const id = getIdFromReq(request);
@@ -60,7 +26,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(lead);
   } catch (error) {
-    return handleResponseError(error);
+    return handleAPIError(error);
   }
 }
 
@@ -99,6 +65,6 @@ export async function DELETE(
         : "Student soft deleted successfully",
     });
   } catch (error) {
-    return handleResponseError(error);
+    return handleAPIError(error);
   }
 }

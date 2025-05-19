@@ -3,11 +3,7 @@ import { db } from "@/db";
 import { updateLeadSchema } from "@/lib/validators/lead";
 import { Decimal } from "@prisma/client/runtime/library";
 import { connectIfDefined, connectManyIfDefined } from "@/lib/utils";
-
-function getIdFromReq(req: NextRequest) {
-  const segments = new URL(req.url).pathname.split("/");
-  return segments.pop()!;
-}
+import { getIdFromReq } from "@/lib/utils/api-utils";
 
 export async function PUT(request: NextRequest) {
   const id = getIdFromReq(request);

@@ -1,10 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { db } from "@/db";
 import { UpdateSourceSchema } from "@/lib/validators/sources";
-
-function getIdFromReq(req: NextRequest) {
-  return new URL(req.url).pathname.split("/").pop()!;
-}
+import { getIdFromReq } from "@/lib/utils/api-utils";
 
 export async function PUT(request: NextRequest) {
   const id = getIdFromReq(request);

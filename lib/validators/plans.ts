@@ -8,7 +8,7 @@ const PlansSchema = z.object({
       required_error: "Price is required.",
       invalid_type_error: "Price must be a number.",
     })
-    .nonnegative("Price must be a non-negative number."),
+    .positive("Price must be a non-negative number."),
   description: z.string().optional().nullable(),
 });
 

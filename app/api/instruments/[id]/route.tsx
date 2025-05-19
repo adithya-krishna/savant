@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { InstrumentUpdateSchema } from "@/lib/validators/instruments";
-import { handleAPIError, APIError, checkUniqueName } from "@/lib/api-error-handler";
-
-const getIdFromReq = (request: NextRequest) => {
-  const id = request.nextUrl.pathname.split('/').pop();
-  if (!id) throw new APIError("Instrument ID is required", 400);
-  return id;
-};
+import {
+  handleAPIError,
+  APIError,
+  checkUniqueName,
+} from "@/lib/utils/api-error-handler";
+import { getIdFromReq } from "@/lib/utils/api-utils";
 
 export async function PUT(request: NextRequest) {
   try {
@@ -59,10 +58,11 @@ export async function DELETE(request: NextRequest) {
     const coursesUsingInstrument = await db.course.count({
       where: { instrument_id: id },
     });
+
     if (coursesUsingInstrument > 0) {
       throw new APIError(
-          "Cannot delete instrument as it is being used in courses",
-          400
+        "Cannot delete instrument as it is being used in courses",
+        400
       );
     }
 
@@ -70,10 +70,7 @@ export async function DELETE(request: NextRequest) {
       where: { id },
     });
 
-    return NextResponse.json(
-        { success: true },
-        { status: 200 }
-    );
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
     return handleAPIError(error);
   }

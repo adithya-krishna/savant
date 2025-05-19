@@ -1,8 +1,8 @@
 import { db } from "@/db";
+import { handleAPIError } from "@/lib/utils/api-error-handler";
 import { createStudentSchema } from "@/lib/validators/students";
 import { nanoid } from "nanoid";
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
 
 export async function GET() {
   const leads = await db.student.findMany({
@@ -27,20 +27,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(student, { status: 201 });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        {
-          errors: error.flatten().fieldErrors,
-          message: "Validation failed",
-        },
-        { status: 400 }
-      );
-    }
-    return NextResponse.json(
-      {
-        message: "Internal server error",
-      },
-      { status: 500 }
-    );
+    return handleAPIError(error);
   }
 }

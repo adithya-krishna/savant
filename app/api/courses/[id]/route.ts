@@ -1,30 +1,34 @@
-import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { updateTeamMemberSchema } from "@/lib/validators/team-member";
 import { handleAPIError } from "@/lib/utils/api-error-handler";
 import { getIdFromReq } from "@/lib/utils/api-utils";
+import { CourseUpdateSchema } from "@/lib/validators/course";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(request: NextRequest) {
   const id = getIdFromReq(request);
+
   try {
     const body = await request.json();
-    const data = updateTeamMemberSchema.parse({ id, ...body });
+    const validation = CourseUpdateSchema.safeParse({ id, ...body });
+    if (!validation.success) {
+      throw validation.error;
+    }
 
-    const teamMember = await db.teamMember.update({
+    const course = await db.course.update({
       where: { id },
-      data,
+      data: validation.data,
     });
 
-    return NextResponse.json(teamMember);
+    return NextResponse.json(course);
   } catch (error) {
     return handleAPIError(error);
   }
 }
 
 export async function DELETE(request: NextRequest) {
+  const id = getIdFromReq(request);
   try {
-    const id = getIdFromReq(request);
-    await db.teamMember.delete({ where: { id } });
+    await db.course.delete({ where: { id } });
 
     return NextResponse.json({ success: true });
   } catch (error) {

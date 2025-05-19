@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { nanoid } from "nanoid";
 import { InstrumentCreateSchema } from "@/lib/validators/instruments";
-import { handleAPIError, APIError, checkUniqueName } from "@/lib/api-error-handler";
+import {
+  handleAPIError,
+  APIError,
+  checkUniqueName,
+} from "@/lib/utils/api-error-handler";
 
 export async function GET() {
   try {

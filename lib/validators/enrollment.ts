@@ -2,15 +2,16 @@ import { z } from "zod";
 import { idSchema } from "./common";
 
 const dateSchema = z.coerce.date();
-const statusSchema = z.enum(["ACTIVE", "INACTIVE", "COMPLETED", "CANCELLED"]);
+const statusSchema = z.enum(["ACTIVE", "COMPLETED", "CANCELLED", "ON_HOLD"]);
 
 const EnrollmentBaseSchema = z.object({
   id: idSchema,
   amount_paid: z
     .number()
-    .int()
     .positive({ message: "Amount paid must be a positive integer" }),
-  start_date: dateSchema,
+  start_date: dateSchema.refine((date) => date > new Date(), {
+    message: "Start date must be in the future",
+  }),
   preferred_timings: z
     .string()
     .max(50, { message: "Preferred timings must be 50 characters or less" })
