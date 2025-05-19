@@ -5,3 +5,9 @@ export interface TeamMemberOption {
   first_name: string;
   last_name: string;
 }
+
+export type InstrumentType = {
+  id: string;
+  name: string;
+  description?: string;
+};

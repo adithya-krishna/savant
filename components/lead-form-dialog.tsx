@@ -1,12 +1,10 @@
 'use client';
 
-import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
-  // FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -35,8 +33,9 @@ import {
 } from './ui/dialog';
 import { useEffect, useState } from 'react';
 import { fetchEndpointsParallel } from './lead-form';
-import { TeamMemberOption } from '@/app/global-types';
+import { TeamMemberOption, InstrumentType } from '@/app/global-types';
 import { useRouter } from 'next/navigation';
+import { MultiSelect, MultiSelectOption } from './multi-select';
 
 export default function LeadFormDialog({
   children,
@@ -52,19 +51,21 @@ export default function LeadFormDialog({
       phone: '',
       email: '',
       address: '',
-      source_id: '',
       instrument_ids: [],
       team_member_id: '',
-      stage_id: '',
     },
   });
   const [teamMembers, setTeamMembers] = useState<TeamMemberOption[] | null>(
     null,
   );
+  const [instruments, setInstruments] = useState<MultiSelectOption[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const results = await fetchEndpointsParallel(['/api/team-members']);
+      const results = await fetchEndpointsParallel([
+        '/api/team-members',
+        '/api/instruments',
+      ]);
 
       results.forEach(result => {
         if (result.error) {
@@ -75,6 +76,17 @@ export default function LeadFormDialog({
           case '/api/team-members':
             setTeamMembers(result.data || []);
             break;
+        }
+
+        switch (result.endpoint) {
+          case '/api/instruments': {
+            const options = result.data.map((r: InstrumentType) => ({
+              label: r.name,
+              value: r.id,
+            }));
+            setInstruments(options);
+            break;
+          }
         }
       });
     };
@@ -99,9 +111,9 @@ export default function LeadFormDialog({
   };
 
   return (
-    <Dialog>
+    <Dialog modal={false}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-2xl overflow-y-scroll max-h-screen">
         <DialogHeader>
           <DialogTitle>Create Lead</DialogTitle>
           <DialogDescription>Add a new Lead to your pipeline</DialogDescription>
@@ -208,35 +220,25 @@ export default function LeadFormDialog({
               )}
             />
 
-            {/* <FormField
-          control={form.control}
-          name="source_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Source</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                value={field.value ?? ""}
-                disabled={!teamMembers}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select team member" />
-                </SelectTrigger>
-                <SelectContent>
-                  {teamMembers?.map((tm) => (
-                    <SelectItem key={tm.id} value={tm.id}>
-                      {tm.first_name} {tm.last_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormDescription>
-                Tell us how you found out about this.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
+            <FormField
+              control={form.control}
+              name="instrument_ids"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Select Instruments</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      modalPopover={false}
+                      options={instruments}
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      placeholder="Select options"
+                      maxCount={3}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            ></FormField>
 
             <FormField
               control={form.control}
@@ -244,22 +246,24 @@ export default function LeadFormDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Assign Team Member</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value ?? ''}
-                    disabled={!teamMembers}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select team member" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {teamMembers?.map(tm => (
-                        <SelectItem key={tm.id} value={tm.id}>
-                          {tm.first_name} {tm.last_name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormControl className="w-full">
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value ?? ''}
+                      disabled={!teamMembers}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select team member" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {teamMembers?.map(tm => (
+                          <SelectItem key={tm.id} value={tm.id}>
+                            {tm.first_name} {tm.last_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

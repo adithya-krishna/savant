@@ -48,7 +48,7 @@ export async function POST(request: Request) {
         : undefined,
       ...connectIfDefined('source', data.source_id),
       ...connectManyIfDefined('instruments', data.instrument_ids),
-      ...connectIfDefined('stage', data.stage_id),
+      ...connectIfDefined('stage', data.stage_id || 'QMbQIk4rWPwiYW'),
       ...connectIfDefined('team_member', data.team_member_id),
     },
   });
