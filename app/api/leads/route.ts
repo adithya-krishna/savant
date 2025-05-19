@@ -22,10 +22,8 @@ export async function POST(request: Request) {
   const body = await request.json();
   const data = createLeadSchema.parse(body);
 
-  // Generate a 14-char ID
   const id = nanoid(14);
 
-  // Create the lead
   const lead = await db.leads.create({
     data: {
       id,

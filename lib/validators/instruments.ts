@@ -1,11 +1,5 @@
 import { z } from 'zod';
-import { idSchema } from './common';
-
-const nameSchema = z
-  .string()
-  .trim()
-  .min(2, { message: 'Name is required' })
-  .max(50, { message: 'Name must be 50 characters or less' });
+import { idSchema, nameSchema } from './common';
 
 const InstrumentBaseSchema = z.object({
   id: idSchema,

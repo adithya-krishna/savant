@@ -22,8 +22,12 @@ export async function POST(request: Request) {
 }
 
 export async function GET() {
-  const teamMember = await db.teamMember.findMany({
-    orderBy: { first_name: 'asc' },
-  });
-  return NextResponse.json(teamMember);
+  try {
+    const teamMember = await db.teamMember.findMany({
+      orderBy: { first_name: 'asc' },
+    });
+    return NextResponse.json(teamMember);
+  } catch (error) {
+    return handleAPIError(error);
+  }
 }

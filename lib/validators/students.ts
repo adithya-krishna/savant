@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { idSchema } from './common';
+import { idSchema, nameSchema } from './common';
 
 const decimalSchema = z
   .string({
@@ -12,12 +12,7 @@ const decimalSchema = z
 const studentBaseSchema = z.object({
   id: idSchema,
 
-  first_name: z
-    .string({
-      required_error: 'First name is required',
-    })
-    .max(100, 'First name must be 100 characters or less')
-    .min(3, 'First name is required'),
+  first_name: nameSchema,
 
   last_name: z
     .string()
@@ -25,12 +20,7 @@ const studentBaseSchema = z.object({
     .optional()
     .nullable(),
 
-  parent_first_name: z
-    .string({
-      required_error: 'Parent first name is required',
-    })
-    .max(100, 'Parent first name must be 100 characters or less')
-    .min(1, 'Parent first name is required'),
+  parent_first_name: nameSchema,
 
   parent_last_name: z
     .string()

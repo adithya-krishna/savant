@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { idSchema } from './common';
+import { idSchema, nameSchema } from './common';
 
 const phoneRegex = new RegExp(
   /^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/,
@@ -14,7 +14,7 @@ export const TeamMemberRoleEnum = z.enum([
 
 export const TeamMemberSchema = z.object({
   id: idSchema,
-  first_name: z.string().max(100).nonempty('First name is required'),
+  first_name: nameSchema,
   last_name: z.string().max(100).nonempty('Last name is required'),
   email: z.string().max(255).email('Invalid email').optional().nullable(),
   phone: z
