@@ -1,22 +1,54 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { nanoid } from "nanoid";
-import { CreateInstrumentSchema } from "@/lib/validators/instruments";
+import { InstrumentCreateSchema } from "@/lib/validators/instruments";
+import { handleAPIError, APIError, checkUniqueName } from "@/lib/api-error-handler";
 
 export async function GET() {
-  const instruments = await db.instruments.findMany({
-    orderBy: { name: "asc" },
-  });
-  return NextResponse.json(instruments);
+  try {
+    const instruments = await db.instruments.findMany({
+      orderBy: { name: "asc" },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+      },
+    });
+    return NextResponse.json(instruments);
+  } catch (error) {
+    return handleAPIError(error);
+  }
 }
 
 export async function POST(request: Request) {
-  const body = await request.json();
-  const data = CreateInstrumentSchema.parse(body);
+  try {
+    const body = await request.json();
 
-  const stage = await db.instruments.create({
-    data: { id: nanoid(14), ...data },
-  });
+    const validation = InstrumentCreateSchema.safeParse(body);
+    if (!validation.success) {
+      throw validation.error;
+    }
 
-  return NextResponse.json(stage, { status: 201 });
+    const isUnique = await checkUniqueName(validation.data.name);
+    if (!isUnique) {
+      throw new APIError("Instrument name must be unique", 409);
+    }
+
+    const instrument = await db.instruments.create({
+      data: {
+        id: nanoid(14),
+        name: validation.data.name,
+        description: validation.data.description,
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+      },
+    });
+
+    return NextResponse.json(instrument, { status: 201 });
+  } catch (error) {
+    return handleAPIError(error);
+  }
 }

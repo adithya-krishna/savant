@@ -1,26 +1,80 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { UpdateInstrumentSchema } from "@/lib/validators/instruments";
+import { InstrumentUpdateSchema } from "@/lib/validators/instruments";
+import { handleAPIError, APIError, checkUniqueName } from "@/lib/api-error-handler";
 
-function getIdFromReq(req: NextRequest) {
-  return new URL(req.url).pathname.split("/").pop()!;
-}
+const getIdFromReq = (request: NextRequest) => {
+  const id = request.nextUrl.pathname.split('/').pop();
+  if (!id) throw new APIError("Instrument ID is required", 400);
+  return id;
+};
 
 export async function PUT(request: NextRequest) {
-  const id = getIdFromReq(request);
-  const body = await request.json();
-  const data = UpdateInstrumentSchema.parse({ id, ...body });
+  try {
+    const id = getIdFromReq(request);
+    const body = await request.json();
 
-  const stage = await db.instruments.update({
-    where: { id },
-    data: { name: data.name, description: data.description || undefined },
-  });
+    const validation = InstrumentUpdateSchema.safeParse({ id, ...body });
+    if (!validation.success) {
+      throw validation.error;
+    }
 
-  return NextResponse.json(stage);
+    if (validation.data.name) {
+      const isUnique = await checkUniqueName(validation.data.name, id);
+      if (!isUnique) {
+        throw new APIError("Instrument name must be unique", 409);
+      }
+    }
+
+    const instrument = await db.instruments.update({
+      where: { id },
+      data: {
+        name: validation.data.name,
+        description: validation.data.description ?? undefined,
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+      },
+    });
+
+    return NextResponse.json(instrument);
+  } catch (error) {
+    return handleAPIError(error);
+  }
 }
 
 export async function DELETE(request: NextRequest) {
-  const id = getIdFromReq(request);
-  await db.instruments.delete({ where: { id } });
-  return NextResponse.json({ success: true });
+  try {
+    const id = getIdFromReq(request);
+
+    const existingInstrument = await db.instruments.findUnique({
+      where: { id },
+    });
+    if (!existingInstrument) {
+      throw new APIError("Instrument not found", 404);
+    }
+
+    const coursesUsingInstrument = await db.course.count({
+      where: { instrument_id: id },
+    });
+    if (coursesUsingInstrument > 0) {
+      throw new APIError(
+          "Cannot delete instrument as it is being used in courses",
+          400
+      );
+    }
+
+    await db.instruments.delete({
+      where: { id },
+    });
+
+    return NextResponse.json(
+        { success: true },
+        { status: 200 }
+    );
+  } catch (error) {
+    return handleAPIError(error);
+  }
 }
