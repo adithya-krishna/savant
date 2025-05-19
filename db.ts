@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@prisma/client';
 
 declare global {
   // prevent multiple instances in dev
@@ -8,9 +8,9 @@ declare global {
 export const db =
   global.prisma ||
   new PrismaClient({
-    log: ["query"],
+    log: ['query'],
   });
 
-if (process.env.NODE_ENV !== "production") {
+if (process.env.NODE_ENV !== 'production') {
   global.prisma = db;
 }

@@ -4,8 +4,8 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { db } from "@/db";
+} from '@/components/ui/card';
+import { db } from '@/db';
 
 interface TeamMemberProfileProps {
   params: Promise<{ id: string }>;

@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import React from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   createTeamMemberSchema,
   CreateTeamMemberInput,
-} from "@/lib/validators/team-member";
-import { useRouter } from "next/navigation";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Switch } from "./ui/switch";
+} from '@/lib/validators/team-member';
+import { useRouter } from 'next/navigation';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Switch } from './ui/switch';
 import {
   Form,
   FormControl,
@@ -19,9 +19,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "./ui/form";
-import type { TeamMember } from "@prisma/client";
-import { TeamMemberRole } from "@/lib/enums";
+} from './ui/form';
+import type { TeamMember } from '@prisma/client';
+import { TeamMemberRole } from '@/lib/enums';
 import {
   Select,
   SelectContent,
@@ -30,8 +30,8 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "./ui/select";
-import { PhoneInput } from "./phone-input";
+} from './ui/select';
+import { PhoneInput } from './phone-input';
 
 interface TeamMemberFormProps {
   initialData: TeamMember | null;
@@ -40,34 +40,34 @@ interface TeamMemberFormProps {
 
 const TeamMemberForm: React.FC<TeamMemberFormProps> = ({ initialData, id }) => {
   const router = useRouter();
-  const isNew = id === "new";
+  const isNew = id === 'new';
 
   const form = useForm<CreateTeamMemberInput>({
     resolver: zodResolver(createTeamMemberSchema),
     defaultValues: {
-      first_name: initialData?.first_name ?? "",
-      last_name: initialData?.last_name ?? "",
-      email: initialData?.email ?? "",
-      phone: initialData?.phone ?? "",
+      first_name: initialData?.first_name ?? '',
+      last_name: initialData?.last_name ?? '',
+      email: initialData?.email ?? '',
+      phone: initialData?.phone ?? '',
       role: initialData?.role ?? TeamMemberRole.STAFF,
       active: initialData?.active ?? false,
     },
   });
 
   const onSubmit = async (values: CreateTeamMemberInput) => {
-    const url = isNew ? "/api/team-members" : `/api/team-members/${id}`;
-    const method = isNew ? "POST" : "PUT";
+    const url = isNew ? '/api/team-members' : `/api/team-members/${id}`;
+    const method = isNew ? 'POST' : 'PUT';
 
     const res = await fetch(url, {
       method,
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(values),
     });
 
     if (res.ok) {
-      router.push("/team-members");
+      router.push('/team-members');
     } else {
-      console.error("Failed to save");
+      console.error('Failed to save');
     }
   };
 
@@ -89,9 +89,9 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({ initialData, id }) => {
                 <FormControl>
                   <Input
                     placeholder="e.g., John"
-                    type={"text"}
+                    type={'text'}
                     value={field.value}
-                    onChange={(e) => {
+                    onChange={e => {
                       const val = e.target.value;
                       field.onChange(val);
                     }}
@@ -112,9 +112,9 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({ initialData, id }) => {
                 <FormControl>
                   <Input
                     placeholder="e.g., Doe"
-                    type={"text"}
+                    type={'text'}
                     value={field.value}
-                    onChange={(e) => {
+                    onChange={e => {
                       const val = e.target.value;
                       field.onChange(val);
                     }}
@@ -153,9 +153,9 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({ initialData, id }) => {
               <FormControl>
                 <Input
                   placeholder="e.g., john@example.com"
-                  type={"email"}
-                  value={field.value ?? ""}
-                  onChange={(e) => {
+                  type={'email'}
+                  value={field.value ?? ''}
+                  onChange={e => {
                     const val = e.target.value;
                     field.onChange(val);
                   }}
@@ -178,7 +178,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({ initialData, id }) => {
                 <FormControl>
                   <Select
                     onValueChange={field.onChange}
-                    value={field.value ?? ""}
+                    value={field.value ?? ''}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select a role" />
@@ -221,7 +221,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({ initialData, id }) => {
         />
         <div className="flex justify-end items-center w-full pt-3">
           <Button className="rounded-lg" size="sm">
-            {`${isNew ? "Create " : "Update"} Team Member`}
+            {`${isNew ? 'Create ' : 'Update'} Team Member`}
           </Button>
         </div>
       </form>

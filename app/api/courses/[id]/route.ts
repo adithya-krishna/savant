@@ -1,8 +1,8 @@
-import { db } from "@/db";
-import { handleAPIError } from "@/lib/utils/api-error-handler";
-import { getIdFromReq } from "@/lib/utils/api-utils";
-import { CourseUpdateSchema } from "@/lib/validators/course";
-import { NextRequest, NextResponse } from "next/server";
+import { db } from '@/db';
+import { handleAPIError } from '@/lib/utils/api-error-handler';
+import { getIdFromReq } from '@/lib/utils/api-utils';
+import { CourseUpdateSchema } from '@/lib/validators/course';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function PUT(request: NextRequest) {
   const id = getIdFromReq(request);

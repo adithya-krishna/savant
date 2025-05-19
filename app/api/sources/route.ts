@@ -1,11 +1,11 @@
-import { NextResponse } from "next/server";
-import { db } from "@/db";
-import { nanoid } from "nanoid";
-import { CreateSourceSchema } from "@/lib/validators/sources";
+import { NextResponse } from 'next/server';
+import { db } from '@/db';
+import { nanoid } from 'nanoid';
+import { CreateSourceSchema } from '@/lib/validators/sources';
 
 export async function GET() {
   const instruments = await db.sources.findMany({
-    orderBy: { source: "asc" },
+    orderBy: { source: 'asc' },
   });
   return NextResponse.json(instruments);
 }

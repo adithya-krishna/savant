@@ -1,4 +1,4 @@
-export type SectionTypes = "team-member" | "lead" | "stage";
+export type SectionTypes = 'team-member' | 'lead' | 'stage';
 
 export interface TeamMemberOption {
   id: string;

@@ -1,8 +1,8 @@
-import { db } from "@/db";
-import { handleAPIError } from "@/lib/utils/api-error-handler";
-import { getIdFromReq } from "@/lib/utils/api-utils";
-import { updateStudentSchema } from "@/lib/validators/students";
-import { NextRequest, NextResponse } from "next/server";
+import { db } from '@/db';
+import { handleAPIError } from '@/lib/utils/api-error-handler';
+import { getIdFromReq } from '@/lib/utils/api-utils';
+import { updateStudentSchema } from '@/lib/validators/students';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function PUT(request: NextRequest) {
   const id = getIdFromReq(request);
@@ -32,11 +32,11 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     const { searchParams } = new URL(request.url);
-    const hardDelete = searchParams.get("hardDelete") === "true";
+    const hardDelete = searchParams.get('hardDelete') === 'true';
 
     const input = updateStudentSchema.parse({
       id: params.id,
@@ -61,8 +61,8 @@ export async function DELETE(
       success: true,
       data: result,
       message: hardDelete
-        ? "Student permanently deleted"
-        : "Student soft deleted successfully",
+        ? 'Student permanently deleted'
+        : 'Student soft deleted successfully',
     });
   } catch (error) {
     return handleAPIError(error);

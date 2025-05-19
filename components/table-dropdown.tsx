@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,13 +6,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from './ui/dropdown-menu';
 
-import { DeleteItemButton } from "@/components/delete-item-button";
-import { Ellipsis } from "lucide-react";
-import { Button } from "./ui/button";
-import Link from "next/link";
-import { SectionTypes } from "@/app/global-types";
+import { DeleteItemButton } from '@/components/delete-item-button';
+import { Ellipsis } from 'lucide-react';
+import { Button } from './ui/button';
+import Link from 'next/link';
+import { SectionTypes } from '@/app/global-types';
 
 interface TableDropdownMenuProps {
   id: string;

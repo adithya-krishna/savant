@@ -1,5 +1,5 @@
-import React from "react";
-import { db } from "@/db";
+import React from 'react';
+import { db } from '@/db';
 import {
   Table,
   TableHeader,
@@ -7,21 +7,21 @@ import {
   TableBody,
   TableRow,
   TableCell,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { DeleteItemButton } from "@/components/delete-item-button";
-import StageForm from "@/components/stage-form";
-import { Pencil, Plus } from "lucide-react";
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { DeleteItemButton } from '@/components/delete-item-button';
+import StageForm from '@/components/stage-form';
+import { Pencil, Plus } from 'lucide-react';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 
 export default async function SettingsPage() {
-  const stage = await db.stage.findMany({ orderBy: { name: "asc" } });
+  const stage = await db.stage.findMany({ orderBy: { name: 'asc' } });
 
   return (
     <div className="p-6">
@@ -48,7 +48,7 @@ export default async function SettingsPage() {
             </TableHeader>
 
             <TableBody>
-              {stage.map((s) => (
+              {stage.map(s => (
                 <TableRow key={s.id}>
                   <TableCell className="w-full">{s.name}</TableCell>
                   <TableCell className="space-x-2">

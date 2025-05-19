@@ -1,9 +1,9 @@
-import { NextResponse, type NextRequest } from "next/server";
-import { db } from "@/db";
-import { updateLeadSchema } from "@/lib/validators/lead";
-import { Decimal } from "@prisma/client/runtime/library";
-import { connectIfDefined, connectManyIfDefined } from "@/lib/utils";
-import { getIdFromReq } from "@/lib/utils/api-utils";
+import { NextResponse, type NextRequest } from 'next/server';
+import { db } from '@/db';
+import { updateLeadSchema } from '@/lib/validators/lead';
+import { Decimal } from '@prisma/client/runtime/library';
+import { connectIfDefined, connectManyIfDefined } from '@/lib/utils';
+import { getIdFromReq } from '@/lib/utils/api-utils';
 
 export async function PUT(request: NextRequest) {
   const id = getIdFromReq(request);
@@ -11,7 +11,7 @@ export async function PUT(request: NextRequest) {
   const body = await request.json();
   const parsed = updateLeadSchema.parse({ id, ...body });
 
-  const updateData: Parameters<typeof db.leads.update>[0]["data"] = {
+  const updateData: Parameters<typeof db.leads.update>[0]['data'] = {
     first_name: parsed.first_name,
     last_name: parsed.last_name || undefined,
     phone: parsed.phone,
@@ -31,10 +31,10 @@ export async function PUT(request: NextRequest) {
     next_followup: parsed.next_followup
       ? new Date(parsed.next_followup)
       : undefined,
-    ...connectIfDefined("source", parsed.source_id),
-    ...connectManyIfDefined("instruments", parsed.instrument_ids),
-    ...connectIfDefined("stage", parsed.stage_id),
-    ...connectIfDefined("team_member", parsed.team_member_id),
+    ...connectIfDefined('source', parsed.source_id),
+    ...connectManyIfDefined('instruments', parsed.instrument_ids),
+    ...connectIfDefined('stage', parsed.stage_id),
+    ...connectIfDefined('team_member', parsed.team_member_id),
   };
 
   const lead = await db.leads.update({

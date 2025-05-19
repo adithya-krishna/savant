@@ -1,8 +1,8 @@
-import { z } from "zod";
-import { idSchema } from "./common";
+import { z } from 'zod';
+import { idSchema } from './common';
 
 export const createStageSchema = z.object({
-  name: z.string().nonempty("Stage name is required"),
+  name: z.string().nonempty('Stage name is required'),
 });
 
 export const updateStageSchema = createStageSchema.extend({

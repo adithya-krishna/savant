@@ -1,24 +1,24 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { Calendar } from "@/components/ui/calendar";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { format, addDays, eachDayOfInterval, set } from "date-fns";
-import { cn } from "@/lib/utils";
-import { Minus } from "lucide-react";
+import React, { useState } from 'react';
+import { Calendar } from '@/components/ui/calendar';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { format, addDays, eachDayOfInterval, set } from 'date-fns';
+import { cn } from '@/lib/utils';
+import { Minus } from 'lucide-react';
 
 export default function Page() {
   // Selected date state
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   // Appointment window state (editable)
-  const [startTime, setStartTime] = useState<string>("15:00");
-  const [endTime, setEndTime] = useState<string>("21:00");
+  const [startTime, setStartTime] = useState<string>('15:00');
+  const [endTime, setEndTime] = useState<string>('21:00');
 
   // Derive hours and minutes from time inputs
-  const [startHour, startMinute] = startTime.split(":").map(Number);
-  const [endHour, endMinute] = endTime.split(":").map(Number);
+  const [startHour, startMinute] = startTime.split(':').map(Number);
+  const [endHour, endMinute] = endTime.split(':').map(Number);
 
   // Number of 1-hour slots
   const totalSlots =
@@ -33,13 +33,13 @@ export default function Page() {
   // Browser timezone + offset
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const offsetMin = -new Date().getTimezoneOffset();
-  const sign = offsetMin >= 0 ? "+" : "-";
+  const sign = offsetMin >= 0 ? '+' : '-';
   const absMin = Math.abs(offsetMin);
   const offH = Math.floor(absMin / 60);
   const offM = absMin % 60;
-  const formattedOffset = `GMT${sign}${String(offH).padStart(2, "0")}:${String(
-    offM
-  ).padStart(2, "0")}`;
+  const formattedOffset = `GMT${sign}${String(offH).padStart(2, '0')}:${String(
+    offM,
+  ).padStart(2, '0')}`;
 
   return (
     <div className="flex space-x-8 p-6">
@@ -48,7 +48,7 @@ export default function Page() {
         <Calendar
           mode="single"
           selected={selectedDate}
-          onSelect={(date) => date && setSelectedDate(date)}
+          onSelect={date => date && setSelectedDate(date)}
         />
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -59,7 +59,7 @@ export default function Page() {
               id="start-time"
               type="time"
               value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
+              onChange={e => setStartTime(e.target.value)}
             />
           </div>
           <div>
@@ -70,7 +70,7 @@ export default function Page() {
               id="end-time"
               type="time"
               value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
+              onChange={e => setEndTime(e.target.value)}
             />
           </div>
         </div>
@@ -81,22 +81,22 @@ export default function Page() {
 
       <div className="flex-1">
         <div className="grid grid-cols-7 gap-4 place-items-center">
-          {days.map((day) => (
+          {days.map(day => (
             <div
               key={day.toISOString()}
               className={
-                "flex flex-col h-16 w-16 justify-center items-center rounded-full"
+                'flex flex-col h-16 w-16 justify-center items-center rounded-full'
               }
             >
-              <div className="text-xs">{format(day, "EEE").toUpperCase()}</div>
-              <div className={"text-2xl font-semibold"}>{format(day, "d")}</div>
+              <div className="text-xs">{format(day, 'EEE').toUpperCase()}</div>
+              <div className={'text-2xl font-semibold'}>{format(day, 'd')}</div>
             </div>
           ))}
         </div>
 
         <div className="grid grid-cols-7 gap-4 mt-4 place-items-center">
           {Array.from({ length: totalSlots }).map((_, rowIndex) =>
-            days.map((day) => {
+            days.map(day => {
               const slot = set(day, {
                 hours: startHour + rowIndex,
                 minutes: startMinute,
@@ -115,10 +115,10 @@ export default function Page() {
                   variant="outline"
                   className="w-full"
                 >
-                  {format(slot, "h:mma")}
+                  {format(slot, 'h:mma')}
                 </Button>
               );
-            })
+            }),
           )}
         </div>
       </div>

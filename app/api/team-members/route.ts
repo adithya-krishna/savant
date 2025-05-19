@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
-import { db } from "@/db";
-import { createTeamMemberSchema } from "@/lib/validators/team-member";
-import { nanoid } from "nanoid";
-import { handleAPIError } from "@/lib/utils/api-error-handler";
+import { NextResponse } from 'next/server';
+import { db } from '@/db';
+import { createTeamMemberSchema } from '@/lib/validators/team-member';
+import { nanoid } from 'nanoid';
+import { handleAPIError } from '@/lib/utils/api-error-handler';
 
 export async function POST(request: Request) {
   try {
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
 
 export async function GET() {
   const teamMember = await db.teamMember.findMany({
-    orderBy: { first_name: "asc" },
+    orderBy: { first_name: 'asc' },
   });
   return NextResponse.json(teamMember);
 }

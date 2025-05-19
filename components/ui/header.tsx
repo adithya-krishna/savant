@@ -1,7 +1,7 @@
-import React from "react";
-import { SidebarTrigger } from "./sidebar";
-import { Separator } from "./separator";
-import { ModeToggle } from "../mode-toggle";
+import React from 'react';
+import { SidebarTrigger } from './sidebar';
+import { Separator } from './separator';
+import { ModeToggle } from '../mode-toggle';
 
 const header = () => {
   return (

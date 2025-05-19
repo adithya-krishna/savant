@@ -1,17 +1,17 @@
-import { NextResponse } from "next/server";
-import { db } from "@/db";
-import { nanoid } from "nanoid";
-import { InstrumentCreateSchema } from "@/lib/validators/instruments";
+import { NextResponse } from 'next/server';
+import { db } from '@/db';
+import { nanoid } from 'nanoid';
+import { InstrumentCreateSchema } from '@/lib/validators/instruments';
 import {
   handleAPIError,
   APIError,
   checkUniqueName,
-} from "@/lib/utils/api-error-handler";
+} from '@/lib/utils/api-error-handler';
 
 export async function GET() {
   try {
     const instruments = await db.instruments.findMany({
-      orderBy: { name: "asc" },
+      orderBy: { name: 'asc' },
       select: {
         id: true,
         name: true,
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
 
     const isUnique = await checkUniqueName(validation.data.name);
     if (!isUnique) {
-      throw new APIError("Instrument name must be unique", 409);
+      throw new APIError('Instrument name must be unique', 409);
     }
 
     const instrument = await db.instruments.create({

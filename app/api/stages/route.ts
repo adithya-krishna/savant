@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
-import { db } from "@/db";
-import { createStageSchema } from "@/lib/validators/stage";
-import { nanoid } from "nanoid";
+import { NextResponse } from 'next/server';
+import { db } from '@/db';
+import { createStageSchema } from '@/lib/validators/stage';
+import { nanoid } from 'nanoid';
 
 export async function GET() {
-  const stage = await db.stage.findMany({ orderBy: { name: "asc" } });
+  const stage = await db.stage.findMany({ orderBy: { name: 'asc' } });
   return NextResponse.json(stage);
 }
 

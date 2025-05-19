@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
-import { ZodError } from "zod";
-import { db } from "@/db";
-import { Prisma } from "@prisma/client";
+import { NextResponse } from 'next/server';
+import { ZodError } from 'zod';
+import { db } from '@/db';
+import { Prisma } from '@prisma/client';
 
 export class APIError extends Error {
   status: number;
@@ -17,48 +17,48 @@ export const handleAPIError = (error: unknown) => {
   if (error instanceof ZodError) {
     return NextResponse.json(
       {
-        message: "Validation error",
+        message: 'Validation error',
         errors: error.errors,
       },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   if (error instanceof APIError) {
     return NextResponse.json(
       { message: error.message },
-      { status: error.status }
+      { status: error.status },
     );
   }
 
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
-    if (error.code === "P2025") {
+    if (error.code === 'P2025') {
       return NextResponse.json(
         {
           success: false,
           meta: error.meta,
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     // make this a common function later
-    if (error.code === "P2003") {
+    if (error.code === 'P2003') {
       return NextResponse.json(
         {
           success: false,
-          message: `Unable to create ${error.meta?.modelName || "Entry"}`,
+          message: `Unable to create ${error.meta?.modelName || 'Entry'}`,
           meta: error.meta,
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
   }
 
-  console.error("Unexpected error:", error);
+  console.error('Unexpected error:', error);
   return NextResponse.json(
-    { message: "Internal server error" },
-    { status: 500 }
+    { message: 'Internal server error' },
+    { status: 500 },
   );
 };
 

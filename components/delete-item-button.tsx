@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import React from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -13,12 +13,12 @@ import {
   AlertDialogFooter,
   AlertDialogCancel,
   AlertDialogAction,
-} from "@/components/ui/alert-dialog";
-import { DropdownMenuItem } from "./ui/dropdown-menu";
-import { SectionTypes } from "@/app/global-types";
-import { Trash2 } from "lucide-react";
+} from '@/components/ui/alert-dialog';
+import { DropdownMenuItem } from './ui/dropdown-menu';
+import { SectionTypes } from '@/app/global-types';
+import { Trash2 } from 'lucide-react';
 
-type Vairants = "default" | "menu-item" | "icon";
+type Vairants = 'default' | 'menu-item' | 'icon';
 interface DeleteItemButtonProps {
   id: string;
   type: SectionTypes;
@@ -27,13 +27,13 @@ interface DeleteItemButtonProps {
 
 function getTriggerComponent(variant: Vairants) {
   switch (variant) {
-    case "menu-item":
+    case 'menu-item':
       return (
-        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+        <DropdownMenuItem onSelect={e => e.preventDefault()}>
           <span className="text-red-600 text-sm">Delete</span>
         </DropdownMenuItem>
       );
-    case "icon":
+    case 'icon':
       return (
         <Button variant="destructive" size="icon">
           <Trash2 />
@@ -51,7 +51,7 @@ function getTriggerComponent(variant: Vairants) {
 export function DeleteItemButton({
   id,
   type,
-  variant = "default",
+  variant = 'default',
 }: DeleteItemButtonProps) {
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
@@ -60,7 +60,7 @@ export function DeleteItemButton({
 
   const handleDelete = async () => {
     try {
-      const res = await fetch(`/api/${type}s/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/${type}s/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error(`Status ${res.status}`);
       router.refresh();
     } catch (err) {

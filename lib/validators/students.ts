@@ -1,12 +1,12 @@
-import { z } from "zod";
-import { idSchema } from "./common";
+import { z } from 'zod';
+import { idSchema } from './common';
 
 const decimalSchema = z
   .string({
-    required_error: "Decimal value is required",
+    required_error: 'Decimal value is required',
   })
-  .refine((val) => !isNaN(parseFloat(val)) && isFinite(Number(val)), {
-    message: "Must be a valid decimal number",
+  .refine(val => !isNaN(parseFloat(val)) && isFinite(Number(val)), {
+    message: 'Must be a valid decimal number',
   });
 
 const studentBaseSchema = z.object({
@@ -14,33 +14,33 @@ const studentBaseSchema = z.object({
 
   first_name: z
     .string({
-      required_error: "First name is required",
+      required_error: 'First name is required',
     })
-    .max(100, "First name must be 100 characters or less")
-    .min(3, "First name is required"),
+    .max(100, 'First name must be 100 characters or less')
+    .min(3, 'First name is required'),
 
   last_name: z
     .string()
-    .max(100, "Last name must be 100 characters or less")
+    .max(100, 'Last name must be 100 characters or less')
     .optional()
     .nullable(),
 
   parent_first_name: z
     .string({
-      required_error: "Parent first name is required",
+      required_error: 'Parent first name is required',
     })
-    .max(100, "Parent first name must be 100 characters or less")
-    .min(1, "Parent first name is required"),
+    .max(100, 'Parent first name must be 100 characters or less')
+    .min(1, 'Parent first name is required'),
 
   parent_last_name: z
     .string()
-    .max(100, "Parent last name must be 100 characters or less")
+    .max(100, 'Parent last name must be 100 characters or less')
     .optional()
     .nullable(),
 
   parent_phone: z
     .string()
-    .max(15, "Parent phone must be 15 characters or less")
+    .max(15, 'Parent phone must be 15 characters or less')
     .optional()
     .nullable(),
 
@@ -48,14 +48,14 @@ const studentBaseSchema = z.object({
 
   gmaps_place_id: z
     .string()
-    .max(255, "Google Maps place ID must be 255 characters or less")
+    .max(255, 'Google Maps place ID must be 255 characters or less')
     .optional()
     .nullable(),
 
   gmaps_url: z
     .string()
-    .max(1024, "Google Maps URL must be 1024 characters or less")
-    .url("Must be a valid URL")
+    .max(1024, 'Google Maps URL must be 1024 characters or less')
+    .url('Must be a valid URL')
     .optional()
     .nullable(),
 
@@ -64,50 +64,50 @@ const studentBaseSchema = z.object({
   gmaps_longitude: decimalSchema.optional().nullable(),
 
   dob: z.coerce.date({
-    required_error: "Date of birth is required",
+    required_error: 'Date of birth is required',
   }),
 
   gender: z
     .string()
-    .max(20, "Gender must be 20 characters or less")
+    .max(20, 'Gender must be 20 characters or less')
     .optional()
     .nullable(),
 
   email: z
     .string()
-    .email("Must be a valid email")
-    .max(100, "Email must be 100 characters or less")
+    .email('Must be a valid email')
+    .max(100, 'Email must be 100 characters or less')
     .optional()
     .nullable(),
 
   primary_contact: z
     .string({
-      required_error: "Primary contact is required",
+      required_error: 'Primary contact is required',
     })
-    .max(20, "Primary contact must be 20 characters or less")
-    .min(1, "Primary contact is required"),
+    .max(20, 'Primary contact must be 20 characters or less')
+    .min(1, 'Primary contact is required'),
 
   secondary_contact: z
     .string()
-    .max(20, "Secondary contact must be 20 characters or less")
+    .max(20, 'Secondary contact must be 20 characters or less')
     .optional()
     .nullable(),
 
   intended_subject: z
     .string()
-    .max(100, "Intended subject must be 100 characters or less")
+    .max(100, 'Intended subject must be 100 characters or less')
     .optional()
     .nullable(),
 
   learning_goal: z
     .string()
-    .max(100, "Learning goal must be 100 characters or less")
+    .max(100, 'Learning goal must be 100 characters or less')
     .optional()
     .nullable(),
 
   lead_id: z
     .string()
-    .max(20, "Lead ID must be 20 characters or less")
+    .max(20, 'Lead ID must be 20 characters or less')
     .optional()
     .nullable(),
 

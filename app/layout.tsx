@@ -1,20 +1,20 @@
-import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
-import "./globals.css";
-import Header from "@/components/ui/header";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
-import { ThemeProvider } from "next-themes";
+import type { Metadata } from 'next';
+import { Poppins } from 'next/font/google';
+import './globals.css';
+import Header from '@/components/ui/header';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { AppSidebar } from '@/components/app-sidebar';
+import { ThemeProvider } from 'next-themes';
 
 const poppinsSans = Poppins({
-  weight: ["400"],
-  variable: "--font-poppins-sans",
-  subsets: ["latin"],
+  weight: ['400'],
+  variable: '--font-poppins-sans',
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-  title: "Savant: Client resource management",
-  description: "Client resource management dashboard",
+  title: 'Savant: Client resource management',
+  description: 'Client resource management dashboard',
 };
 
 export default function RootLayout({

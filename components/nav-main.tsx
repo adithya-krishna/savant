@@ -1,13 +1,13 @@
-import React from "react";
+import React from 'react';
 import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "./ui/sidebar";
-import { LucideIcon } from "lucide-react";
-import Link from "next/link";
+} from './ui/sidebar';
+import { LucideIcon } from 'lucide-react';
+import Link from 'next/link';
 
 const NavMain = ({
   items,
@@ -22,7 +22,7 @@ const NavMain = ({
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
         <SidebarMenu>
-          {items.map((item) => (
+          {items.map(item => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild tooltip={item.title}>
                 <Link href={item.href}>

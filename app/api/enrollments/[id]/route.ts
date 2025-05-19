@@ -1,8 +1,8 @@
-import { db } from "@/db";
-import { handleAPIError } from "@/lib/utils/api-error-handler";
-import { getIdFromReq } from "@/lib/utils/api-utils";
-import { EnrollmentUpdateSchema } from "@/lib/validators/enrollment";
-import { NextRequest, NextResponse } from "next/server";
+import { db } from '@/db';
+import { handleAPIError } from '@/lib/utils/api-error-handler';
+import { getIdFromReq } from '@/lib/utils/api-utils';
+import { EnrollmentUpdateSchema } from '@/lib/validators/enrollment';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function PUT(request: NextRequest) {
   const id = getIdFromReq(request);
@@ -30,7 +30,7 @@ export async function DELETE(request: NextRequest) {
 
   try {
     const { searchParams } = new URL(request.url);
-    const hardDelete = searchParams.get("hardDelete") === "true";
+    const hardDelete = searchParams.get('hardDelete') === 'true';
 
     const input = EnrollmentUpdateSchema.parse({ id });
 
@@ -51,8 +51,8 @@ export async function DELETE(request: NextRequest) {
       success: true,
       data: result,
       message: hardDelete
-        ? "Enrollment permanently deleted"
-        : "Enrollment soft deleted successfully",
+        ? 'Enrollment permanently deleted'
+        : 'Enrollment soft deleted successfully',
     });
   } catch (error) {
     return handleAPIError(error);

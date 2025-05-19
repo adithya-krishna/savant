@@ -1,6 +1,6 @@
-import React from "react";
-import Link from "next/link";
-import { db } from "@/db";
+import React from 'react';
+import Link from 'next/link';
+import { db } from '@/db';
 import {
   Table,
   TableHeader,
@@ -8,14 +8,14 @@ import {
   TableBody,
   TableRow,
   TableCell,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { DeleteItemButton } from "@/components/delete-item-button";
-import TableDropdownMenu from "@/components/table-dropdown";
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { DeleteItemButton } from '@/components/delete-item-button';
+import TableDropdownMenu from '@/components/table-dropdown';
 
 export default async function TeamMembersPage() {
   const teamMembers = await db.teamMember.findMany({
-    orderBy: { create_date: "desc" },
+    orderBy: { create_date: 'desc' },
   });
 
   return (
@@ -40,13 +40,13 @@ export default async function TeamMembersPage() {
         </TableHeader>
 
         <TableBody>
-          {teamMembers.map((tm) => (
+          {teamMembers.map(tm => (
             <TableRow key={tm.id}>
               <TableCell>{`${tm.first_name} ${tm.last_name}`}</TableCell>
-              <TableCell>{tm.email ?? "—"}</TableCell>
+              <TableCell>{tm.email ?? '—'}</TableCell>
               <TableCell>{tm.phone}</TableCell>
-              <TableCell>{tm.role ?? "—"}</TableCell>
-              <TableCell>{tm.active ? "Yes" : "No"}</TableCell>
+              <TableCell>{tm.role ?? '—'}</TableCell>
+              <TableCell>{tm.active ? 'Yes' : 'No'}</TableCell>
               <TableCell>
                 <TableDropdownMenu id={tm.id} type="team-member" />
               </TableCell>

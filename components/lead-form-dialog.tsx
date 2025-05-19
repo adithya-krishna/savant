@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { toast } from "sonner";
-import { useForm } from "react-hook-form";
-import { Button } from "@/components/ui/button";
+import { toast } from 'sonner';
+import { useForm } from 'react-hook-form';
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -11,19 +11,19 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { PhoneInput } from "@/components/phone-input";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { PhoneInput } from '@/components/phone-input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { CreateLeadInput, createLeadSchema } from "@/lib/validators/lead";
+} from '@/components/ui/select';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { CreateLeadInput, createLeadSchema } from '@/lib/validators/lead';
 import {
   Dialog,
   DialogContent,
@@ -32,11 +32,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "./ui/dialog";
-import { useEffect, useState } from "react";
-import { fetchEndpointsParallel } from "./lead-form";
-import { TeamMemberOption } from "@/app/global-types";
-import { useRouter } from "next/navigation";
+} from './ui/dialog';
+import { useEffect, useState } from 'react';
+import { fetchEndpointsParallel } from './lead-form';
+import { TeamMemberOption } from '@/app/global-types';
+import { useRouter } from 'next/navigation';
 
 export default function LeadFormDialog({
   children,
@@ -47,32 +47,32 @@ export default function LeadFormDialog({
   const form = useForm<CreateLeadInput>({
     resolver: zodResolver(createLeadSchema),
     defaultValues: {
-      first_name: "",
-      last_name: "",
-      phone: "",
-      email: "",
-      address: "",
-      source_id: "",
-      instrument_id: "",
-      team_member_id: "",
-      stage_id: "",
+      first_name: '',
+      last_name: '',
+      phone: '',
+      email: '',
+      address: '',
+      source_id: '',
+      instrument_id: '',
+      team_member_id: '',
+      stage_id: '',
     },
   });
   const [teamMembers, setTeamMembers] = useState<TeamMemberOption[] | null>(
-    null
+    null,
   );
 
   useEffect(() => {
     const fetchData = async () => {
-      const results = await fetchEndpointsParallel(["/api/team-members"]);
+      const results = await fetchEndpointsParallel(['/api/team-members']);
 
-      results.forEach((result) => {
+      results.forEach(result => {
         if (result.error) {
           console.error(result.error);
         }
 
         switch (result.endpoint) {
-          case "/api/team-members":
+          case '/api/team-members':
             setTeamMembers(result.data || []);
             break;
         }
@@ -83,18 +83,18 @@ export default function LeadFormDialog({
   }, []);
 
   const onSubmit = async (values: CreateLeadInput) => {
-    const res = await fetch("/api/leads", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...values, id: "new" }),
+    const res = await fetch('/api/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...values, id: 'new' }),
     });
 
     if (res.ok) {
       form.reset();
-      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
       router.refresh();
     } else {
-      console.error("Failed to save lead");
+      console.error('Failed to save lead');
     }
   };
 
@@ -141,7 +141,7 @@ export default function LeadFormDialog({
                           placeholder="e.g., Doe"
                           type="text"
                           {...field}
-                          value={field.value ?? ""}
+                          value={field.value ?? ''}
                         />
                       </FormControl>
 
@@ -163,7 +163,7 @@ export default function LeadFormDialog({
                       placeholder="e.g., 221B Baker Street, Koramangala, Bengaluru, Karnataka 560034"
                       className="resize-none"
                       {...field}
-                      value={field.value ?? ""}
+                      value={field.value ?? ''}
                     />
                   </FormControl>
                   <FormMessage />
@@ -200,7 +200,7 @@ export default function LeadFormDialog({
                       placeholder="e.g., john@example.com"
                       type="email"
                       {...field}
-                      value={field.value ?? ""}
+                      value={field.value ?? ''}
                     />
                   </FormControl>
                   <FormMessage />
@@ -246,14 +246,14 @@ export default function LeadFormDialog({
                   <FormLabel>Assign Team Member</FormLabel>
                   <Select
                     onValueChange={field.onChange}
-                    value={field.value ?? ""}
+                    value={field.value ?? ''}
                     disabled={!teamMembers}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select team member" />
                     </SelectTrigger>
                     <SelectContent>
-                      {teamMembers?.map((tm) => (
+                      {teamMembers?.map(tm => (
                         <SelectItem key={tm.id} value={tm.id}>
                           {tm.first_name} {tm.last_name}
                         </SelectItem>

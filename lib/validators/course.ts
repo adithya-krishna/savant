@@ -1,24 +1,24 @@
-import { z } from "zod";
-import { idSchema } from "./common";
+import { z } from 'zod';
+import { idSchema } from './common';
 
 const dateSchema = z.coerce.date();
 const difficultySchema = z.enum([
-  "FOUNDATION",
-  "BEGINNER",
-  "INTERMEDIATE",
-  "ADVANCED",
+  'FOUNDATION',
+  'BEGINNER',
+  'INTERMEDIATE',
+  'ADVANCED',
 ]);
 
 const CourseBaseSchema = z.object({
   id: idSchema,
   name: z
     .string()
-    .min(2, { message: "Name is required" })
-    .max(100, { message: "Name must be 100 characters or less" }),
+    .min(2, { message: 'Name is required' })
+    .max(100, { message: 'Name must be 100 characters or less' }),
   difficulty: difficultySchema.optional(),
   description: z
     .string()
-    .max(255, { message: "Description must be 255 characters or less" })
+    .max(255, { message: 'Description must be 255 characters or less' })
     .optional(),
   instrument_id: idSchema.optional(),
   teacher_id: idSchema.optional(),
@@ -32,7 +32,7 @@ const CourseCreateSchema = CourseBaseSchema.omit({
   updated_date: true,
 })
   .extend({
-    difficulty: difficultySchema.default("FOUNDATION"),
+    difficulty: difficultySchema.default('FOUNDATION'),
   })
   .required({
     name: true,

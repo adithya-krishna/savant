@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Dialog,
   DialogTrigger,
@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Form,
   FormField,
@@ -18,11 +18,11 @@ import {
   FormLabel,
   FormControl,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { CreateStageInput, createStageSchema } from "@/lib/validators/stage";
-import { useRouter } from "next/navigation";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { CreateStageInput, createStageSchema } from '@/lib/validators/stage';
+import { useRouter } from 'next/navigation';
 
 interface StageFormProps {
   initialData?: { name: string } | null;
@@ -33,29 +33,29 @@ interface StageFormProps {
 
 function StageForm({ initialData, id, children }: StageFormProps) {
   const router = useRouter();
-  const isNew = id === "new";
+  const isNew = id === 'new';
 
   const form = useForm<CreateStageInput>({
     resolver: zodResolver(createStageSchema),
-    defaultValues: initialData ? { name: initialData.name } : { name: "" },
+    defaultValues: initialData ? { name: initialData.name } : { name: '' },
   });
 
   const onSubmit = async (values: CreateStageInput) => {
-    const url = isNew ? "/api/stages" : `/api/stages/${id}`;
-    const method = isNew ? "POST" : "PUT";
+    const url = isNew ? '/api/stages' : `/api/stages/${id}`;
+    const method = isNew ? 'POST' : 'PUT';
 
     const res = await fetch(url, {
       method,
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(isNew ? values : { id, ...values }),
     });
 
     if (res.ok) {
       form.reset();
-      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
       router.refresh();
     } else {
-      console.error("Failed to save stage");
+      console.error('Failed to save stage');
     }
   };
 
@@ -66,11 +66,11 @@ function StageForm({ initialData, id, children }: StageFormProps) {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <DialogHeader>
-              <DialogTitle>{isNew ? "Create Stage" : "Edit Stage"}</DialogTitle>
+              <DialogTitle>{isNew ? 'Create Stage' : 'Edit Stage'}</DialogTitle>
               <DialogDescription>
                 {isNew
-                  ? "Add a new stage to your pipeline"
-                  : "Make changes to your stage here"}
+                  ? 'Add a new stage to your pipeline'
+                  : 'Make changes to your stage here'}
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -94,7 +94,7 @@ function StageForm({ initialData, id, children }: StageFormProps) {
             </div>
             <DialogFooter>
               <Button type="submit" disabled={form.formState.isSubmitting}>
-                {isNew ? "Create Stage" : "Save changes"}
+                {isNew ? 'Create Stage' : 'Save changes'}
               </Button>
             </DialogFooter>
           </form>

@@ -1,12 +1,12 @@
-import { db } from "@/db";
-import { handleAPIError } from "@/lib/utils/api-error-handler";
-import { createStudentSchema } from "@/lib/validators/students";
-import { nanoid } from "nanoid";
-import { NextRequest, NextResponse } from "next/server";
+import { db } from '@/db';
+import { handleAPIError } from '@/lib/utils/api-error-handler';
+import { createStudentSchema } from '@/lib/validators/students';
+import { nanoid } from 'nanoid';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET() {
   const leads = await db.student.findMany({
-    orderBy: { create_date: "desc" },
+    orderBy: { create_date: 'desc' },
     // include: {
     //   lead: true,
     //   enrollments: true,

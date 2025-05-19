@@ -1,13 +1,13 @@
-import { NextResponse, type NextRequest } from "next/server";
-import { db } from "@/db";
-import { createLeadSchema } from "@/lib/validators/lead";
-import { nanoid } from "nanoid";
-import { Decimal } from "@prisma/client/runtime/library";
-import { connectIfDefined, connectManyIfDefined } from "@/lib/utils";
+import { NextResponse, type NextRequest } from 'next/server';
+import { db } from '@/db';
+import { createLeadSchema } from '@/lib/validators/lead';
+import { nanoid } from 'nanoid';
+import { Decimal } from '@prisma/client/runtime/library';
+import { connectIfDefined, connectManyIfDefined } from '@/lib/utils';
 
 export async function GET() {
   const leads = await db.leads.findMany({
-    orderBy: { create_date: "desc" },
+    orderBy: { create_date: 'desc' },
     include: {
       stage: true,
       team_member: true,
@@ -48,10 +48,10 @@ export async function POST(request: Request) {
       next_followup: data.next_followup
         ? new Date(data.next_followup)
         : undefined,
-      ...connectIfDefined("source", data.source_id),
-      ...connectManyIfDefined("instruments", data.instrument_ids),
-      ...connectIfDefined("stage", data.stage_id),
-      ...connectIfDefined("team_member", data.team_member_id),
+      ...connectIfDefined('source', data.source_id),
+      ...connectManyIfDefined('instruments', data.instrument_ids),
+      ...connectIfDefined('stage', data.stage_id),
+      ...connectIfDefined('team_member', data.team_member_id),
     },
   });
 

@@ -1,11 +1,11 @@
-import { NextResponse } from "next/server";
-import { db } from "@/db";
-import { nanoid } from "nanoid";
-import { CreatePlanSchema } from "@/lib/validators/plans";
+import { NextResponse } from 'next/server';
+import { db } from '@/db';
+import { nanoid } from 'nanoid';
+import { CreatePlanSchema } from '@/lib/validators/plans';
 
 export async function GET() {
   const plans = await db.plans.findMany({
-    orderBy: { name: "asc" },
+    orderBy: { name: 'asc' },
   });
   return NextResponse.json(plans);
 }

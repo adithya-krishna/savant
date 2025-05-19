@@ -1,12 +1,12 @@
-import { z } from "zod";
-import { idSchema } from "./common";
+import { z } from 'zod';
+import { idSchema } from './common';
 
 export const LeadsSchema = z.object({
   id: idSchema,
-  first_name: z.string().max(100).nonempty("First name is required."),
+  first_name: z.string().max(100).nonempty('First name is required.'),
   last_name: z.string().max(100).optional().nullable(),
-  phone: z.string().max(15).nonempty("Phone is required."),
-  email: z.string().max(255).email("Invalid email.").optional().nullable(),
+  phone: z.string().max(15).nonempty('Phone is required.'),
+  email: z.string().max(255).email('Invalid email.').optional().nullable(),
   address: z.string().optional().nullable(),
   area: z.string().optional().nullable(),
   walkin_date: z.string().optional().nullable(),

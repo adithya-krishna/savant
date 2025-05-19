@@ -1,6 +1,6 @@
-import React from "react";
-import Link from "next/link";
-import { db } from "@/db";
+import React from 'react';
+import Link from 'next/link';
+import { db } from '@/db';
 import {
   Table,
   TableHeader,
@@ -8,14 +8,14 @@ import {
   TableBody,
   TableRow,
   TableCell,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import TableDropdownMenu from "@/components/table-dropdown";
-import LeadFormDialog from "@/components/lead-form-dialog";
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import TableDropdownMenu from '@/components/table-dropdown';
+import LeadFormDialog from '@/components/lead-form-dialog';
 
 export default async function LeadsPage() {
   const leads = await db.leads.findMany({
-    orderBy: { create_date: "desc" },
+    orderBy: { create_date: 'desc' },
     include: {
       stage: true,
       // team_member: true,
@@ -46,21 +46,21 @@ export default async function LeadsPage() {
         </TableHeader>
 
         <TableBody>
-          {leads.map((l) => (
+          {leads.map(l => (
             <TableRow key={l.id}>
               <TableCell>
-                {l.first_name} {l.last_name ?? ""}
+                {l.first_name} {l.last_name ?? ''}
               </TableCell>
               <TableCell>{l.phone}</TableCell>
-              <TableCell>{l.email ?? "—"}</TableCell>
-              <TableCell>{l.stage?.name ?? "—"}</TableCell>
+              <TableCell>{l.email ?? '—'}</TableCell>
+              <TableCell>{l.stage?.name ?? '—'}</TableCell>
               <TableCell>
                 {l.walkin_date
                   ? new Date(l.walkin_date).toLocaleDateString()
-                  : "—"}
+                  : '—'}
               </TableCell>
               <TableCell>
-                <TableDropdownMenu id={l.id} type={"lead"} />
+                <TableDropdownMenu id={l.id} type={'lead'} />
               </TableCell>
             </TableRow>
           ))}

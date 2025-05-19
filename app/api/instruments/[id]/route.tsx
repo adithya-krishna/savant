@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/db";
-import { InstrumentUpdateSchema } from "@/lib/validators/instruments";
+import { NextRequest, NextResponse } from 'next/server';
+import { db } from '@/db';
+import { InstrumentUpdateSchema } from '@/lib/validators/instruments';
 import {
   handleAPIError,
   APIError,
   checkUniqueName,
-} from "@/lib/utils/api-error-handler";
-import { getIdFromReq } from "@/lib/utils/api-utils";
+} from '@/lib/utils/api-error-handler';
+import { getIdFromReq } from '@/lib/utils/api-utils';
 
 export async function PUT(request: NextRequest) {
   try {
@@ -21,7 +21,7 @@ export async function PUT(request: NextRequest) {
     if (validation.data.name) {
       const isUnique = await checkUniqueName(validation.data.name, id);
       if (!isUnique) {
-        throw new APIError("Instrument name must be unique", 409);
+        throw new APIError('Instrument name must be unique', 409);
       }
     }
 
@@ -52,7 +52,7 @@ export async function DELETE(request: NextRequest) {
       where: { id },
     });
     if (!existingInstrument) {
-      throw new APIError("Instrument not found", 404);
+      throw new APIError('Instrument not found', 404);
     }
 
     const coursesUsingInstrument = await db.course.count({
@@ -61,8 +61,8 @@ export async function DELETE(request: NextRequest) {
 
     if (coursesUsingInstrument > 0) {
       throw new APIError(
-        "Cannot delete instrument as it is being used in courses",
-        400
+        'Cannot delete instrument as it is being used in courses',
+        400,
       );
     }
 

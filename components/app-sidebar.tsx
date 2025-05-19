@@ -7,7 +7,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
+} from '@/components/ui/sidebar';
 import {
   CalendarClock,
   HelpCircleIcon,
@@ -15,38 +15,38 @@ import {
   Rocket,
   SettingsIcon,
   UsersIcon,
-} from "lucide-react";
-import Link from "next/link";
-import NavMain from "./nav-main";
-import { NavSecondary } from "./nav-secondary";
+} from 'lucide-react';
+import Link from 'next/link';
+import NavMain from './nav-main';
+import { NavSecondary } from './nav-secondary';
 
 const navMain = [
   {
-    title: "Leads",
-    href: "/leads",
+    title: 'Leads',
+    href: '/leads',
     icon: Rocket,
   },
   {
-    title: "Team",
-    href: "/team-members",
+    title: 'Team',
+    href: '/team-members',
     icon: UsersIcon,
   },
   {
-    title: "Slots",
-    href: "/slots",
+    title: 'Slots',
+    href: '/slots',
     icon: CalendarClock,
   },
 ];
 
 const navSecondary = [
   {
-    title: "Settings",
-    href: "/settings",
+    title: 'Settings',
+    href: '/settings',
     icon: SettingsIcon,
   },
   {
-    title: "Get Help",
-    href: "/help",
+    title: 'Get Help',
+    href: '/help',
     icon: HelpCircleIcon,
   },
 ];

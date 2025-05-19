@@ -1,7 +1,7 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
-import { startOfISOWeek, addDays, setISOWeek, setYear, format } from "date-fns";
+import { startOfISOWeek, addDays, setISOWeek, setYear, format } from 'date-fns';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -16,7 +16,7 @@ export function cn(...inputs: ClassValue[]) {
  */
 export function getWeekDates(
   weekNumber: number,
-  year: number
+  year: number,
 ): { day: string; date: string }[] {
   // Start from the first ISO week of the year
   let date = startOfISOWeek(setISOWeek(setYear(new Date(), year), weekNumber));
@@ -25,8 +25,8 @@ export function getWeekDates(
   for (let i = 0; i < 7; i++) {
     const currentDay = addDays(date, i);
     days.push({
-      day: format(currentDay, "EEE"), // Full name of the day (e.g., "Mon")
-      date: format(currentDay, "dd"), // ISO format date
+      day: format(currentDay, 'EEE'), // Full name of the day (e.g., "Mon")
+      date: format(currentDay, 'dd'), // ISO format date
     });
   }
   return days;
@@ -46,9 +46,9 @@ export function getWeekDates(
  */
 export function connectIfDefined<T>(
   key: string,
-  id: T | null | undefined | ""
+  id: T | null | undefined | '',
 ) {
-  if (id === null || id === undefined || id === "") {
+  if (id === null || id === undefined || id === '') {
     return undefined;
   }
 
@@ -70,8 +70,8 @@ export function connectIfDefined<T>(
  */
 export function connectManyIfDefined<T>(
   key: string,
-  ids: T[] | null | undefined
+  ids: T[] | null | undefined,
 ) {
   if (!Array.isArray(ids) || ids.length === 0) return undefined;
-  return { [key]: { connect: ids.map((id) => ({ id })) } };
+  return { [key]: { connect: ids.map(id => ({ id })) } };
 }

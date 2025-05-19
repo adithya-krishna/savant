@@ -1,5 +1,5 @@
-import * as React from "react";
-import { LucideIcon } from "lucide-react";
+import * as React from 'react';
+import { LucideIcon } from 'lucide-react';
 
 import {
   SidebarGroup,
@@ -7,8 +7,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import Link from "next/link";
+} from '@/components/ui/sidebar';
+import Link from 'next/link';
 
 export function NavSecondary({
   items,
@@ -24,7 +24,7 @@ export function NavSecondary({
     <SidebarGroup {...props}>
       <SidebarGroupContent>
         <SidebarMenu>
-          {items.map((item) => (
+          {items.map(item => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild>
                 <Link href={item.href}>

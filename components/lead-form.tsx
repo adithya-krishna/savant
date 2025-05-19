@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { createLeadSchema, CreateLeadInput } from "@/lib/validators/lead";
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { createLeadSchema, CreateLeadInput } from '@/lib/validators/lead';
 import {
   Form,
   FormField,
@@ -13,19 +13,19 @@ import {
   FormControl,
   FormDescription,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { PhoneInput } from "./phone-input";
-import { TeamMemberOption } from "@/app/global-types";
+} from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { PhoneInput } from './phone-input';
+import { TeamMemberOption } from '@/app/global-types';
 
 interface StageOption {
   id: string;
@@ -47,11 +47,11 @@ export type FetchResult<T> = {
 
 export async function fetchEndpointsParallel<T = any>(
   endpoints: string[],
-  options?: RequestInit
+  options?: RequestInit,
 ): Promise<FetchResult<T>[]> {
   try {
     const responses = await Promise.all(
-      endpoints.map((endpoint) => fetch(endpoint, options))
+      endpoints.map(endpoint => fetch(endpoint, options)),
     );
 
     const results: Promise<FetchResult<T>>[] = responses.map(
@@ -78,13 +78,13 @@ export async function fetchEndpointsParallel<T = any>(
             endpoint: endpoints[index],
           };
         }
-      }
+      },
     );
 
     return await Promise.all(results);
   } catch (error) {
     // Handle network errors or other fetch failures
-    return endpoints.map((endpoint) => ({
+    return endpoints.map(endpoint => ({
       data: null,
       error: `Network error occurred while fetching ${endpoint}`,
       endpoint,
@@ -95,31 +95,31 @@ export async function fetchEndpointsParallel<T = any>(
 
 export default function LeadForm({ initialData, id }: LeadFormProps) {
   const router = useRouter();
-  const isNew = id === "new";
+  const isNew = id === 'new';
   const [teamMembers, setTeamMembers] = useState<TeamMemberOption[] | null>(
-    null
+    null,
   );
   const [stages, setStages] = useState<StageOption[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       const results = await fetchEndpointsParallel([
-        "/api/team-members",
-        "/api/stages",
+        '/api/team-members',
+        '/api/stages',
       ]);
 
       // Process results
-      results.forEach((result) => {
+      results.forEach(result => {
         if (result.error) {
           console.error(result.error);
           // You could also set these errors in state to display to the user
         }
 
         switch (result.endpoint) {
-          case "/api/team-members":
+          case '/api/team-members':
             setTeamMembers(result.data || []);
             break;
-          case "/api/stages":
+          case '/api/stages':
             setStages(result.data || []);
             break;
         }
@@ -132,38 +132,38 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
   const form = useForm<CreateLeadInput>({
     resolver: zodResolver(createLeadSchema),
     defaultValues: {
-      first_name: "",
-      last_name: "",
-      phone: "",
-      email: "",
-      source_id: "",
-      walkin_date: "",
-      address: "",
-      expected_budget: "",
-      stage_id: "",
+      first_name: '',
+      last_name: '',
+      phone: '',
+      email: '',
+      source_id: '',
+      walkin_date: '',
+      address: '',
+      expected_budget: '',
+      stage_id: '',
       demo_taken: false,
-      color_code: "#000000",
+      color_code: '#000000',
       number_of_contact_attempts: 0,
-      last_contacted_date: "",
-      next_followup: "",
-      team_member_id: "",
+      last_contacted_date: '',
+      next_followup: '',
+      team_member_id: '',
     },
   });
 
   const onSubmit = async (values: CreateLeadInput) => {
-    const url = isNew ? "/api/leads" : `/api/leads/${id}`;
-    const method = isNew ? "POST" : "PUT";
+    const url = isNew ? '/api/leads' : `/api/leads/${id}`;
+    const method = isNew ? 'POST' : 'PUT';
 
     const res = await fetch(url, {
       method,
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...values, id }),
     });
 
     if (res.ok) {
-      router.push("/leads");
+      router.push('/leads');
     } else {
-      console.error("Failed to save lead");
+      console.error('Failed to save lead');
     }
   };
 
@@ -198,7 +198,7 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
               <FormItem className="w-full">
                 <FormLabel>Last Name</FormLabel>
                 <FormControl>
-                  <Input {...field} value={field.value ?? ""} />
+                  <Input {...field} value={field.value ?? ''} />
                 </FormControl>
                 <FormDescription className="text-xs">
                   Optional surname.
@@ -237,7 +237,7 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input {...field} value={field.value ?? ""} type="email" />
+                <Input {...field} value={field.value ?? ''} type="email" />
               </FormControl>
               <FormDescription className="text-xs">
                 Optional business email.
@@ -254,7 +254,7 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
             <FormItem>
               <FormLabel>Walk-in Date</FormLabel>
               <FormControl>
-                <Input {...field} value={field.value ?? ""} type="date" />
+                <Input {...field} value={field.value ?? ''} type="date" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -270,7 +270,7 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
               <FormControl>
                 <Input
                   {...field}
-                  value={field.value ?? ""}
+                  value={field.value ?? ''}
                   type="datetime-local"
                 />
               </FormControl>
@@ -288,7 +288,7 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
               <FormControl>
                 <Input
                   {...field}
-                  value={field.value ?? ""}
+                  value={field.value ?? ''}
                   type="number"
                   step="0.01"
                 />
@@ -307,14 +307,14 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
               <FormControl>
                 <Select
                   onValueChange={field.onChange}
-                  value={field.value ?? ""}
+                  value={field.value ?? ''}
                   disabled={stages.length === 0}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select stage" />
                   </SelectTrigger>
                   <SelectContent>
-                    {stages.map((s) => (
+                    {stages.map(s => (
                       <SelectItem key={s.id} value={s.id}>
                         {s.name}
                       </SelectItem>
@@ -355,14 +355,14 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
               <FormControl>
                 <Select
                   onValueChange={field.onChange}
-                  value={field.value ?? ""}
+                  value={field.value ?? ''}
                   disabled={!teamMembers}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select team member" />
                   </SelectTrigger>
                   <SelectContent>
-                    {teamMembers?.map((tm) => (
+                    {teamMembers?.map(tm => (
                       <SelectItem key={tm.id} value={tm.id}>
                         {tm.first_name} {tm.last_name}
                       </SelectItem>
@@ -382,7 +382,7 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
             <FormItem>
               <FormLabel>Color Code</FormLabel>
               <FormControl>
-                <Input {...field} value={field.value ?? ""} />
+                <Input {...field} value={field.value ?? ''} />
               </FormControl>
               <FormDescription className="text-xs">
                 Hex code, e.g. #a1b2c3
@@ -397,7 +397,7 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
           type="submit"
           disabled={form.formState.isSubmitting}
         >
-          {isNew ? "Create Lead" : "Update Lead"}
+          {isNew ? 'Create Lead' : 'Update Lead'}
         </Button>
       </form>
     </Form>
