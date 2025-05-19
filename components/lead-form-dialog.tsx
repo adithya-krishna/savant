@@ -53,7 +53,7 @@ export default function LeadFormDialog({
       email: '',
       address: '',
       source_id: '',
-      instrument_id: '',
+      instrument_ids: [],
       team_member_id: '',
       stage_id: '',
     },
