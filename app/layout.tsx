@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Poppins } from 'next/font/google';
+import { DM_Sans, Lora, IBM_Plex_Mono } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/ui/header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
@@ -7,11 +7,23 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { ThemeProvider } from 'next-themes';
 import { ReactNode } from 'react';
 
-const poppinsSans = Poppins({
-  weight: ['400', '600', '700'],
-  variable: '--font-poppins-sans',
-  subsets: ['latin'],
-});
+const DMSans = DM_Sans({
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-sans",
+  subsets: ["latin"]
+})
+
+const loraSerif = Lora({
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-serif",
+  subsets: ["latin"]
+})
+
+const IBMMono = IBM_Plex_Mono({
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-mono",
+  subsets: ["latin"]
+})
 
 export const metadata: Metadata = {
   title: 'Savant: Client resource management',
@@ -25,7 +37,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${poppinsSans.variable} antialiased`}>
+      <body className={`${DMSans.variable} ${loraSerif.variable} ${IBMMono.variable} antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
