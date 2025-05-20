@@ -57,7 +57,7 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div>
+    <>
       <DataTableToolbar table={table} filterOptions={filterOptions} />
       <div className="rounded-md border">
         <Table>
@@ -110,6 +110,6 @@ export function DataTable<TData, TValue>({
         </Table>
         <DataTablePagination table={table} />
       </div>
-    </div>
+    </>
   );
 }

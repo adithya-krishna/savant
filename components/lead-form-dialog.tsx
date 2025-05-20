@@ -123,7 +123,10 @@ export default function LeadFormDialog({ children }: { children: ReactNode }) {
                   name="first_name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>First Name</FormLabel>
+                      <FormLabel>
+                        First Name
+                        <span className="text-sm text-red-400">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="e.g., John"
@@ -184,7 +187,9 @@ export default function LeadFormDialog({ children }: { children: ReactNode }) {
               name="phone"
               render={({ field }) => (
                 <FormItem className="flex flex-col items-start">
-                  <FormLabel>Phone number</FormLabel>
+                  <FormLabel>
+                    Phone number<span className="text-sm text-red-400">*</span>
+                  </FormLabel>
                   <FormControl className="w-full">
                     <PhoneInput
                       placeholder="e.g., 12345 67890"
@@ -202,7 +207,9 @@ export default function LeadFormDialog({ children }: { children: ReactNode }) {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>
+                    Email<span className="text-sm text-red-400">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Input
                       placeholder="e.g., john@example.com"

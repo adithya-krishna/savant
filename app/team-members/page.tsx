@@ -27,33 +27,35 @@ export default async function TeamMembersPage() {
         </Link>
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Phone</TableHead>
-            <TableHead>Role</TableHead>
-            <TableHead>Active</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-
-        <TableBody>
-          {teamMembers.map(tm => (
-            <TableRow key={tm.id}>
-              <TableCell>{`${tm.first_name} ${tm.last_name}`}</TableCell>
-              <TableCell>{tm.email ?? '—'}</TableCell>
-              <TableCell>{tm.phone}</TableCell>
-              <TableCell>{tm.role ?? '—'}</TableCell>
-              <TableCell>{tm.active ? 'Yes' : 'No'}</TableCell>
-              <TableCell>
-                <TableDropdownMenu id={tm.id} type="team-member" />
-              </TableCell>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Phone</TableHead>
+              <TableHead>Role</TableHead>
+              <TableHead>Active</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+
+          <TableBody>
+            {teamMembers.map(tm => (
+              <TableRow key={tm.id}>
+                <TableCell>{`${tm.first_name} ${tm.last_name}`}</TableCell>
+                <TableCell>{tm.email ?? '—'}</TableCell>
+                <TableCell>{tm.phone}</TableCell>
+                <TableCell>{tm.role ?? '—'}</TableCell>
+                <TableCell>{tm.active ? 'Yes' : 'No'}</TableCell>
+                <TableCell>
+                  <TableDropdownMenu id={tm.id} type="team-member" />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }
