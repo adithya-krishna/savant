@@ -31,17 +31,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from './ui/dialog';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { fetchEndpointsParallel } from './lead-form';
-import { TeamMemberOption, InstrumentType } from '@/app/global-types';
+import { TeamMemberType, InstrumentType } from '@/app/global-types';
 import { useRouter } from 'next/navigation';
 import { MultiSelect, MultiSelectOption } from './multi-select';
 
-export default function LeadFormDialog({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function LeadFormDialog({ children }: { children: ReactNode }) {
   const router = useRouter();
   const form = useForm<CreateLeadInput>({
     resolver: zodResolver(createLeadSchema),
@@ -55,9 +51,7 @@ export default function LeadFormDialog({
       team_member_id: '',
     },
   });
-  const [teamMembers, setTeamMembers] = useState<TeamMemberOption[] | null>(
-    null,
-  );
+  const [teamMembers, setTeamMembers] = useState<TeamMemberType[] | null>(null);
   const [instruments, setInstruments] = useState<MultiSelectOption[]>([]);
 
   useEffect(() => {
@@ -74,16 +68,18 @@ export default function LeadFormDialog({
 
         switch (result.endpoint) {
           case '/api/team-members':
-            setTeamMembers(result.data || []);
+            setTeamMembers((result.data as TeamMemberType[]) || []);
             break;
         }
 
         switch (result.endpoint) {
           case '/api/instruments': {
-            const options = result.data.map((r: InstrumentType) => ({
-              label: r.name,
-              value: r.id,
-            }));
+            const options = (result.data as InstrumentType[]).map(
+              (r: InstrumentType) => ({
+                label: r.name,
+                value: r.id,
+              }),
+            );
             setInstruments(options);
             break;
           }

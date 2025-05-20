@@ -2,8 +2,8 @@ import React from 'react';
 import { db } from '@/db';
 import { Button } from '@/components/ui/button';
 import LeadFormDialog from '@/components/lead-form-dialog';
-import { DataTable } from '@/components/data-table';
-import { columns } from '@/components/leads/columns';
+import { DataTable } from '@/components/data-tables';
+import { columns } from '@/app/leads/columns';
 
 export default async function LeadsPage() {
   const leads = await db.leads.findMany({

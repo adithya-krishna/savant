@@ -21,7 +21,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useState } from 'react';
-import { Input } from './ui/input';
+import { Input } from '../ui/input';
 import { DataTableViewOptions } from './dt-column-toggle';
 import { DataTablePagination } from './dt-pagination';
 

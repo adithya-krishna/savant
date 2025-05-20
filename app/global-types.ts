@@ -1,13 +1,11 @@
+import { Prisma } from '@prisma/client';
+
 export type SectionTypes = 'team-member' | 'lead' | 'stage';
 
-export interface TeamMemberOption {
-  id: string;
-  first_name: string;
-  last_name: string;
-}
+export type TeamMemberType = Prisma.TeamMemberGetPayload<{
+  select: { id: true; first_name: true; last_name: true };
+}>;
 
-export type InstrumentType = {
-  id: string;
-  name: string;
-  description?: string;
-};
+export type InstrumentType = Prisma.InstrumentsGetPayload<{
+  select: { id: true; name: true; description: true };
+}>;

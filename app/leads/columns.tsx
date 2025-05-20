@@ -1,11 +1,11 @@
 'use client';
 
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
-import TableDropdownMenu from '../table-dropdown';
-import { DataTableColumnHeader } from '../dt-column-header';
 import { Prisma } from '@prisma/client';
-import { Badge } from '../ui/badge';
-import { Checkbox } from '../ui/checkbox';
+import { getFullName } from '@/lib/utils';
+import { DataTableColumnHeader } from '@/components/data-tables';
+import TableDropdownMenu from '@/components/table-dropdown';
+import { Badge } from '@/components/ui/badge';
 
 type Lead = Prisma.LeadsGetPayload<{
   include: { stage: true; instruments: true; team_member: true };
@@ -14,29 +14,7 @@ type Lead = Prisma.LeadsGetPayload<{
 const columnHelper = createColumnHelper<Lead>();
 
 export const columns = [
-  //   columnHelper.display({
-  //     id: 'select',
-  //     header: ({ table }) => (
-  //       <Checkbox
-  //         checked={
-  //           table.getIsAllPageRowsSelected() ||
-  //           (table.getIsSomePageRowsSelected() && 'indeterminate')
-  //         }
-  //         onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
-  //         aria-label="Select all"
-  //       />
-  //     ),
-  //     cell: ({ row }) => (
-  //       <Checkbox
-  //         checked={row.getIsSelected()}
-  //         onCheckedChange={value => row.toggleSelected(!!value)}
-  //         aria-label="Select row"
-  //       />
-  //     ),
-  //     enableSorting: false,
-  //     enableHiding: false,
-  //   }) as ColumnDef<Lead, string>,
-  columnHelper.accessor(row => `${row.first_name} ${row.last_name}`, {
+  columnHelper.accessor(getFullName, {
     id: 'full_name',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Name" />
@@ -50,14 +28,11 @@ export const columns = [
     header: 'Stage',
     cell: info => info.getValue(),
   }),
-  columnHelper.accessor(
-    row => `${row.team_member?.first_name} ${row.team_member?.last_name}`,
-    {
-      id: 'team_member',
-      header: 'Team Member',
-      cell: info => info.getValue(),
-    },
-  ),
+  columnHelper.accessor(row => getFullName(row.team_member), {
+    id: 'team_member',
+    header: 'Team Member',
+    cell: info => info.getValue(),
+  }),
   columnHelper.accessor(row => row.instruments, {
     id: 'instruments',
     header: 'Instruments',

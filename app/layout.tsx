@@ -5,9 +5,10 @@ import Header from '@/components/ui/header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
 import { ThemeProvider } from 'next-themes';
+import { ReactNode } from 'react';
 
 const poppinsSans = Poppins({
-  weight: ['400'],
+  weight: ['400', '600', '700'],
   variable: '--font-poppins-sans',
   subsets: ['latin'],
 });
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>

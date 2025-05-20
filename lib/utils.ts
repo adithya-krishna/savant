@@ -77,3 +77,15 @@ export function connectManyIfDefined<T>(
   if (!Array.isArray(ids) || ids.length === 0) return undefined;
   return { [key]: { connect: ids.map(id => ({ id })) } };
 }
+
+export function getFullName<
+  T extends { first_name?: string | null; last_name?: string | null },
+>(user?: T | null): string {
+  const first = user?.first_name?.trim();
+  const last = user?.last_name?.trim();
+
+  if (!first && !last) return '-';
+  if (first && !last) return first;
+  if (!first && last) return last;
+  return `${first} ${last}`;
+}
