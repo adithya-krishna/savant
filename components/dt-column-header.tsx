@@ -9,9 +9,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { HTMLAttributes } from 'react';
 
 interface DataTableColumnHeaderProps<TData, TValue>
-  extends React.HTMLAttributes<HTMLDivElement> {
+  extends HTMLAttributes<HTMLDivElement> {
   column: Column<TData, TValue>;
   title: string;
 }

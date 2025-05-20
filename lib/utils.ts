@@ -11,7 +11,7 @@ export function cn(...inputs: ClassValue[]) {
  * Generates the dates of the week (Monday to Sunday) for a given ISO week number and year.
  *
  * @param {number} weekNumber - The ISO week number (1–53).
- * @param {number} year - The year (e.g. 2025).
+ * @param {number} year - The year (e.g., 2025).
  * @returns {Array<{ day: string, date: string }>} - An array of objects with day name and date (YYYY-MM-DD).
  */
 export function getWeekDates(
@@ -19,7 +19,9 @@ export function getWeekDates(
   year: number,
 ): { day: string; date: string }[] {
   // Start from the first ISO week of the year
-  let date = startOfISOWeek(setISOWeek(setYear(new Date(), year), weekNumber));
+  const date = startOfISOWeek(
+    setISOWeek(setYear(new Date(), year), weekNumber),
+  );
 
   const days = [];
   for (let i = 0; i < 7; i++) {
@@ -64,7 +66,7 @@ export function connectIfDefined<T>(
  *
  * @template T - The type of the IDs (typically string or number).
  * @param {string} key - The name of the relation field in the Prisma schema (e.g., "instruments").
- * @param {T[] | null | undefined} ids - An array of IDs to connect. May be null, undefined, or an empty array.
+ * @param {T[] | null | undefined} ids - An array of IDs to connect. Maybe null, undefined, or an empty array.
  * @returns {object | undefined} - An object with the structure `{ [key]: { connect: [{ id }, ...] } }` if the array is valid; otherwise `undefined`.
  *
  */

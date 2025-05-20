@@ -45,7 +45,7 @@ export type FetchResult<T> = {
   endpoint: string;
 };
 
-export async function fetchEndpointsParallel<T = any>(
+export async function fetchEndpointsParallel<T = unknown>(
   endpoints: string[],
   options?: RequestInit,
 ): Promise<FetchResult<T>[]> {
@@ -91,9 +91,9 @@ export async function fetchEndpointsParallel<T = any>(
     }));
   }
 }
-// move to utils end
+// move to the utils end
 
-export default function LeadForm({ initialData, id }: LeadFormProps) {
+export default function LeadForm({ id }: LeadFormProps) {
   const router = useRouter();
   const isNew = id === 'new';
   const [teamMembers, setTeamMembers] = useState<TeamMemberOption[] | null>(
@@ -184,7 +184,7 @@ export default function LeadForm({ initialData, id }: LeadFormProps) {
                   <Input {...field} />
                 </FormControl>
                 <FormDescription className="text-xs">
-                  Lead's given name.
+                  Lead&apos;s given name.
                 </FormDescription>
                 <FormMessage />
               </FormItem>

@@ -19,6 +19,7 @@ import {
 import Link from 'next/link';
 import NavMain from './nav-main';
 import { NavSecondary } from './nav-secondary';
+import { ComponentProps } from 'react';
 
 const navMain = [
   {
@@ -51,7 +52,7 @@ const navSecondary = [
   },
 ];
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>

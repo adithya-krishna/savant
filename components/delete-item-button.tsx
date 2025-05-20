@@ -18,14 +18,14 @@ import { DropdownMenuItem } from './ui/dropdown-menu';
 import { SectionTypes } from '@/app/global-types';
 import { Trash2 } from 'lucide-react';
 
-type Vairants = 'default' | 'menu-item' | 'icon';
+type Variants = 'default' | 'menu-item' | 'icon';
 interface DeleteItemButtonProps {
   id: string;
   type: SectionTypes;
-  variant?: Vairants;
+  variant?: Variants;
 }
 
-function getTriggerComponent(variant: Vairants) {
+function getTriggerComponent(variant: Variants) {
   switch (variant) {
     case 'menu-item':
       return (

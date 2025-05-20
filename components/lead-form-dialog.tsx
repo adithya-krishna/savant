@@ -113,7 +113,7 @@ export default function LeadFormDialog({
   return (
     <Dialog modal={false}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-2xl overflow-y-scroll max-h-screen">
+      <DialogContent className="sm:max-w-2xl overflow-y-auto max-h-screen">
         <DialogHeader>
           <DialogTitle>Create Lead</DialogTitle>
           <DialogDescription>Add a new Lead to your pipeline</DialogDescription>

@@ -23,11 +23,12 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { CreateStageInput, createStageSchema } from '@/lib/validators/stage';
 import { useRouter } from 'next/navigation';
+import { ReactNode } from 'react';
 
 interface StageFormProps {
   initialData?: { name: string } | null;
   id?: string;
-  children: React.ReactNode;
+  children: ReactNode;
   isNew?: boolean;
 }
 

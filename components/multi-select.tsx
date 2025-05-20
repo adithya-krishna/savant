@@ -2,13 +2,7 @@
 
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import {
-  CheckIcon,
-  XCircle,
-  ChevronDown,
-  XIcon,
-  WandSparkles,
-} from 'lucide-react';
+import { CheckIcon, XCircle, ChevronDown, XIcon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
@@ -73,7 +67,7 @@ export interface MultiSelectProps
 
   /**
    * Callback function triggered when the selected values change.
-   * Receives an array of the new selected values.
+   * Receives an array of the newly selected values.
    */
   onValueChange: (value: string[]) => void;
 
@@ -100,7 +94,7 @@ export interface MultiSelectProps
 
   /**
    * The modality of the popover. When set to true, interaction with outside elements
-   * will be disabled and only popover content will be visible to screen readers.
+   * will be disabled, and only popover content will be visible to screen readers.
    * Optional, defaults to false.
    */
   modalPopover?: boolean;
@@ -113,7 +107,7 @@ export interface MultiSelectProps
 
   /**
    * Additional class names to apply custom styles to the multi-select component.
-   * Optional, can be used to add custom styles.
+   * Optional can be used to add custom styles.
    */
   className?: string;
 }
@@ -129,10 +123,8 @@ export const MultiSelect = React.forwardRef<
       variant,
       defaultValue = [],
       placeholder = 'Select options',
-      animation = 0,
       maxCount = 3,
       modalPopover = false,
-      asChild = false,
       className,
       ...props
     },
