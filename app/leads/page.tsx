@@ -15,6 +15,7 @@ export default async function LeadsPage() {
       // source: true,
     },
   });
+  const stages = await db.stage.findMany();
 
   return (
     <div className="p-4">
@@ -25,7 +26,13 @@ export default async function LeadsPage() {
         </LeadFormDialog>
       </div>
 
-      <DataTable columns={columns} data={leads} />
+      <DataTable
+        columns={columns}
+        data={leads}
+        filterOptions={{
+          stages: stages.map(stage => ({ label: stage.name, value: stage.id })),
+        }}
+      />
     </div>
   );
 }

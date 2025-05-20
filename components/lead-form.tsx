@@ -25,7 +25,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PhoneInput } from './phone-input';
-import { TeamMemberOption } from '@/app/global-types';
+import { TeamMemberType } from '@/app/global-types';
 
 interface StageOption {
   id: string;
@@ -96,7 +96,7 @@ export async function fetchEndpointsParallel<T = unknown>(
 export default function LeadForm({ id }: LeadFormProps) {
   const router = useRouter();
   const isNew = id === 'new';
-  const [teamMembers, setTeamMembers] = useState<TeamMemberOption[] | null>(
+  const [teamMembers, setTeamMembers] = useState<TeamMemberType[] | null>(
     null,
   );
   const [stages, setStages] = useState<StageOption[]>([]);
@@ -117,10 +117,10 @@ export default function LeadForm({ id }: LeadFormProps) {
 
         switch (result.endpoint) {
           case '/api/team-members':
-            setTeamMembers(result.data || []);
+            setTeamMembers((result.data as TeamMemberType[]) || []);
             break;
           case '/api/stages':
-            setStages(result.data || []);
+            setStages((result.data as StageOption[]) || []);
             break;
         }
       });

@@ -23,10 +23,10 @@ export const columns = [
   }),
   columnHelper.accessor('email', { header: 'Email' }),
   columnHelper.accessor('phone', { header: 'Phone Number' }),
-  columnHelper.accessor(row => row.stage?.name as string, {
+  columnHelper.accessor(row => row.stage?.id as string, {
     id: 'stage',
     header: 'Stage',
-    cell: info => info.getValue(),
+    cell: info => info.row.original.stage?.name,
   }),
   columnHelper.accessor(row => getFullName(row.team_member), {
     id: 'team_member',

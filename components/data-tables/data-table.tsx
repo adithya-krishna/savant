@@ -21,18 +21,19 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useState } from 'react';
-import { Input } from '../ui/input';
-import { DataTableViewOptions } from './dt-column-toggle';
 import { DataTablePagination } from './dt-pagination';
+import { DataTableToolbar } from '@/components/data-tables/dt-toolbar';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  filterOptions: Record<string, { label: string; value: string }[]>;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  filterOptions,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -57,19 +58,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      <div className="flex items-center py-4">
-        <Input
-          placeholder="Filter Name..."
-          value={
-            (table.getColumn('full_name')?.getFilterValue() as string) ?? ''
-          }
-          onChange={event =>
-            table.getColumn('full_name')?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
-        <DataTableViewOptions table={table} />
-      </div>
+      <DataTableToolbar table={table} filterOptions={filterOptions} />
       <div className="rounded-md border">
         <Table>
           <TableHeader>
