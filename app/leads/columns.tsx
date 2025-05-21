@@ -38,13 +38,19 @@ export const columns = [
     header: 'Instruments',
     cell: info => {
       const instruments = info.getValue() ?? [];
+      const displayedInstruments = instruments.slice(0, 2);
+      const remainingCount = instruments.length - displayedInstruments.length;
+
       return (
-        <div className="flex flex-col gap-1">
-          {instruments.map(i => (
-            <Badge variant={'outline'} key={i.id}>
+        <div className="flex gap-1 max-w-lg">
+          {displayedInstruments.map(i => (
+            <Badge variant="outline" key={i.id}>
               {i.name}
             </Badge>
           ))}
+          {remainingCount > 0 && (
+            <Badge variant="outline">+{remainingCount} more</Badge>
+          )}
         </div>
       );
     },

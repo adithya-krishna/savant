@@ -47,7 +47,6 @@ export default function LeadFormDialog({ children }: { children: ReactNode }) {
       phone: '',
       email: '',
       address: '',
-      instrument_ids: [],
       team_member_id: '',
     },
   });
@@ -125,7 +124,7 @@ export default function LeadFormDialog({ children }: { children: ReactNode }) {
                     <FormItem>
                       <FormLabel>
                         First Name
-                        <span className="text-sm text-red-400">*</span>
+                        <span className="text-red-400">*</span>
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -188,7 +187,7 @@ export default function LeadFormDialog({ children }: { children: ReactNode }) {
               render={({ field }) => (
                 <FormItem className="flex flex-col items-start">
                   <FormLabel>
-                    Phone number<span className="text-sm text-red-400">*</span>
+                    Phone number<span className="text-red-400">*</span>
                   </FormLabel>
                   <FormControl className="w-full">
                     <PhoneInput
@@ -208,7 +207,7 @@ export default function LeadFormDialog({ children }: { children: ReactNode }) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    Email<span className="text-sm text-red-400">*</span>
+                    Email<span className="text-red-400">*</span>
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -228,14 +227,14 @@ export default function LeadFormDialog({ children }: { children: ReactNode }) {
               name="instrument_ids"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Select Instruments</FormLabel>
+                  <FormLabel>Instruments interested</FormLabel>
                   <FormControl>
                     <MultiSelect
                       modalPopover={false}
                       options={instruments}
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      placeholder="Select options"
+                      placeholder="Select Instruments"
                       maxCount={3}
                     />
                   </FormControl>

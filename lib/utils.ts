@@ -89,3 +89,15 @@ export function getFullName<
   if (!first && last) return last;
   return `${first} ${last}`;
 }
+
+export function getInitials<
+  T extends { first_name?: string | null; last_name?: string | null },
+>(user?: T | null): string {
+  const first = user?.first_name?.trim();
+  const last = user?.last_name?.trim();
+
+  if (!first && !last) return '-';
+  if (first && !last) return first.charAt(0).toUpperCase();
+  if (!first && last) return last.charAt(0).toUpperCase();
+  return `${first!.charAt(0)}${last!.charAt(0)}`.toUpperCase();
+}

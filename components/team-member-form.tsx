@@ -84,7 +84,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({ initialData, id }) => {
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormLabel>
-                  First Name<span className="text-sm text-red-400">*</span>
+                  First Name<span className="text-red-400">*</span>
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -107,7 +107,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({ initialData, id }) => {
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormLabel>
-                  Last Name<span className="text-sm text-red-400">*</span>
+                  Last Name<span className="text-red-400">*</span>
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -131,7 +131,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({ initialData, id }) => {
           render={({ field }) => (
             <FormItem className="w-full">
               <FormLabel>
-                Phone<span className="text-sm text-red-400">*</span>
+                Phone<span className="text-red-400">*</span>
               </FormLabel>
               <FormControl>
                 <PhoneInput
@@ -173,7 +173,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({ initialData, id }) => {
               <FormItem className="flex flex-col gap-2 w-full py-1">
                 <FormLabel>
                   Team Member Role
-                  <span className="text-sm text-red-400">*</span>
+                  <span className="text-red-400">*</span>
                 </FormLabel>
                 <FormControl>
                   <Select

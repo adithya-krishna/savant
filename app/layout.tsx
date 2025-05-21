@@ -8,22 +8,22 @@ import { ThemeProvider } from 'next-themes';
 import { ReactNode } from 'react';
 
 const DMSans = DM_Sans({
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-sans",
-  subsets: ["latin"]
-})
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-sans',
+  subsets: ['latin'],
+});
 
 const loraSerif = Lora({
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-serif",
-  subsets: ["latin"]
-})
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-serif',
+  subsets: ['latin'],
+});
 
 const IBMMono = IBM_Plex_Mono({
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-mono",
-  subsets: ["latin"]
-})
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-mono',
+  subsets: ['latin'],
+});
 
 export const metadata: Metadata = {
   title: 'Savant: Client resource management',
@@ -37,7 +37,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${DMSans.variable} ${loraSerif.variable} ${IBMMono.variable} antialiased`}>
+      <body
+        className={`${DMSans.variable} ${loraSerif.variable} ${IBMMono.variable} antialiased`}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -48,7 +50,7 @@ export default function RootLayout({
             <AppSidebar />
             <SidebarInset>
               <Header />
-              <main className="flex flex-1 flex-col">{children}</main>
+              <main className="flex flex-1 flex-col h-full">{children}</main>
             </SidebarInset>
           </SidebarProvider>
         </ThemeProvider>
