@@ -28,10 +28,10 @@ export const columns = [
     header: 'Stage',
     cell: info => info.row.original.stage?.name,
   }),
-  columnHelper.accessor(row => getFullName(row.team_member), {
+  columnHelper.accessor(row => row.id, {
     id: 'team_member',
     header: 'Team Member',
-    cell: info => info.getValue(),
+    cell: info => getFullName(info.row.original.team_member),
   }),
   columnHelper.accessor(row => row.instruments, {
     id: 'instruments',
@@ -54,6 +54,16 @@ export const columns = [
         </div>
       );
     },
+    filterFn: (row, id, filterValue) => {
+      const instruments = row.original.instruments ?? [];
+      const filterValues = Array.isArray(filterValue)
+        ? filterValue
+        : [filterValue];
+      return instruments.some((instrument: { id: string }) =>
+        filterValues.includes(instrument.id),
+      );
+    },
+    enableColumnFilter: true,
     enableSorting: false,
   }) as ColumnDef<Lead, string>,
   columnHelper.display({

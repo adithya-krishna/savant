@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import LeadFormDialog from '@/components/lead-form-dialog';
 import { DataTable } from '@/components/data-tables';
 import { columns } from '@/app/leads/columns';
+import { getFullName } from '@/lib/utils';
 
 export default async function LeadsPage() {
   const leads = await db.leads.findMany({
@@ -15,7 +16,22 @@ export default async function LeadsPage() {
       // source: true,
     },
   });
-  const stages = await db.stage.findMany();
+  const stages = await db.stage.findMany({ select: { id: true, name: true } });
+  const instruments = await db.instruments.findMany({
+    select: { id: true, name: true },
+  });
+  const teamMembers = await db.teamMember.findMany({
+    select: { id: true, first_name: true, last_name: true },
+  });
+
+  const filterOptions = {
+    stages: stages.map(s => ({ label: s.name, value: s.id })),
+    instruments: instruments.map(i => ({ label: i.name, value: i.id })),
+    teamMembers: teamMembers.map(t => ({
+      label: getFullName(t),
+      value: t.id,
+    })),
+  };
 
   return (
     <div className="p-4">
@@ -26,13 +42,7 @@ export default async function LeadsPage() {
         </LeadFormDialog>
       </div>
 
-      <DataTable
-        columns={columns}
-        data={leads}
-        filterOptions={{
-          stages: stages.map(stage => ({ label: stage.name, value: stage.id })),
-        }}
-      />
+      <DataTable columns={columns} data={leads} filterOptions={filterOptions} />
     </div>
   );
 }

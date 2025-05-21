@@ -40,6 +40,20 @@ export function DataTableToolbar<TData>({
             options={filterOptions.stages}
           />
         )}
+        {table.getColumn('instruments') && (
+          <DataTableFacetedFilter
+            column={table.getColumn('instruments')}
+            title="Instruments"
+            options={filterOptions.instruments}
+          />
+        )}
+        {table.getColumn('team_member') && (
+          <DataTableFacetedFilter
+            column={table.getColumn('team_member')}
+            title="Team Members"
+            options={filterOptions.teamMembers}
+          />
+        )}
         {isFiltered && (
           <Button
             variant="ghost"
