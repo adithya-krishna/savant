@@ -13,7 +13,7 @@ import {
 import { db } from '@/db';
 import { getFullName, getInitials } from '@/lib/utils';
 import { Avatar } from '@radix-ui/react-avatar';
-import { AtSign, MapPinHouse, Phone } from 'lucide-react';
+import { AtSign, MapPin, Phone, Piano } from 'lucide-react';
 
 interface LeadProfileProps {
   params: Promise<{ id: string }>;
@@ -75,23 +75,31 @@ const LeadProfile = async ({ params }: LeadProfileProps) => {
         <Card className="max-w-lg bg-background">
           <CardContent>
             <div className="flex space-x-4">
-              <Avatar className="shrink-0 w-16 h-16">
+              <Avatar className="shrink-0 size-16">
                 <AvatarFallback>{getInitials(lead)}</AvatarFallback>
               </Avatar>
               <div className="flex flex-col grow-0">
                 <h2 className="text-2xl font-semibold">{getFullName(lead)}</h2>
-                <div>
-                  <TextWithIcon icon={Phone} label={lead?.phone ?? '-'} />
-                  <TextWithIcon icon={AtSign} label={lead?.email ?? '-'} />
-                </div>
+                <TextWithIcon
+                  iconSize={12}
+                  icon={Phone}
+                  label={lead?.phone ?? '-'}
+                />
               </div>
             </div>
           </CardContent>
-          <CardFooter className="gap-1.5 flex-wrap">
-            {lead?.instruments.map(instrument => (
-              <Badge key={instrument.id}>{instrument.name}</Badge>
-            ))}
-          </CardFooter>
+          <CardContent className="grid grid-cols-2 text-sm/6 text-muted-foreground space-y-1.5">
+            <TextWithIcon icon={AtSign} label={'Email'} />
+            <p className="truncate">{lead?.email}</p>
+            <TextWithIcon icon={MapPin} label={'Address'} />
+            <span>{lead?.address}</span>
+            <TextWithIcon icon={Piano} label={'Instruments'} />
+            <div className="flex flex-wrap gap-1">
+              {lead?.instruments.map(instrument => (
+                <Badge key={instrument.id}>{instrument.name}</Badge>
+              ))}
+            </div>
+          </CardContent>
         </Card>
       </div>
     </div>
