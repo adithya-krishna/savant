@@ -1,7 +1,9 @@
+import StudentFormDialog from '@/components/student-form-dialog';
 import TextWithIcon from '@/components/text-with-icon';
-import { AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Sidebar,
   SidebarContent,
@@ -13,7 +15,9 @@ import {
 import { db } from '@/db';
 import { getFullName, getInitials } from '@/lib/utils';
 import { Avatar } from '@radix-ui/react-avatar';
-import { AtSign, MapPin, Phone, Piano } from 'lucide-react';
+import { AtSign, MapPin, Phone, Piano, UserRoundPlus } from 'lucide-react';
+import { notFound } from 'next/navigation';
+import { cache } from 'react';
 
 interface LeadProfileProps {
   params: Promise<{ id: string }>;
@@ -42,12 +46,19 @@ const items = [
   },
 ];
 
-const LeadProfile = async ({ params }: LeadProfileProps) => {
-  const { id } = await params;
+export const getLeadsWithInstruments = cache(async (id: string) => {
   const lead = await db.leads.findUnique({
     where: { id },
     include: { instruments: { select: { id: true, name: true } } },
   });
+
+  if (!lead) notFound();
+  return lead;
+});
+
+const LeadProfile = async ({ params }: LeadProfileProps) => {
+  const { id } = await params;
+  const lead = await getLeadsWithInstruments(id);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[16rem_auto] h-full">
@@ -101,6 +112,12 @@ const LeadProfile = async ({ params }: LeadProfileProps) => {
             </div>
           </CardContent>
         </Card>
+
+        <StudentFormDialog>
+          <Button size="icon">
+            <UserRoundPlus />
+          </Button>
+        </StudentFormDialog>
       </div>
     </div>
   );

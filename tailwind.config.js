@@ -4,12 +4,7 @@ module.exports = {
     './components/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
-    extend: {
-      fontFamily: {
-        sans: 'var(--font-poppins-sans)',
-        mono: 'var(--font-poppins-mono)',
-      },
-    },
+    extend: {},
   },
   plugins: [],
 };

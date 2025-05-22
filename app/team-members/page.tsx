@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { cache } from 'react';
 import Link from 'next/link';
 import { db } from '@/db';
 import {
@@ -10,13 +10,18 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { DeleteItemButton } from '@/components/delete-item-button';
 import TableDropdownMenu from '@/components/table-dropdown';
 
-export default async function TeamMembersPage() {
+const getTeamMembers = cache(async () => {
   const teamMembers = await db.teamMember.findMany({
     orderBy: { create_date: 'desc' },
   });
+
+  return teamMembers;
+});
+
+export default async function TeamMembersPage() {
+  const teamMembers = await getTeamMembers();
 
   return (
     <div className="p-4">

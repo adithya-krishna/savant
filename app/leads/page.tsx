@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { cache } from 'react';
 import { db } from '@/db';
 import { Button } from '@/components/ui/button';
 import LeadFormDialog from '@/components/lead-form-dialog';
@@ -6,16 +6,21 @@ import { DataTable } from '@/components/data-tables';
 import { columns } from '@/app/leads/columns';
 import { getFullName } from '@/lib/utils';
 
-export default async function LeadsPage() {
+const getLeadsWithFilters = cache(async () => {
   const leads = await db.leads.findMany({
     orderBy: { create_date: 'desc' },
     include: {
       stage: true,
-      team_member: true,
-      instruments: true,
+      team_member: { select: { id: true, first_name: true, last_name: true } },
+      instruments: { select: { id: true, name: true } },
       // source: true,
     },
   });
+
+  return leads;
+});
+
+const getFilterOptions = cache(async () => {
   const stages = await db.stage.findMany({ select: { id: true, name: true } });
   const instruments = await db.instruments.findMany({
     select: { id: true, name: true },
@@ -32,6 +37,13 @@ export default async function LeadsPage() {
       value: t.id,
     })),
   };
+
+  return filterOptions;
+});
+
+export default async function LeadsPage() {
+  const leads = await getLeadsWithFilters();
+  const filterOptions = await getFilterOptions();
 
   return (
     <div className="p-4">

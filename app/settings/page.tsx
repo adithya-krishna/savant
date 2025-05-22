@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { cache } from 'react';
 import { db } from '@/db';
 import {
   Table,
@@ -20,11 +20,17 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 
-export default async function SettingsPage() {
+const getStages = cache(async () => {
   const stage = await db.stage.findMany({ orderBy: { name: 'asc' } });
 
+  return stage;
+});
+
+export default async function SettingsPage() {
+  const stage = await getStages();
+
   return (
-    <div className="p-6">
+    <div className="p-4">
       <Card className="max-w-xl">
         <CardHeader>
           <CardTitle className="flex justify-between items-center">

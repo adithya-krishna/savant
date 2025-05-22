@@ -1,17 +1,13 @@
 'use client';
 
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
-import { Prisma } from '@prisma/client';
 import { getFullName } from '@/lib/utils';
 import { DataTableColumnHeader } from '@/components/data-tables';
 import TableDropdownMenu from '@/components/table-dropdown';
 import { Badge } from '@/components/ui/badge';
+import { LeadsWithAllInclusions } from '../global-types';
 
-type Lead = Prisma.LeadsGetPayload<{
-  include: { stage: true; instruments: true; team_member: true };
-}>;
-
-const columnHelper = createColumnHelper<Lead>();
+const columnHelper = createColumnHelper<LeadsWithAllInclusions>();
 
 export const columns = [
   columnHelper.accessor(getFullName, {
@@ -65,12 +61,12 @@ export const columns = [
     },
     enableColumnFilter: true,
     enableSorting: false,
-  }) as ColumnDef<Lead, string>,
+  }) as ColumnDef<LeadsWithAllInclusions, string>,
   columnHelper.display({
     id: 'actions',
     header: 'Actions',
     cell: info => <TableDropdownMenu id={info.row.original.id} type={'lead'} />,
     enableSorting: false,
     enableHiding: false,
-  }) as ColumnDef<Lead, string>,
+  }) as ColumnDef<LeadsWithAllInclusions, string>,
 ];
