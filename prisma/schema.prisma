@@ -35,6 +35,7 @@ model Leads {
 
     is_deleted Boolean   @default(false)
     deleted_at DateTime? @db.Timestamp(6)
+    Notes      Notes[]
 
     @@index([is_deleted])
 }
@@ -161,8 +162,27 @@ model TeamMember {
 
     is_deleted Boolean   @default(false)
     deleted_at DateTime? @db.Timestamp(6)
+    Notes      Notes[]
 
     @@index([is_deleted])
+}
+
+model Notes {
+    id        String   @id @db.VarChar(14)
+    content   String   @db.Text
+    is_pinned Boolean? @db.Boolean
+
+    author_id String     @db.VarChar(14)
+    author    TeamMember @relation(fields: [author_id], references: [id], map: "fk_author")
+    lead_id   String     @db.VarChar(14)
+    lead      Leads      @relation(fields: [lead_id], references: [id], map: "fk_lead")
+
+    create_at  DateTime @default(now()) @db.Timestamp(6)
+    updated_at DateTime @default(now()) @updatedAt @db.Timestamp(6)
+
+    @@index([lead_id])
+    @@index([author_id])
+    @@index([create_at])
 }
 
 enum TeamMemberRole {

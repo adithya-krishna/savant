@@ -1,13 +1,13 @@
 import { db } from '@/db';
 import { handleAPIError } from '@/lib/utils/api-error-handler';
-import { EnrollmentCreateSchema } from '@/lib/validators/enrollment';
+import { CreateNoteSchema } from '@/lib/validators/note';
 import { nanoid } from 'nanoid';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    const enrollment = await db.enrollment.findMany({
-      orderBy: { create_date: 'desc' },
+    const enrollment = await db.notes.findMany({
+      orderBy: { create_at: 'desc' },
     });
     return NextResponse.json(enrollment);
   } catch (error) {
@@ -19,12 +19,12 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    const validation = EnrollmentCreateSchema.safeParse(body);
+    const validation = CreateNoteSchema.safeParse(body);
     if (!validation.success) {
       throw validation.error;
     }
 
-    const enrollment = await db.enrollment.create({
+    const enrollment = await db.notes.create({
       data: {
         id: nanoid(14),
         ...validation.data,
