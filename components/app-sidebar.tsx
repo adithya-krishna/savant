@@ -14,6 +14,7 @@ import {
   Home,
   Rocket,
   SettingsIcon,
+  UserRound,
   UsersIcon,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -31,6 +32,11 @@ const navMain = [
     title: 'Team',
     href: '/team-members',
     icon: UsersIcon,
+  },
+  {
+    title: 'Students',
+    href: '/students',
+    icon: UserRound,
   },
   {
     title: 'Slots',

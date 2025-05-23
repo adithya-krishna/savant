@@ -42,12 +42,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from './ui/dialog';
+import { useRouter } from 'next/navigation';
+
+interface StudentDialogProps {
+  children: ReactNode;
+  id: string;
+}
 
 export default function StudentFormDialog({
   children,
-}: {
-  children: ReactNode;
-}) {
+  id: lead_id,
+}: StudentDialogProps) {
+  const router = useRouter();
   const form = useForm<CreateStudentInput>({
     resolver: zodResolver(createStudentSchema),
     defaultValues: {
@@ -58,8 +64,23 @@ export default function StudentFormDialog({
     },
   });
 
-  function onSubmit(values: CreateStudentInput) {
-    console.log(values);
+  async function onSubmit(values: CreateStudentInput) {
+    try {
+      const res = await fetch('/api/students', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...values, lead_id }),
+      });
+      if (res.ok) {
+        form.reset();
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+        router.refresh();
+      } else {
+        console.error('Failed to save lead');
+      }
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (
@@ -74,8 +95,8 @@ export default function StudentFormDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-6">
+            <div className="grid grid-cols-6 gap-4">
+              <div className="col-span-3">
                 <FormField
                   control={form.control}
                   name="first_name"
@@ -96,7 +117,7 @@ export default function StudentFormDialog({
                 />
               </div>
 
-              <div className="col-span-6">
+              <div className="col-span-3">
                 <FormField
                   control={form.control}
                   name="last_name"
@@ -119,8 +140,8 @@ export default function StudentFormDialog({
               </div>
             </div>
 
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-6">
+            <div className="grid grid-cols-6 gap-4">
+              <div className="col-span-3">
                 <FormField
                   control={form.control}
                   name="parent_first_name"
@@ -137,7 +158,7 @@ export default function StudentFormDialog({
                 />
               </div>
 
-              <div className="col-span-6">
+              <div className="col-span-3">
                 <FormField
                   control={form.control}
                   name="parent_last_name"
@@ -179,72 +200,78 @@ export default function StudentFormDialog({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="dob"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Date of Birth</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={'outline'}
-                          className={cn(
-                            'w-[240px] pl-3 text-left font-normal',
-                            !field.value && 'text-muted-foreground',
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, 'PPP')
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        captionLayout="dropdown"
-                        fromYear={1920}
-                        toYear={new Date().getFullYear()}
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+            <div className="grid grid-cols-6 gap-4">
+              <div className="col-span-3">
+                <FormField
+                  control={form.control}
+                  name="dob"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Date of Birth</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={'outline'}
+                              className={cn(
+                                'w-full pl-3 text-left font-normal',
+                                !field.value && 'text-muted-foreground',
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, 'PPP')
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            captionLayout="dropdown"
+                            fromYear={1920}
+                            toYear={new Date().getFullYear()}
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
 
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="col-span-3">
+                <FormField
+                  control={form.control}
+                  name="gender"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Gender</FormLabel>
+                      <Select onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select the student's gender" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="male">Male</SelectItem>
+                          <SelectItem value="female">Female</SelectItem>
+                          <SelectItem value="na">Prefer not to say</SelectItem>
+                        </SelectContent>
+                      </Select>
 
-            <FormField
-              control={form.control}
-              name="gender"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Gender</FormLabel>
-                  <Select onValueChange={field.onChange}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select the student's gender" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="male">Male</SelectItem>
-                      <SelectItem value="female">Female</SelectItem>
-                      <SelectItem value="na">Prefer not to say</SelectItem>
-                    </SelectContent>
-                  </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
 
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <Button type="submit">Submit</Button>
           </form>
         </Form>

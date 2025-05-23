@@ -1,7 +1,20 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
-import { startOfISOWeek, addDays, setISOWeek, setYear, format } from 'date-fns';
+import {
+  startOfISOWeek,
+  addDays,
+  setISOWeek,
+  setYear,
+  format,
+  getDay,
+  parseISO,
+  eachDayOfInterval,
+  isToday,
+  isTomorrow,
+  isYesterday,
+  differenceInCalendarDays,
+} from 'date-fns';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -100,4 +113,61 @@ export function getInitials<
   if (first && !last) return first.charAt(0).toUpperCase();
   if (!first && last) return last.charAt(0).toUpperCase();
   return `${first!.charAt(0)}${last!.charAt(0)}`.toUpperCase();
+}
+
+export function omit<T extends object, K extends keyof T>(
+  obj: T,
+  keys: readonly K[],
+): Omit<T, K> {
+  const result: Partial<T> = {};
+
+  (Object.keys(obj) as (keyof T)[]).forEach(key => {
+    if (!keys.includes(key as K)) {
+      result[key] = obj[key];
+    }
+  });
+
+  return result as Omit<T, K>;
+}
+
+export function isWorkingDay(date: Date): boolean {
+  // getDay: 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  return getDay(date) !== 1; // Monday is considered a holiday
+}
+
+export function getWorkingDaysCount(
+  start: Date | string,
+  end: Date | string,
+): number {
+  const startDate = typeof start === 'string' ? parseISO(start) : start;
+  const endDate = typeof end === 'string' ? parseISO(end) : end;
+
+  const allDates = eachDayOfInterval({ start: startDate, end: endDate });
+
+  const workingDays = allDates.filter(isWorkingDay);
+
+  return workingDays.length;
+}
+
+export function toHumanReadableDate(
+  date: Date | string,
+  baseDate: Date = new Date(),
+): string {
+  const targetDate = typeof date === 'string' ? parseISO(date) : date;
+
+  if (isToday(targetDate)) return 'today';
+  if (isTomorrow(targetDate)) return 'tomorrow';
+  if (isYesterday(targetDate)) return 'yesterday';
+
+  const dayDifference = differenceInCalendarDays(targetDate, baseDate);
+
+  if (dayDifference >= 7 && dayDifference <= 13) {
+    return `next ${format(targetDate, 'EEEE')}`;
+  }
+
+  if (dayDifference > 0) {
+    return `in ${dayDifference} days`;
+  }
+
+  return `${Math.abs(dayDifference)} days ago`;
 }

@@ -27,7 +27,7 @@ import { DataTableToolbar } from '@/components/data-tables/dt-toolbar';
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  filterOptions: Record<string, { label: string; value: string }[]>;
+  filterOptions?: Record<string, { label: string; value: string }[]>;
 }
 
 export function DataTable<TData, TValue>({

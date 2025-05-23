@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { createLeadSchema } from '@/lib/validators/lead';
 import { nanoid } from 'nanoid';
@@ -18,7 +18,7 @@ export async function GET() {
   return NextResponse.json(leads);
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   const body = await request.json();
   const data = createLeadSchema.parse(body);
 

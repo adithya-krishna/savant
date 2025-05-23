@@ -21,3 +21,5 @@ export type LeadsWithAllInclusions = Prisma.LeadsGetPayload<{
     instruments: { select: { id: true; name: true } };
   };
 }>;
+
+export type StudentsGetType = Prisma.StudentGetPayload<object>;

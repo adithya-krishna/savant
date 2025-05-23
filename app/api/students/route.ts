@@ -1,4 +1,5 @@
 import { db } from '@/db';
+import { connectIfDefined, omit } from '@/lib/utils';
 import { handleAPIError } from '@/lib/utils/api-error-handler';
 import { createStudentSchema } from '@/lib/validators/students';
 import { nanoid } from 'nanoid';
@@ -8,8 +9,8 @@ export async function GET() {
   const leads = await db.student.findMany({
     orderBy: { create_date: 'desc' },
     // include: {
-    //   lead: true,
-    //   enrollments: true,
+    //   // lead: true,
+    //   // enrollments: true,
     // },
   });
   return NextResponse.json(leads);
@@ -22,7 +23,11 @@ export async function POST(request: NextRequest) {
     const id = nanoid(14);
 
     const student = await db.student.create({
-      data: { id, ...validatedData },
+      data: {
+        id,
+        ...omit(validatedData, ['lead_id']),
+        ...connectIfDefined('lead', validatedData.lead_id),
+      },
     });
 
     return NextResponse.json(student, { status: 201 });
