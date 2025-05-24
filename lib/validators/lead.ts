@@ -6,9 +6,9 @@ const dateSchema = z.coerce.date();
 const BaseLeadSchema = z.object({
   id: idSchema,
   first_name: nameSchema,
-  last_name: nameSchema.optional().nullable(),
+  last_name: z.string().optional().nullable(),
   phone: z.string().max(15),
-  email: z.string().max(255).email('Invalid email.').optional().nullable(),
+  email: z.string().max(255).optional().nullable(),
   community: z.string().max(50).optional().nullable(),
   area: z.string().max(50).optional().nullable(),
   walkin_date: dateSchema.optional().nullable(),
@@ -23,10 +23,10 @@ const BaseLeadSchema = z.object({
     .default(0),
   last_contacted_date: dateSchema.optional().nullable(),
   next_followup: dateSchema.optional().nullable(),
-  stage_id: idSchema.optional().nullable(),
-  team_member_id: idSchema.optional().nullable(),
-  instrument_ids: z.array(idSchema),
-  source_id: idSchema.optional().nullable(),
+  stage_id: z.string().optional().nullable(),
+  team_member_id: z.string().optional().nullable(),
+  instrument_ids: z.array(z.string()).optional().nullable(),
+  source_id: z.string().optional().nullable(),
   create_date: dateSchema.optional().nullable().default(new Date()),
   updated_date: dateSchema.optional().nullable().default(new Date()),
 });
@@ -41,8 +41,6 @@ const createLeadSchema = BaseLeadSchema.omit({
 
 const updateLeadSchema = BaseLeadSchema.partial().required({
   id: true,
-  first_name: true,
-  phone: true,
 });
 
 export { createLeadSchema, updateLeadSchema };

@@ -33,39 +33,39 @@ async function seedSources() {
   const sources = [
     {
       id: 'PglcgQE9lR2a4D',
-      source: 'community events',
+      source: 'Community Events',
       description:
         'Visitors who come to the institute through community events or local outreach activities.',
     },
     {
       id: 'HWkhCkaGwpNheW',
-      source: 'direct walk-in',
+      source: 'Direct Walk-in',
       description:
         'People who visit the institute physically without prior online interaction.',
     },
     {
       id: 'xcQQsKYmH2ga3Q',
-      source: 'facebook',
+      source: 'Facebook',
       description: 'Facebook ads or organic posts.',
     },
     {
       id: 'aRGcid_FYUReus',
-      source: 'google',
+      source: 'Google',
       description: 'Google search results or Google ads.',
     },
     {
       id: 'Z9mYjV2brmJZID',
-      source: 'instagram',
+      source: 'Instagram',
       description: 'Instagram posts, stories, or ads.',
     },
     {
       id: '0d0KDsEf5FEHz8',
-      source: 'referrals',
+      source: 'Referrals',
       description: 'word-of-mouth or referral programs.',
     },
     {
       id: 'RCIObWhcKDArD8',
-      source: 'website',
+      source: 'Website',
       description: "Visitors who directly access the institute's website.",
     },
   ];

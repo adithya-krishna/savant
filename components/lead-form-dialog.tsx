@@ -47,7 +47,7 @@ export default function LeadFormDialog({ children }: { children: ReactNode }) {
       email: '',
       area: '',
       community: '',
-      team_member_id: '',
+      instrument_ids: [],
     },
   });
   const [teamMembers, setTeamMembers] = useState<TeamMemberType[] | null>(null);
@@ -258,7 +258,7 @@ export default function LeadFormDialog({ children }: { children: ReactNode }) {
                       modalPopover={false}
                       options={instruments}
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      defaultValue={field.value ?? []}
                       placeholder="Select Instruments"
                       maxCount={3}
                     />

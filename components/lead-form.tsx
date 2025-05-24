@@ -158,10 +158,7 @@ export default function LeadForm({ initialData }: LeadFormProps) {
   return (
     <Form {...form}>
       <form
-        onSubmit={e => {
-          console.log('submit attempted');
-          form.handleSubmit(onSubmit)(e);
-        }}
+        onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-8 w-full max-w-3xl mx-auto py-10"
       >
         <input type="hidden" {...form.register('id')} />
