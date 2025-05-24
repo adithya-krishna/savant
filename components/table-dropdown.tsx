@@ -30,10 +30,10 @@ const TableDropdownMenu = ({ id, type }: TableDropdownMenuProps) => {
       <DropdownMenuContent>
         <DropdownMenuLabel className="font-bold">Actions</DropdownMenuLabel>
         <DropdownMenuItem asChild>
-          <Link href={`/${type}/profile/${id}`}>View</Link>
+          <Link href={`/${type}/${id}`}>View</Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href={`/${type}/${id}`}>Edit</Link>
+          <Link href={`/${type}/${id}/account`}>Edit</Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DeleteItemButton type={type} id={id} variant="menu-item" />

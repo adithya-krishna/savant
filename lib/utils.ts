@@ -14,6 +14,11 @@ import {
   isTomorrow,
   isYesterday,
   differenceInCalendarDays,
+  setMinutes,
+  setHours,
+  isBefore,
+  addMinutes,
+  startOfWeek,
 } from 'date-fns';
 
 export function cn(...inputs: ClassValue[]) {
@@ -170,4 +175,85 @@ export function toHumanReadableDate(
   }
 
   return `${Math.abs(dayDifference)} days ago`;
+}
+
+type TimeSlot = {
+  label: string;
+  id: string;
+};
+
+type GetTimeSlotsParams = {
+  startHour?: number;
+  endHour?: number;
+  intervalMinutes?: number;
+  filter?: string[];
+};
+
+export function getTimeSlots({
+  startHour = 15,
+  endHour = 21,
+  intervalMinutes = 30,
+  filter = [],
+}: GetTimeSlotsParams): TimeSlot[] {
+  const now = new Date();
+  const startTime = setMinutes(setHours(now, startHour), 0);
+  const endTime = setMinutes(setHours(now, endHour), 0);
+
+  const slots: TimeSlot[] = [];
+
+  let current = startTime;
+
+  while (
+    isBefore(current, endTime) ||
+    current.getTime() === endTime.getTime()
+  ) {
+    const label = format(current, 'hh:mm a');
+    const id = format(current, 'hh:mm');
+
+    if (!filter.includes(label)) {
+      slots.push({ label, id });
+    }
+
+    current = addMinutes(current, intervalMinutes);
+  }
+
+  return slots;
+}
+
+type WeekDay = {
+  label: string;
+  id: number;
+};
+
+type AllDays =
+  | 'Sunday'
+  | 'Monday'
+  | 'Tuesday'
+  | 'Wednesday'
+  | 'Thursday'
+  | 'Friday'
+  | 'Saturday';
+
+type GetWeekDayParams = {
+  filter?: AllDays[];
+  weekStartOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6; // 0 = Sunday
+};
+
+export function getWeekDays({
+  filter = [],
+  weekStartOn = 0,
+}: GetWeekDayParams): WeekDay[] {
+  const weekStart = startOfWeek(new Date(), { weekStartsOn: weekStartOn });
+
+  return Array.from({ length: 7 }).reduce<WeekDay[]>((acc, _, i) => {
+    const date = addDays(weekStart, i);
+    const dayName = format(date, 'EEEE');
+    if (!filter.includes(dayName as AllDays)) {
+      acc.push({
+        label: format(date, 'EEE'),
+        id: i,
+      });
+    }
+    return acc;
+  }, []);
 }

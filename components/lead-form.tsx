@@ -159,7 +159,7 @@ export default function LeadForm({ initialData }: LeadFormProps) {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-8 w-full max-w-3xl mx-auto py-10"
+        className="space-y-8 w-full max-w-4xl mx-auto py-8"
       >
         <input type="hidden" {...form.register('id')} />
 
@@ -302,7 +302,7 @@ export default function LeadForm({ initialData }: LeadFormProps) {
                     defaultValue={field.value ?? ''}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select source" />
                       </SelectTrigger>
                     </FormControl>
@@ -332,7 +332,7 @@ export default function LeadForm({ initialData }: LeadFormProps) {
                     defaultValue={field.value ?? ''}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select team member" />
                       </SelectTrigger>
                     </FormControl>

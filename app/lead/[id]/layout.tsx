@@ -13,23 +13,23 @@ import { Badge } from '@/components/ui/badge';
 const items = [
   {
     title: 'Basic',
-    href: '/lead/profile/[id]',
+    href: '/lead/[id]',
   },
   {
     title: 'Notes',
-    href: '/lead/profile/[id]/notes',
+    href: '/lead/[id]/notes',
   },
   {
     title: 'Follow up',
-    href: '/lead/profile/[id]/follow-up',
+    href: '/lead/[id]/follow-up',
   },
   {
     title: 'Students',
-    href: '/lead/profile/[id]/students',
+    href: '/lead/[id]/students',
   },
   {
     title: 'Account',
-    href: '/lead/profile/[id]/account',
+    href: '/lead/[id]/account',
   },
 ];
 

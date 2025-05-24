@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
 
-export type SectionTypes = 'team-member' | 'lead' | 'stage';
+export type SectionTypes = 'team-member' | 'lead' | 'stage' | 'students';
 
 export type TeamMemberType = Prisma.TeamMemberGetPayload<{
   select: { id: true; first_name: true; last_name: true };

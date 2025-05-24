@@ -43,7 +43,9 @@ export const columns = [
   columnHelper.display({
     id: 'actions',
     header: 'Actions',
-    cell: info => <TableDropdownMenu id={info.row.original.id} type={'lead'} />,
+    cell: info => (
+      <TableDropdownMenu id={info.row.original.id} type={'students'} />
+    ),
     enableSorting: false,
     enableHiding: false,
   }) as ColumnDef<StudentsGetType, string>,
