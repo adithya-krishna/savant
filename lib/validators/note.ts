@@ -6,7 +6,7 @@ const dateSchema = z.coerce.date();
 const NoteBaseSchema = z.object({
   id: idSchema,
 
-  content: z.string(),
+  content: z.string().trim().nonempty(),
 
   is_pinned: z.boolean().optional().default(false),
 

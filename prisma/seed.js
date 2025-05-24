@@ -162,6 +162,7 @@ async function seedPlans() {
       code: 'RCmp_D',
       name: '1 month',
       price: 4800.0,
+      total_slots: 8,
       description: 'Demo Plan',
       create_date: new Date('2025-05-18T13:58:24.644Z'),
       updated_date: new Date('2025-05-18T13:58:24.644Z'),
@@ -170,6 +171,7 @@ async function seedPlans() {
       code: '3YYKHo',
       name: '12 month',
       price: 40320.0,
+      total_slots: 96,
       description:
         "A 12-month plan providing full access to our institute's resources and a comprehensive experience, designed for those ready to commit to a longer-term engagement.",
       create_date: new Date('2025-05-18T13:51:43.480Z'),
@@ -179,6 +181,7 @@ async function seedPlans() {
       code: 'AtIG8r',
       name: '3 month',
       price: 13680.0,
+      total_slots: 24,
       description:
         "A 3-month trial plan designed to help you familiarize yourself with our institute's environment. This plan serves as an initial step toward further enrollment if you find the experience suitable.",
       create_date: new Date('2025-05-18T13:50:43.192Z'),
@@ -188,6 +191,7 @@ async function seedPlans() {
       code: '97Z2dL',
       name: '6 month',
       price: 24920.0,
+      total_slots: 48,
       description:
         "A 6-month plan offering a deeper experience of our institute's environment, allowing you to fully explore our offerings before making a longer-term commitment.",
       create_date: new Date('2025-05-18T13:51:20.453Z'),

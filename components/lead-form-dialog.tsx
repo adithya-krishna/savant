@@ -11,7 +11,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { PhoneInput } from '@/components/phone-input';
 import {
   Select,
@@ -46,7 +45,8 @@ export default function LeadFormDialog({ children }: { children: ReactNode }) {
       last_name: '',
       phone: '',
       email: '',
-      address: '',
+      area: '',
+      community: '',
       team_member_id: '',
     },
   });
@@ -115,8 +115,8 @@ export default function LeadFormDialog({ children }: { children: ReactNode }) {
         </DialogHeader>
         <Form {...form}>
           <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-6">
+            <div className="grid grid-cols-6 gap-4">
+              <div className="col-span-3">
                 <FormField
                   control={form.control}
                   name="first_name"
@@ -139,7 +139,7 @@ export default function LeadFormDialog({ children }: { children: ReactNode }) {
                 />
               </div>
 
-              <div className="col-span-6">
+              <div className="col-span-3">
                 <FormField
                   control={form.control}
                   name="last_name"
@@ -162,24 +162,49 @@ export default function LeadFormDialog({ children }: { children: ReactNode }) {
               </div>
             </div>
 
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Address</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="e.g., 221B Baker Street, Koramangala, Bengaluru, Karnataka 560034"
-                      className="resize-none"
-                      {...field}
-                      value={field.value ?? ''}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-6 gap-4">
+              <div className="col-span-3">
+                <FormField
+                  control={form.control}
+                  name="area"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Area</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., Jakkur"
+                          type="text"
+                          {...field}
+                          value={field.value ?? ''}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="col-span-3">
+                <FormField
+                  control={form.control}
+                  name="community"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Community</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., Shobha City"
+                          type="text"
+                          {...field}
+                          value={field.value ?? ''}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
 
             <FormField
               control={form.control}

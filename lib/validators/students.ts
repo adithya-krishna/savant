@@ -9,6 +9,8 @@ const decimalSchema = z
     message: 'Must be a valid decimal number',
   });
 
+const genderSchema = z.enum(['MALE', 'FEMALE', 'UNDISCLOSED']);
+
 const studentBaseSchema = z.object({
   id: idSchema,
 
@@ -57,11 +59,7 @@ const studentBaseSchema = z.object({
     required_error: 'Date of birth is required',
   }),
 
-  gender: z
-    .string()
-    .max(20, 'Gender must be 20 characters or less')
-    .optional()
-    .nullable(),
+  gender: genderSchema,
 
   email: z
     .string()
@@ -109,6 +107,7 @@ const studentBaseSchema = z.object({
 });
 
 export const createStudentSchema = studentBaseSchema
+  .extend({ gender: genderSchema.default('UNDISCLOSED') })
   .omit({
     id: true,
     create_date: true,

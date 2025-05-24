@@ -9,6 +9,12 @@ const PlansSchema = z.object({
       invalid_type_error: 'Price must be a number.',
     })
     .positive('Price must be a non-negative number.'),
+  total_slots: z
+    .number({
+      required_error: 'Total slots is required.',
+      invalid_type_error: 'Total slots must be a number.',
+    })
+    .positive('Total slots must be a non-negative number.'),
   description: z.string().optional().nullable(),
 });
 

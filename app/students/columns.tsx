@@ -32,7 +32,10 @@ export const columns = [
     },
   ),
   columnHelper.accessor('primary_contact', { header: 'Contact number' }),
-  columnHelper.accessor('gender', { header: 'Gender' }),
+  columnHelper.accessor('gender', { header: 'Gender' }) as ColumnDef<
+    StudentsGetType,
+    string
+  >,
   columnHelper.accessor('create_date', {
     header: 'Created on',
     cell: info => format(info.getValue(), 'PPP'),

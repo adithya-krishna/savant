@@ -26,7 +26,9 @@ import { Calendar as CalendarIcon } from 'lucide-react';
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
@@ -43,6 +45,7 @@ import {
   DialogTrigger,
 } from './ui/dialog';
 import { useRouter } from 'next/navigation';
+import { Gender } from '@/lib/enums';
 
 interface StudentDialogProps {
   children: ReactNode;
@@ -69,14 +72,17 @@ export default function StudentFormDialog({
       const res = await fetch('/api/students', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...values, lead_id }),
+        body: JSON.stringify({
+          ...values,
+          lead_id: lead_id === 'new' ? null : lead_id,
+        }),
       });
       if (res.ok) {
         form.reset();
         document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
         router.refresh();
       } else {
-        console.error('Failed to save lead');
+        console.error('Failed to save Student');
       }
     } catch (error) {
       console.error(error);
@@ -90,7 +96,8 @@ export default function StudentFormDialog({
         <DialogHeader>
           <DialogTitle>Create Student Profile</DialogTitle>
           <DialogDescription>
-            Create a student profile from this lead
+            Create a student profile{' '}
+            {`${lead_id === 'new' ? '' : 'from this lead'}`}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -252,19 +259,24 @@ export default function StudentFormDialog({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Gender</FormLabel>
-                      <Select onValueChange={field.onChange}>
-                        <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select the student's gender" />
-                          </SelectTrigger>
-                        </FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value ?? ''}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a gender" />
+                        </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="male">Male</SelectItem>
-                          <SelectItem value="female">Female</SelectItem>
-                          <SelectItem value="na">Prefer not to say</SelectItem>
+                          <SelectGroup>
+                            <SelectLabel>Select </SelectLabel>
+                            {Object.values(Gender).map((g, gi) => (
+                              <SelectItem key={`${g}_${gi}`} value={g}>
+                                {g}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
                         </SelectContent>
                       </Select>
-
                       <FormMessage />
                     </FormItem>
                   )}

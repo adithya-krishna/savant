@@ -12,26 +12,22 @@ const EnrollmentBaseSchema = z.object({
   start_date: dateSchema.refine(date => date > new Date(), {
     message: 'Start date must be in the future',
   }),
-  preferred_timings: z
-    .string()
-    .max(50, { message: 'Preferred timings must be 50 characters or less' })
-    .optional(),
+  preferred_start_time: dateSchema.optional(),
+  preferred_end_time: dateSchema.optional(),
   preferred_days: z
-    .string()
-    .max(50, { message: 'Preferred days must be 50 characters or less' })
-    .optional(),
-  teacher_name: z
-    .string()
-    .max(100, { message: 'Teacher name must be 100 characters or less' })
-    .optional(),
-  classes_remaining: z.number().int().nonnegative({
-    message: 'Classes remaining must be a non-negative integer',
-  }),
-  student_id: idSchema.optional(),
+    .array(z.number().int().min(0).max(6))
+    .nonempty('At least one preferred day must be selected'),
+  slots_remaining: z
+    .number()
+    .int()
+    .nonnegative({
+      message: 'Classes remaining must be a non-negative integer',
+    })
+    .default(0),
+  student_id: idSchema,
   plan_code: z
     .string()
-    .max(10, { message: 'Plan code must be 10 characters or less' })
-    .optional(),
+    .max(10, { message: 'Plan code must be 10 characters or less' }),
   course_id: idSchema,
   status: statusSchema,
   create_date: dateSchema.default(new Date()),
@@ -49,16 +45,16 @@ const EnrollmentCreateSchema = EnrollmentBaseSchema.omit({
   .required({
     amount_paid: true,
     start_date: true,
-    classes_remaining: true,
+    slots_remaining: true,
     course_id: true,
     status: true,
-  })
-  .partial({
-    preferred_timings: true,
-    preferred_days: true,
-    teacher_name: true,
     student_id: true,
     plan_code: true,
+    preferred_days: true,
+  })
+  .partial({
+    preferred_start_time: true,
+    preferred_end_time: true,
   });
 
 const EnrollmentUpdateSchema = EnrollmentBaseSchema.partial().required({

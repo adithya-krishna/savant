@@ -7,12 +7,11 @@ export const LeadsSchema = z.object({
   last_name: z.string().max(100).optional().nullable(),
   phone: z.string().max(15).nonempty('Phone is required.'),
   email: z.string().max(255).email('Invalid email.').optional().nullable(),
-  address: z.string().optional().nullable(),
+  community: z.string().optional().nullable(),
   area: z.string().optional().nullable(),
   walkin_date: z.string().optional().nullable(),
   expected_budget: z.string().optional().nullable(),
   demo_taken: z.boolean().optional().default(false),
-  color_code: z.string().max(7).optional().nullable(),
   number_of_contact_attempts: z
     .number()
     .int()
@@ -35,13 +34,12 @@ export const createLeadSchema = LeadsSchema.omit({
   updated_date: true,
 }).partial({
   last_name: true,
-  address: true,
+  community: true,
   area: true,
   email: true,
   walkin_date: true,
   expected_budget: true,
   demo_taken: true,
-  color_code: true,
   number_of_contact_attempts: true,
   last_contacted_date: true,
   next_followup: true,
