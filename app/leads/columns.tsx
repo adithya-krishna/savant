@@ -5,7 +5,7 @@ import { getFullName } from '@/lib/utils';
 import { DataTableColumnHeader } from '@/components/data-tables';
 import TableDropdownMenu from '@/components/table-dropdown';
 import { Badge } from '@/components/ui/badge';
-import { LeadsWithAllInclusions } from '../global-types';
+import { InstrumentType, LeadsWithAllInclusions } from '../global-types';
 
 const columnHelper = createColumnHelper<LeadsWithAllInclusions>();
 
@@ -24,10 +24,14 @@ export const columns = [
     header: 'Stage',
     cell: info => info.row.original.stage?.name,
   }),
-  columnHelper.accessor(row => row.id, {
+  columnHelper.accessor(row => row.team_member?.id as string, {
     id: 'team_member',
     header: 'Team Member',
     cell: info => getFullName(info.row.original.team_member),
+    filterFn: (row, id, filterValue) => {
+      const teamMemberID = row.getValue<string>(id);
+      return filterValue.includes(teamMemberID);
+    },
   }),
   columnHelper.accessor(row => row.instruments, {
     id: 'instruments',
@@ -51,7 +55,7 @@ export const columns = [
       );
     },
     filterFn: (row, id, filterValue) => {
-      const instruments = row.original.instruments ?? [];
+      const instruments = row.getValue<InstrumentType[]>(id) ?? [];
       const filterValues = Array.isArray(filterValue)
         ? filterValue
         : [filterValue];
