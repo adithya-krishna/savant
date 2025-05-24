@@ -1,13 +1,5 @@
 import { z } from 'zod';
-import { idSchema, nameSchema } from './common';
-
-const decimalSchema = z
-  .string({
-    required_error: 'Decimal value is required',
-  })
-  .refine(val => !isNaN(parseFloat(val)) && isFinite(Number(val)), {
-    message: 'Must be a valid decimal number',
-  });
+import { idSchema, nameSchema, decimalSchema } from './common';
 
 const genderSchema = z.enum(['MALE', 'FEMALE', 'UNDISCLOSED']);
 

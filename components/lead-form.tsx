@@ -32,7 +32,6 @@ interface SourceOption {
 }
 interface LeadFormProps {
   initialData: UpdateLeadInput | null;
-  id: string;
 }
 
 // move to utils
@@ -94,19 +93,20 @@ export async function fetchEndpointsParallel<T = unknown>(
 }
 // move to the utils end
 
-export default function LeadForm({ id, initialData }: LeadFormProps) {
+export default function LeadForm({ initialData }: LeadFormProps) {
   const router = useRouter();
   const form = useForm<UpdateLeadInput>({
     resolver: zodResolver(updateLeadSchema),
     defaultValues: {
-      first_name: initialData?.first_name,
-      last_name: initialData?.last_name,
-      phone: initialData?.phone,
-      email: initialData?.email,
-      area: initialData?.area,
-      community: initialData?.community,
-      source_id: initialData?.source_id,
-      team_member_id: initialData?.team_member_id,
+      id: initialData?.id,
+      first_name: initialData?.first_name ?? '',
+      last_name: initialData?.last_name ?? '',
+      phone: initialData?.phone ?? '',
+      email: initialData?.email ?? '',
+      area: initialData?.area ?? '',
+      community: initialData?.community ?? '',
+      source_id: initialData?.source_id ?? '',
+      team_member_id: initialData?.team_member_id ?? '',
     },
   });
 
@@ -142,10 +142,10 @@ export default function LeadForm({ id, initialData }: LeadFormProps) {
   }, []);
 
   const onSubmit = async (values: UpdateLeadInput) => {
-    const res = await fetch(`/api/leads/${id}`, {
+    const res = await fetch(`/api/leads/${values.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...values, id }),
+      body: JSON.stringify({ ...values }),
     });
 
     if (res.ok) {
@@ -158,9 +158,14 @@ export default function LeadForm({ id, initialData }: LeadFormProps) {
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={e => {
+          console.log('submit attempted');
+          form.handleSubmit(onSubmit)(e);
+        }}
         className="space-y-8 w-full max-w-3xl mx-auto py-10"
       >
+        <input type="hidden" {...form.register('id')} />
+
         <div className="grid grid-cols-6 gap-4">
           <div className="col-span-3">
             <FormField

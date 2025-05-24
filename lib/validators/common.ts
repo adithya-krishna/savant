@@ -9,3 +9,11 @@ export const nameSchema = z
   .trim()
   .min(2, 'First name must be at least 2 characters long')
   .max(100, 'First name cannot be more than 100 characters');
+
+export const decimalSchema = z
+  .string({
+    required_error: 'Decimal value is required',
+  })
+  .refine(val => !isNaN(parseFloat(val)) && isFinite(Number(val)), {
+    message: 'Must be a valid decimal number',
+  });

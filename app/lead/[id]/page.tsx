@@ -1,44 +1,24 @@
 import { db } from '@/db';
 import { notFound } from 'next/navigation';
 import LeadForm from '@/components/lead-form';
-import { CreateLeadInput } from '@/lib/validators/lead';
+import { cache } from 'react';
+import { UpdateLeadInput } from '@/lib/validators/lead';
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
+const getLead = cache(async (id: string) => {
+  const lead = await db.leads.findUnique({ where: { id } });
+
+  if (!lead) notFound();
+
+  return lead;
+});
+
 export default async function LeadPage({ params }: PageProps) {
   const { id } = await params;
-  let initialData: CreateLeadInput | null = null;
-
-  if (id !== 'new') {
-    const raw = await db.leads.findUnique({ where: { id } });
-    if (!raw) notFound();
-
-    initialData = {
-      first_name: raw.first_name,
-      last_name: raw.last_name ?? '',
-      phone: raw.phone,
-      email: raw.email ?? '',
-      source_id: raw.source_id ?? '',
-      walkin_date: raw.walkin_date
-        ? raw.walkin_date.toISOString().split('T')[0]
-        : '',
-      address: raw.address ?? '',
-      expected_budget: raw.expected_budget?.toString() ?? '',
-      stage_id: raw.stage_id ?? '',
-      demo_taken: raw.demo_taken ?? false,
-      color_code: raw.color_code ?? '#000000',
-      number_of_contact_attempts: raw.number_of_contact_attempts ?? 0,
-      last_contacted_date: raw.last_contacted_date
-        ? raw.last_contacted_date.toISOString().slice(0, 16)
-        : '',
-      next_followup: raw.next_followup
-        ? raw.next_followup.toISOString().slice(0, 16)
-        : '',
-      team_member_id: raw.team_member_id ?? '',
-    };
-  }
+  const lead: UpdateLeadInput = await getLead(id);
 
   return (
     <div className="flex h-screen w-full flex-col md:flex-row">
@@ -52,7 +32,7 @@ export default async function LeadPage({ params }: PageProps) {
         </p>
       </div>
       <div className="flex h-full w-full md:h-auto p-4">
-        <LeadForm initialData={initialData} id={id} />
+        <LeadForm initialData={lead} />
       </div>
     </div>
   );

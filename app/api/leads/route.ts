@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { createLeadSchema } from '@/lib/validators/lead';
 import { nanoid } from 'nanoid';
-import { Decimal } from '@prisma/client/runtime/library';
-import { connectIfDefined, connectManyIfDefined } from '@/lib/utils';
+import { connectIfDefined, connectManyIfDefined, omit } from '@/lib/utils';
+import { handleAPIError } from '@/lib/utils/api-error-handler';
 
 export async function GET() {
   const leads = await db.leads.findMany({
@@ -19,39 +19,37 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const body = await request.json();
-  const data = createLeadSchema.parse(body);
+  try {
+    const body = await request.json();
+    const validation = createLeadSchema.safeParse(body);
 
-  const id = nanoid(14);
+    if (!validation.success) {
+      throw validation.error;
+    }
 
-  const lead = await db.leads.create({
-    data: {
-      id,
-      first_name: data.first_name,
-      last_name: data.last_name,
-      phone: data.phone,
-      email: data.email,
-      walkin_date: data.walkin_date ? new Date(data.walkin_date) : undefined,
-      address: data.address,
-      area: data.area,
-      expected_budget: data.expected_budget
-        ? new Decimal(data.expected_budget)
-        : undefined,
-      demo_taken: data.demo_taken,
-      color_code: data.color_code,
-      number_of_contact_attempts: data.number_of_contact_attempts,
-      last_contacted_date: data.last_contacted_date
-        ? new Date(data.last_contacted_date)
-        : undefined,
-      next_followup: data.next_followup
-        ? new Date(data.next_followup)
-        : undefined,
-      ...connectIfDefined('source', data.source_id),
-      ...connectManyIfDefined('instruments', data.instrument_ids),
-      ...connectIfDefined('stage', data.stage_id || 'QMbQIk4rWPwiYW'),
-      ...connectIfDefined('team_member', data.team_member_id),
-    },
-  });
+    const id = nanoid(14);
 
-  return NextResponse.json(lead, { status: 201 });
+    const lead = await db.leads.create({
+      data: {
+        id,
+        ...omit(validation.data, [
+          'source_id',
+          'instrument_ids',
+          'stage_id',
+          'team_member_id',
+        ]),
+        ...connectIfDefined('source', validation.data.source_id),
+        ...connectManyIfDefined('instruments', validation.data.instrument_ids),
+        ...connectIfDefined(
+          'stage',
+          validation.data.stage_id || 'QMbQIk4rWPwiYW',
+        ),
+        ...connectIfDefined('team_member', validation.data.team_member_id),
+      },
+    });
+
+    return NextResponse.json(lead, { status: 201 });
+  } catch (error) {
+    return handleAPIError(error);
+  }
 }

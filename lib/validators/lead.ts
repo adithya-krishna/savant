@@ -1,55 +1,51 @@
 import { z } from 'zod';
-import { idSchema } from './common';
+import { decimalSchema, idSchema, nameSchema } from './common';
 
-export const LeadsSchema = z.object({
+const dateSchema = z.coerce.date();
+
+const BaseLeadSchema = z.object({
   id: idSchema,
-  first_name: z.string().max(100).nonempty('First name is required.'),
-  last_name: z.string().max(100).optional().nullable(),
-  phone: z.string().max(15).nonempty('Phone is required.'),
+  first_name: nameSchema,
+  last_name: nameSchema.optional().nullable(),
+  phone: z.string().max(15),
   email: z.string().max(255).email('Invalid email.').optional().nullable(),
-  community: z.string().optional().nullable(),
-  area: z.string().optional().nullable(),
-  walkin_date: z.string().optional().nullable(),
-  expected_budget: z.string().optional().nullable(),
-  demo_taken: z.boolean().optional().default(false),
+  community: z.string().max(50).optional().nullable(),
+  area: z.string().max(50).optional().nullable(),
+  walkin_date: dateSchema.optional().nullable(),
+  expected_budget: decimalSchema.optional(),
+  demo_taken: z.boolean().optional().nullable().default(false),
   number_of_contact_attempts: z
     .number()
     .int()
     .nonnegative()
     .optional()
+    .nullable()
     .default(0),
-  last_contacted_date: z.string().optional().nullable(),
-  next_followup: z.string().optional().nullable(),
-  stage_id: z.string().max(20).optional().nullable(),
-  team_member_id: z.string().max(20).optional().nullable(),
-  instrument_ids: z.array(z.string().max(20)).optional(),
-  source_id: z.string().max(20).optional().nullable(),
-  create_date: z.date().optional().default(new Date()),
-  updated_date: z.date().optional().default(new Date()),
+  last_contacted_date: dateSchema.optional().nullable(),
+  next_followup: dateSchema.optional().nullable(),
+  stage_id: idSchema.optional().nullable(),
+  team_member_id: idSchema.optional().nullable(),
+  instrument_ids: z.array(idSchema),
+  source_id: idSchema.optional().nullable(),
+  create_date: dateSchema.optional().nullable().default(new Date()),
+  updated_date: dateSchema.optional().nullable().default(new Date()),
 });
 
-export const createLeadSchema = LeadsSchema.omit({
+const createLeadSchema = BaseLeadSchema.omit({
   id: true,
   create_date: true,
   updated_date: true,
-}).partial({
-  last_name: true,
-  community: true,
-  area: true,
-  email: true,
-  walkin_date: true,
-  expected_budget: true,
-  demo_taken: true,
-  number_of_contact_attempts: true,
-  last_contacted_date: true,
-  next_followup: true,
-  stage_id: true,
-  team_member_id: true,
-  instrument_ids: true,
-  source_id: true,
+})
+  .partial()
+  .required({ first_name: true, phone: true });
+
+const updateLeadSchema = BaseLeadSchema.partial().required({
+  id: true,
+  first_name: true,
+  phone: true,
 });
 
-export const updateLeadSchema = LeadsSchema.partial().required({ id: true });
+export { createLeadSchema, updateLeadSchema };
 
 export type CreateLeadInput = z.infer<typeof createLeadSchema>;
 export type UpdateLeadInput = z.infer<typeof updateLeadSchema>;
