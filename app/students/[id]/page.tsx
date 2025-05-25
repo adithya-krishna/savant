@@ -1,7 +1,7 @@
 import { db } from '@/db';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
-import EnrollmentForm from './enrollment-form';
+import EnrollmentForm from '@/components/enrollment-form';
 
 interface StudentProfileProps {
   params: Promise<{ id: string }>;

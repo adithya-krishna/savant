@@ -23,3 +23,23 @@ export type LeadsWithAllInclusions = Prisma.LeadsGetPayload<{
 }>;
 
 export type StudentsGetType = Prisma.StudentGetPayload<object>;
+
+export type CourseType = Prisma.CourseGetPayload<{
+  select: { id: true; name: true };
+}>;
+
+export type PlanType = Prisma.PlansGetPayload<{
+  select: {
+    code: true;
+    price: true;
+    total_slots: true;
+    name: true;
+    description: true;
+  };
+}>;
+
+export type TimeSlotSelection = {
+  [dayNumber: number]: string[];
+};
+
+export type SelectOptionType = { label: string; value: string };

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { decimalSchema, idSchema, nameSchema } from './common';
+import { idSchema, nameSchema, priceSchema } from './common';
 
 const dateSchema = z.coerce.date();
 
@@ -12,7 +12,7 @@ const BaseLeadSchema = z.object({
   community: z.string().max(50).optional().nullable(),
   area: z.string().max(50).optional().nullable(),
   walkin_date: dateSchema.optional().nullable(),
-  expected_budget: decimalSchema.optional(),
+  expected_budget: priceSchema.optional(),
   demo_taken: z.boolean().optional().nullable().default(false),
   number_of_contact_attempts: z
     .number()
@@ -39,9 +39,11 @@ const createLeadSchema = BaseLeadSchema.omit({
   .partial()
   .required({ first_name: true, phone: true });
 
-const updateLeadSchema = BaseLeadSchema.partial().required({
-  id: true,
-});
+const updateLeadSchema = BaseLeadSchema.omit({ expected_budget: true })
+  .partial()
+  .required({
+    id: true,
+  });
 
 export { createLeadSchema, updateLeadSchema };
 

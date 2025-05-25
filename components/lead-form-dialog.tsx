@@ -31,10 +31,10 @@ import {
   DialogTrigger,
 } from './ui/dialog';
 import { ReactNode, useEffect, useState } from 'react';
-import { fetchEndpointsParallel } from './lead-form';
 import { TeamMemberType, InstrumentType } from '@/app/global-types';
 import { useRouter } from 'next/navigation';
 import { MultiSelect, MultiSelectOption } from './multi-select';
+import { fetchEndpointsParallel } from '@/lib/utils/api-utils';
 
 export default function LeadFormDialog({ children }: { children: ReactNode }) {
   const router = useRouter();

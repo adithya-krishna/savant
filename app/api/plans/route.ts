@@ -5,7 +5,7 @@ import { CreatePlanSchema } from '@/lib/validators/plans';
 
 export async function GET() {
   const plans = await db.plans.findMany({
-    orderBy: { name: 'asc' },
+    orderBy: { price: 'asc' },
   });
   return NextResponse.json(plans);
 }

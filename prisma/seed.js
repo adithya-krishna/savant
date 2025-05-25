@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { nanoid } from 'nanoid';
 const prisma = new PrismaClient();
 
 async function seedStages() {
@@ -161,39 +162,40 @@ async function seedPlans() {
     {
       code: 'RCmp_D',
       name: '1 month',
-      price: 4800.0,
+      price: 480000,
       total_slots: 8,
-      description: 'Demo Plan',
+      description:
+        'Ideal for short-term exploration or trial of the institute’s curriculum.',
       create_date: new Date('2025-05-18T13:58:24.644Z'),
       updated_date: new Date('2025-05-18T13:58:24.644Z'),
     },
     {
       code: '3YYKHo',
       name: '12 month',
-      price: 40320.0,
+      price: 4032000,
       total_slots: 96,
       description:
-        "A 12-month plan providing full access to our institute's resources and a comprehensive experience, designed for those ready to commit to a longer-term engagement.",
+        'Comprehensive 12-month plan for deep learning and exam preparation.',
       create_date: new Date('2025-05-18T13:51:43.480Z'),
       updated_date: new Date('2025-05-18T13:55:53.195Z'),
     },
     {
       code: 'AtIG8r',
       name: '3 month',
-      price: 13680.0,
+      price: 1368000,
       total_slots: 24,
       description:
-        "A 3-month trial plan designed to help you familiarize yourself with our institute's environment. This plan serves as an initial step toward further enrollment if you find the experience suitable.",
+        '3-month plan suited for beginners to get oriented with structured learning.',
       create_date: new Date('2025-05-18T13:50:43.192Z'),
       updated_date: new Date('2025-05-18T13:50:43.192Z'),
     },
     {
       code: '97Z2dL',
       name: '6 month',
-      price: 24920.0,
+      price: 2492000,
       total_slots: 48,
       description:
-        "A 6-month plan offering a deeper experience of our institute's environment, allowing you to fully explore our offerings before making a longer-term commitment.",
+        '6-month plan suited for intermediate progress or exam preparation.',
       create_date: new Date('2025-05-18T13:51:20.453Z'),
       updated_date: new Date('2025-05-18T13:51:20.453Z'),
     },
@@ -211,11 +213,38 @@ async function seedPlans() {
   console.log('Seeding plans completed.');
 }
 
+async function seedCourses() {
+  const instruments = await prisma.instruments.findMany();
+
+  const difficulties = ['FOUNDATION', 'BEGINNER', 'INTERMEDIATE', 'ADVANCED'];
+
+  for (const instrument of instruments) {
+    for (const difficulty of difficulties) {
+      const courseName = `${instrument.name} | ${difficulty.charAt(0) + difficulty.slice(1).toLowerCase()}`;
+
+      const course = await prisma.course.create({
+        data: {
+          id: nanoid(14),
+          name: courseName,
+          difficulty,
+          description: `${difficulty.charAt(0) + difficulty.slice(1).toLowerCase()} course for the ${instrument.name.toLowerCase()}`,
+          instrument_id: instrument.id,
+          teacher_id: null,
+        },
+      });
+      console.log(`Created course: ${course.name} (${course.id})`);
+    }
+  }
+
+  console.log('Seeding completed.');
+}
+
 async function main() {
   await seedStages();
   await seedSources();
   await seedInstruments();
   await seedPlans();
+  await seedCourses();
 }
 
 main()

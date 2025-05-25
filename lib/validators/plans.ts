@@ -1,14 +1,10 @@
 import { z } from 'zod';
+import { priceSchema } from './common';
 
 const PlansSchema = z.object({
   code: z.string().length(6, 'Invalid ID'),
   name: z.string().nonempty('A Plan name is required'),
-  price: z
-    .number({
-      required_error: 'Price is required.',
-      invalid_type_error: 'Price must be a number.',
-    })
-    .positive('Price must be a non-negative number.'),
+  price: priceSchema,
   total_slots: z
     .number({
       required_error: 'Total slots is required.',

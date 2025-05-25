@@ -1,22 +1,26 @@
 import { z } from 'zod';
-import { idSchema } from './common';
+import { idSchema, priceSchema } from './common';
 
 const dateSchema = z.coerce.date();
 const statusSchema = z.enum(['ACTIVE', 'COMPLETED', 'CANCELLED', 'ON_HOLD']);
+const PreferredTimeSlotSchema = z
+  .record(z.string(), z.array(z.string()))
+  .refine(
+    data => {
+      return Object.keys(data).every(key => /^[0-6]$/.test(key));
+    },
+    {
+      message: 'Keys must be day numbers between 0 and 6',
+    },
+  );
 
 const EnrollmentBaseSchema = z.object({
   id: idSchema,
-  amount_paid: z
-    .number()
-    .positive({ message: 'Amount paid must be a positive integer' }),
+  amount_paid: priceSchema.optional(),
   start_date: dateSchema.refine(date => date > new Date(), {
     message: 'Start date must be in the future',
   }),
-  preferred_start_time: dateSchema.optional(),
-  preferred_end_time: dateSchema.optional(),
-  preferred_days: z
-    .array(z.number().int().min(0).max(6))
-    .nonempty('At least one preferred day must be selected'),
+  preferred_time_slots: PreferredTimeSlotSchema,
   slots_remaining: z
     .number()
     .int()
@@ -27,7 +31,7 @@ const EnrollmentBaseSchema = z.object({
   student_id: idSchema,
   plan_code: z
     .string()
-    .max(10, { message: 'Plan code must be 10 characters or less' }),
+    .max(6, { message: 'Plan code must be 6 characters long' }),
   course_id: idSchema,
   status: statusSchema,
   create_date: dateSchema.default(new Date()),
@@ -40,21 +44,20 @@ const EnrollmentCreateSchema = EnrollmentBaseSchema.omit({
   id: true,
   create_date: true,
   updated_date: true,
+  is_deleted: true,
   deleted_at: true,
+  amount_paid: true,
 })
-  .required({
-    amount_paid: true,
+  .partial({
     start_date: true,
     slots_remaining: true,
+    preferred_time_slots: true,
+  })
+  .required({
+    plan_code: true,
     course_id: true,
     status: true,
     student_id: true,
-    plan_code: true,
-    preferred_days: true,
-  })
-  .partial({
-    preferred_start_time: true,
-    preferred_end_time: true,
   });
 
 const EnrollmentUpdateSchema = EnrollmentBaseSchema.partial().required({

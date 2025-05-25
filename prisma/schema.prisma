@@ -16,9 +16,9 @@ model Leads {
     area                       String?       @db.VarChar(255)
     community                  String?       @db.VarChar(100)
     walkin_date                DateTime?     @db.Date
-    expected_budget            Decimal?      @db.Decimal(10, 2)
+    expected_budget            Int           @default(0) @db.Integer
     demo_taken                 Boolean?      @default(false)
-    number_of_contact_attempts Int?          @default(0)
+    number_of_contact_attempts Int?          @default(0) @db.Integer
     last_contacted_date        DateTime?     @db.Timestamp(6)
     next_followup              DateTime?     @db.Timestamp(6)
     stage_id                   String?       @db.VarChar(20)
@@ -73,11 +73,9 @@ model Student {
 
 model Enrollment {
     id                   String           @id @db.VarChar(20)
-    amount_paid          Decimal          @db.Decimal(10, 2)
+    amount_paid          Int              @default(0) @db.Integer
     start_date           DateTime         @db.Date
-    preferred_start_time DateTime?        @db.Timestamp(6)
-    preferred_end_time   DateTime?        @db.Timestamp(6)
-    preferred_days       Int[]            @db.Integer
+    preferred_time_slots Json?
     slots_remaining      Int              @default(0) @db.Integer
     student_id           String           @db.VarChar(20)
     student              Student          @relation(fields: [student_id], references: [id], map: "fk_student")
@@ -117,7 +115,7 @@ model Course {
 model Plans {
     code         String       @id @db.VarChar(10)
     name         String       @db.VarChar(20)
-    price        Decimal      @db.Decimal(10, 2)
+    price        Int          @default(0) @db.Integer
     total_slots  Int          @default(0) @db.Integer
     description  String?      @db.VarChar(255)
     create_date  DateTime     @default(now()) @db.Timestamp(6)

@@ -202,7 +202,6 @@ export function getTimeSlots({
   const slots: TimeSlot[] = [];
 
   let current = startTime;
-
   while (
     isBefore(current, endTime) ||
     current.getTime() === endTime.getTime()
@@ -256,4 +255,20 @@ export function getWeekDays({
     }
     return acc;
   }, []);
+}
+
+/**
+ * Converts a decimal price (e.g. 100.00) into an integer (e.g. 10000)
+ * for storage in the DB, avoiding floating point precision issues.
+ */
+export function priceToInt(price: number): number {
+  return Math.round(price * 100);
+}
+
+/**
+ * Converts an integer price from the DB (e.g. 10000) into a decimal
+ * (e.g. 100.00) for display/use in application.
+ */
+export function priceFromInt(priceInt: number): number {
+  return priceInt / 100;
 }

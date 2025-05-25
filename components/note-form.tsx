@@ -23,7 +23,7 @@ export default function NoteForm({ leadId }: { leadId: string }) {
     defaultValues: {
       content: '',
       lead_id: leadId,
-      author_id: '4lUm6h9Plrbb6B',
+      author_id: 'NH4FttC4cjY7Y9',
       is_pinned: false,
     },
   });

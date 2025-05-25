@@ -10,3 +10,10 @@ export enum Gender {
   FEMALE = 'FEMALE',
   UNDISCLOSED = 'UNDISCLOSED',
 }
+
+export enum CourseDifficulty {
+  FOUNDATION = 'FOUNDATION',
+  BEGINNER = 'BEGINNER',
+  INTERMEDIATE = 'INTERMEDIATE',
+  ADVANCE = 'ADVANCED',
+}
