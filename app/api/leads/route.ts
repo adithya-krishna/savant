@@ -2,7 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { createLeadSchema } from '@/lib/validators/lead';
 import { nanoid } from 'nanoid';
-import { connectIfDefined, connectManyIfDefined, omit } from '@/lib/utils';
+import {
+  connectIfDefined,
+  connectManyIfDefined,
+  omit,
+  priceToInt,
+} from '@/lib/utils';
 import { handleAPIError } from '@/lib/utils/api-error-handler';
 
 export async function GET() {
@@ -38,6 +43,7 @@ export async function POST(request: NextRequest) {
           'stage_id',
           'team_member_id',
         ]),
+        expected_budget: priceToInt(Number(validation.data.expected_budget)),
         ...connectIfDefined('source', validation.data.source_id),
         ...connectManyIfDefined('instruments', validation.data.instrument_ids),
         ...connectIfDefined(

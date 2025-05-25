@@ -46,14 +46,14 @@ const EnrollmentCreateSchema = EnrollmentBaseSchema.omit({
   updated_date: true,
   is_deleted: true,
   deleted_at: true,
-  amount_paid: true,
 })
   .partial({
-    start_date: true,
-    slots_remaining: true,
     preferred_time_slots: true,
   })
   .required({
+    amount_paid: true,
+    start_date: true,
+    slots_remaining: true,
     plan_code: true,
     course_id: true,
     status: true,

@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { priceToInt } from '../utils';
 
 export const idSchema = z
   .string()
@@ -19,9 +18,6 @@ export const decimalSchema = z
     message: 'Must be a valid decimal number',
   });
 
-export const priceSchema = z
-  .string()
-  .refine(val => !isNaN(Number(val)), {
-    message: 'Price must be a valid number string',
-  })
-  .transform(val => priceToInt(parseFloat(val)));
+export const priceSchema = z.string().refine(val => !isNaN(Number(val)), {
+  message: 'Price must be a valid number string',
+});

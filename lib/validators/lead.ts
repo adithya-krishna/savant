@@ -39,11 +39,9 @@ const createLeadSchema = BaseLeadSchema.omit({
   .partial()
   .required({ first_name: true, phone: true });
 
-const updateLeadSchema = BaseLeadSchema.omit({ expected_budget: true })
-  .partial()
-  .required({
-    id: true,
-  });
+const updateLeadSchema = BaseLeadSchema.partial().required({
+  id: true,
+});
 
 export { createLeadSchema, updateLeadSchema };
 

@@ -1,7 +1,12 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/db';
 import { updateLeadSchema } from '@/lib/validators/lead';
-import { connectIfDefined, connectManyIfDefined, omit } from '@/lib/utils';
+import {
+  connectIfDefined,
+  connectManyIfDefined,
+  omit,
+  priceToInt,
+} from '@/lib/utils';
 import { getIdFromReq } from '@/lib/utils/api-utils';
 import { handleAPIError } from '@/lib/utils/api-error-handler';
 
@@ -24,6 +29,7 @@ export async function PUT(request: NextRequest) {
           'stage_id',
           'team_member_id',
         ]),
+        expected_budget: priceToInt(Number(validation.data.expected_budget)),
         ...connectIfDefined('source', validation.data.source_id),
         ...connectManyIfDefined('instruments', validation.data.instrument_ids),
         ...connectIfDefined(
