@@ -272,3 +272,17 @@ export function priceToInt(price: number): number {
 export function priceFromInt(priceInt: number): number {
   return priceInt / 100;
 }
+
+export function verifyAndCreateEntry<T extends string | number>(
+  key: string,
+  value?: T,
+): Record<string, T> | object {
+  if (value === undefined) {
+    return {};
+  } else if (typeof value === 'number') {
+    return { [key]: Number(value) };
+  } else if (!isNaN(parseFloat(value ?? '')) && isFinite(Number(value))) {
+    return { [key]: priceToInt(Number(value)) };
+  }
+  return {};
+}

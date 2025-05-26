@@ -1,4 +1,5 @@
 import { db } from '@/db';
+import { omit, verifyAndCreateEntry } from '@/lib/utils';
 import { handleAPIError } from '@/lib/utils/api-error-handler';
 import { getIdFromReq } from '@/lib/utils/api-utils';
 import { EnrollmentUpdateSchema } from '@/lib/validators/enrollment';
@@ -16,7 +17,10 @@ export async function PUT(request: NextRequest) {
 
     const enrollment = await db.enrollment.update({
       where: { id },
-      data: validation.data,
+      data: {
+        ...omit(validation.data, ['amount_paid']),
+        ...verifyAndCreateEntry('amount_paid', validation.data.amount_paid),
+      },
     });
 
     return NextResponse.json(enrollment);

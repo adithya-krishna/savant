@@ -60,9 +60,17 @@ const EnrollmentCreateSchema = EnrollmentBaseSchema.omit({
     student_id: true,
   });
 
-const EnrollmentUpdateSchema = EnrollmentBaseSchema.partial().required({
-  id: true,
-});
+const EnrollmentUpdateSchema = EnrollmentBaseSchema.omit({
+  student_id: true,
+  plan_code: true,
+  course_id: true,
+  create_date: true,
+  updated_date: true,
+})
+  .partial()
+  .required({
+    id: true,
+  });
 
 export type EnrollmentCreateInput = z.infer<typeof EnrollmentCreateSchema>;
 export type EnrollmentUpdateInput = z.infer<typeof EnrollmentUpdateSchema>;

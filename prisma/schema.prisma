@@ -67,8 +67,7 @@ model Student {
     is_deleted Boolean   @default(false)
     deleted_at DateTime? @db.Timestamp(6)
 
-    @@index([is_deleted])
-    @@index([lead_id])
+    @@index([lead_id, is_deleted])
 }
 
 model Enrollment {
@@ -87,12 +86,10 @@ model Enrollment {
     create_date          DateTime         @default(now()) @db.Timestamp(6)
     updated_date         DateTime         @default(now()) @updatedAt @db.Timestamp(6)
 
-    is_deleted Boolean   @default(false)
+    is_deleted Boolean?  @default(false)
     deleted_at DateTime? @db.Timestamp(6)
 
-    @@index([student_id])
-    @@index([course_id])
-    @@index([is_deleted])
+    @@index([student_id, course_id, is_deleted])
 }
 
 model Course {
@@ -108,8 +105,7 @@ model Course {
     updated_date  DateTime          @default(now()) @updatedAt @db.Timestamp(6)
     enrollments   Enrollment[]
 
-    @@index([instrument_id])
-    @@index([teacher_id])
+    @@index([instrument_id, teacher_id])
 }
 
 model Plans {
@@ -178,9 +174,7 @@ model Notes {
     create_at  DateTime @default(now()) @db.Timestamp(6)
     updated_at DateTime @default(now()) @updatedAt @db.Timestamp(6)
 
-    @@index([lead_id])
-    @@index([author_id])
-    @@index([create_at])
+    @@index([lead_id, author_id, create_at])
 }
 
 enum TeamMemberRole {
