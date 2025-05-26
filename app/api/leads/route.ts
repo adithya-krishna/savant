@@ -6,7 +6,7 @@ import {
   connectIfDefined,
   connectManyIfDefined,
   omit,
-  priceToInt,
+  verifyAndCreateEntry,
 } from '@/lib/utils';
 import { handleAPIError } from '@/lib/utils/api-error-handler';
 
@@ -42,8 +42,12 @@ export async function POST(request: NextRequest) {
           'instrument_ids',
           'stage_id',
           'team_member_id',
+          'expected_budget',
         ]),
-        expected_budget: priceToInt(Number(validation.data.expected_budget)),
+        ...verifyAndCreateEntry(
+          'expected_budget',
+          validation.data.expected_budget,
+        ),
         ...connectIfDefined('source', validation.data.source_id),
         ...connectManyIfDefined('instruments', validation.data.instrument_ids),
         ...connectIfDefined(
