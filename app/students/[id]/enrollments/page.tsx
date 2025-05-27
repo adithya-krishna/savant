@@ -7,7 +7,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import { getFullName, priceFromInt } from '@/lib/utils';
+import { priceFromInt } from '@/lib/utils';
 import { format } from 'date-fns';
 import { notFound } from 'next/navigation';
 import { db } from '@/db';
