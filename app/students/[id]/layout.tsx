@@ -1,6 +1,5 @@
 import { SidebarNav } from '@/components/sidebar-nav';
 import { cache, ReactNode } from 'react';
-import StudentFormDialog from '@/components/student-form-dialog';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { getFullName, getInitials } from '@/lib/utils';
@@ -8,65 +7,45 @@ import { Phone, UserRoundPlus } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { db } from '@/db';
 import TextWithIcon from '@/components/text-with-icon';
-import { Badge } from '@/components/ui/badge';
+import EnrollmentForm from '@/components/enrollment-form';
 
 const items = [
   {
     title: 'Basic',
-    href: '/lead/[id]',
-  },
-  {
-    title: 'Notes',
-    href: '/lead/[id]/notes',
-  },
-  {
-    title: 'Follow up',
-    href: '/lead/[id]/follow-up',
-  },
-  {
-    title: 'Students',
-    href: '/lead/[id]/students',
+    href: '/student/[id]',
   },
   {
     title: 'Account',
-    href: '/lead/[id]/account',
+    href: '/student/[id]/account',
   },
 ];
 
-interface LeadProfileLayoutProps {
+interface StudentProfileLayoutProps {
   children: ReactNode;
   params: Promise<{ id: string }>;
 }
 
-const getLeads = cache(async (id: string) => {
-  const lead = await db.leads.findUnique({
-    where: { id },
-    include: {
-      stage: { select: { name: true, color: true } },
-    },
-  });
+const getStudentProfile = cache(async (id: string) => {
+  const student = await db.student.findUnique({ where: { id } });
 
-  if (!lead) notFound();
+  if (!student) notFound();
 
-  return lead;
+  return student;
 });
 
-const LeadProfileLayout = async ({
+const StudentProfileLayout = async ({
   children,
   params,
-}: LeadProfileLayoutProps) => {
+}: StudentProfileLayoutProps) => {
   const { id } = await params;
-  const lead = await getLeads(id);
-
-  let stageStyle;
-  if (lead.stage?.color) {
-    stageStyle = { borderColor: lead.stage.color, color: lead.stage.color };
-  }
+  const student = await getStudentProfile(id);
 
   const formattedItems = items.map(i => ({
     ...i,
     href: i.href.replace('[id]', id),
   }));
+
+  const studentName = getFullName(student);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[12rem_auto] h-full">
@@ -75,31 +54,24 @@ const LeadProfileLayout = async ({
         <div className="flex w-full px-2 mb-6 justify-between">
           <div className="flex space-x-4">
             <Avatar className="shrink-0 size-16">
-              <AvatarFallback>{getInitials(lead)}</AvatarFallback>
+              <AvatarFallback>{getInitials(student)}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
               <div className="flex flex-row items-center w-full">
-                <h2 className="text-2xl font-semibold">{getFullName(lead)}</h2>
-                <Badge
-                  style={stageStyle}
-                  variant={'outline'}
-                  className={`ml-4 max-h-fit`}
-                >
-                  {lead.stage?.name}
-                </Badge>
+                <h2 className="text-2xl font-semibold">{studentName}</h2>
               </div>
               <TextWithIcon
                 iconSize={12}
                 icon={Phone}
-                label={lead?.phone ?? '-'}
+                label={student?.primary_contact ?? '-'}
               />
             </div>
           </div>
-          <StudentFormDialog id={id}>
+          <EnrollmentForm id={id} studentName={studentName}>
             <Button size="icon">
               <UserRoundPlus />
             </Button>
-          </StudentFormDialog>
+          </EnrollmentForm>
         </div>
         {children}
       </main>
@@ -107,4 +79,4 @@ const LeadProfileLayout = async ({
   );
 };
 
-export default LeadProfileLayout;
+export default StudentProfileLayout;

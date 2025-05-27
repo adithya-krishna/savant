@@ -2,11 +2,11 @@ import React, { cache } from 'react';
 import { db } from '@/db';
 import {
   Table,
-  TableHeader,
-  TableHead,
   TableBody,
-  TableRow,
   TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { DeleteItemButton } from '@/components/delete-item-button';
@@ -21,9 +21,7 @@ import {
 } from '@/components/ui/card';
 
 const getStages = cache(async () => {
-  const stage = await db.stage.findMany({ orderBy: { name: 'asc' } });
-
-  return stage;
+  return await db.stage.findMany({ orderBy: { name: 'asc' } });
 });
 
 export default async function SettingsPage() {

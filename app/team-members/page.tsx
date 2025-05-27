@@ -3,21 +3,19 @@ import Link from 'next/link';
 import { db } from '@/db';
 import {
   Table,
-  TableHeader,
-  TableHead,
   TableBody,
-  TableRow,
   TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import TableDropdownMenu from '@/components/table-dropdown';
 
 const getTeamMembers = cache(async () => {
-  const teamMembers = await db.teamMember.findMany({
+  return await db.teamMember.findMany({
     orderBy: { create_date: 'desc' },
   });
-
-  return teamMembers;
 });
 
 export default async function TeamMembersPage() {

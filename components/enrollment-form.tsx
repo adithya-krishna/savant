@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useReducer, useState } from 'react';
+import { ReactNode, useEffect, useReducer, useState } from 'react';
 import PreferredSlotSelect from './preferred-slots-selection';
 import {
   CourseType,
@@ -25,7 +25,15 @@ import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { Label } from './ui/label';
 import { format } from 'date-fns';
 import { Calendar } from './ui/calendar';
-import { Skeleton } from './ui/skeleton';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 type FormState = {
   student_id: string;
@@ -60,7 +68,15 @@ const reducer = (state: FormState, action: Action): FormState => {
   }
 };
 
-const EnrollmentForm = ({ id: student_id }: { id: string }) => {
+const EnrollmentForm = ({
+  id: student_id,
+  studentName,
+  children,
+}: {
+  id: string;
+  studentName: string;
+  children: ReactNode;
+}) => {
   const [state, dispatch] = useReducer(reducer, {
     student_id,
     course_id: '',
@@ -70,7 +86,6 @@ const EnrollmentForm = ({ id: student_id }: { id: string }) => {
     slots_remaining: 0,
   });
 
-  const [isLoading, setLoading] = useState<boolean>(true);
   const [selectedSlots, setSelectedSlots] = useState<TimeSlotSelection>({});
   const [plans, setPlans] = useState<PlanType[]>([]);
   const [courses, setCourses] = useState<SelectOptionType[]>([]);
@@ -100,8 +115,6 @@ const EnrollmentForm = ({ id: student_id }: { id: string }) => {
             break;
         }
       });
-
-      setLoading(false);
     };
 
     fetchData();
@@ -115,165 +128,156 @@ const EnrollmentForm = ({ id: student_id }: { id: string }) => {
     });
   }
 
-  if (isLoading) {
-    return (
-      <div className="space-y-8 w-lg mx-auto py-10">
-        <div>
-          <Skeleton className="w-20 h-3 rounded-lg mb-2" />
-          <Skeleton className="w-full h-9 rounded-lg" />
-        </div>
-        <div>
-          <Skeleton className="w-16 h-3 rounded-lg mb-2" />
-          {Array.from({ length: 2 }).map((_, i) => (
-            <Skeleton key={i} className="w-full h-16 mb-4 rounded-lg" />
-          ))}
-        </div>
-        <div>
-          <Skeleton className="w-40 h-3 rounded-lg mb-2" />
-          <Skeleton className="w-full h-32 rounded-lg" />
-        </div>
-        <div>
-          <Skeleton className="w-16 h-9 rounded-lg mb-2" />
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <form onSubmit={onSubmit} className="space-y-8 max-w-lg mx-auto py-10">
-      <input type="hidden" value={state.status} />
+    <Dialog modal={false}>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="sm:max-w-2xl overflow-y-auto max-h-screen">
+        <DialogHeader>
+          <DialogTitle>Create Enrollment</DialogTitle>
+          <DialogDescription>
+            Create an enrollment for {studentName}
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={onSubmit} className="space-y-8 pt-6">
+          <input type="hidden" value={state.status} />
 
-      <div className="flex flex-col">
-        <Label className="mb-2">Select Course</Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              className={cn(
-                'w-full justify-between',
-                !state.course_id && 'text-muted-foreground',
-              )}
+          <div className="flex flex-col">
+            <Label className="mb-2">Select Course</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  className={cn(
+                    'w-full justify-between',
+                    !state.course_id && 'text-muted-foreground',
+                  )}
+                >
+                  <span className="truncate max-w-[220px] block">
+                    {state.course_id
+                      ? courses.find(c => c.value === state.course_id)?.label
+                      : 'Pick a Course'}
+                  </span>
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[280px] p-0" align="start">
+                <Command>
+                  <CommandInput placeholder="Search Course..." />
+                  <CommandList>
+                    <CommandEmpty>No Course found.</CommandEmpty>
+                    <CommandGroup>
+                      {courses.map(course => (
+                        <CommandItem
+                          key={course.value}
+                          value={course.label}
+                          onSelect={() =>
+                            dispatch({
+                              type: 'SET_COURSE',
+                              payload: course.value,
+                            })
+                          }
+                          className={cn(
+                            course.value === state.course_id
+                              ? 'text-primary data-[selected=true]:text-primary'
+                              : '',
+                          )}
+                        >
+                          {course.label}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          <div className="space-y-3">
+            <Label className="mb-2">Select Plan</Label>
+            <RadioGroup
+              value={state.plan_code}
+              onValueChange={id => {
+                const selectedPlan = plans.filter(p => p.code === id)[0];
+                dispatch({ type: 'SET_PLAN', payload: id });
+                dispatch({
+                  type: 'SET_SLOTS_REMAINING',
+                  payload: selectedPlan.total_slots,
+                });
+              }}
+              className="flex flex-col space-y-1"
             >
-              <span className="truncate max-w-[220px] block">
-                {state.course_id
-                  ? courses.find(c => c.value === state.course_id)?.label
-                  : 'Pick a Course'}
-              </span>
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-[280px] p-0" align="start">
-            <Command>
-              <CommandInput placeholder="Search Course..." />
-              <CommandList>
-                <CommandEmpty>No Course found.</CommandEmpty>
-                <CommandGroup>
-                  {courses.map(course => (
-                    <CommandItem
-                      key={course.value}
-                      value={course.label}
-                      onSelect={() =>
-                        dispatch({
-                          type: 'SET_COURSE',
-                          payload: course.value,
-                        })
-                      }
-                      className={cn(
-                        course.value === state.course_id
-                          ? 'text-primary data-[selected=true]:text-primary'
-                          : '',
-                      )}
+              {plans.map(p => (
+                <div
+                  key={p.code}
+                  className={cn(
+                    'flex flex-row items-start justify-between rounded-lg border p-3 shadow-sm',
+                    p.code === state.plan_code ? 'border-primary' : '',
+                  )}
+                >
+                  <div className="space-y-0.5">
+                    <Label
+                      className="font-normal cursor-pointer"
+                      htmlFor={p.code}
                     >
-                      {course.label}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
-      </div>
+                      {p.name}
+                    </Label>
+                    <p className="text-xs mt-2 text-muted-foreground">
+                      {p.description}
+                    </p>
+                  </div>
+                  <RadioGroupItem value={p.code} id={p.code} />
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
 
-      <div className="space-y-3">
-        <Label className="mb-2">Select Plan</Label>
-        <RadioGroup
-          value={state.plan_code}
-          onValueChange={id => {
-            const selectedPlan = plans.filter(p => p.code === id)[0];
-            dispatch({ type: 'SET_PLAN', payload: id });
-            dispatch({
-              type: 'SET_SLOTS_REMAINING',
-              payload: selectedPlan.total_slots,
-            });
-          }}
-          className="flex flex-col space-y-1"
-        >
-          {plans.map(p => (
-            <div
-              key={p.code}
-              className={cn(
-                'flex flex-row items-start justify-between rounded-lg border p-3 shadow-sm',
-                p.code === state.plan_code ? 'border-primary' : '',
-              )}
-            >
-              <div className="space-y-0.5">
-                <Label className="font-normal cursor-pointer" htmlFor={p.code}>
-                  {p.name}
-                </Label>
-                <p className="text-xs mt-2 text-muted-foreground">
-                  {p.description}
-                </p>
-              </div>
-              <RadioGroupItem value={p.code} id={p.code} />
-            </div>
-          ))}
-        </RadioGroup>
-      </div>
-
-      <Label className="mb-2">Select preferred time slots</Label>
-      <div className="border rounded-lg">
-        <PreferredSlotSelect
-          selectedSlots={selectedSlots}
-          setSlots={setSelectedSlots}
-        />
-      </div>
-
-      <div>
-        <Label className="mb-2">Start from</Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant={'outline'}
-              className={cn(
-                'w-full justify-start text-left font-normal',
-                !state.start_date && 'text-muted-foreground',
-              )}
-            >
-              <CalendarIcon />
-              {state.start_date ? (
-                format(state.start_date, 'PPP')
-              ) : (
-                <span>Pick a date</span>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              fromDate={new Date()}
-              selected={state.start_date ?? new Date()}
-              onSelect={date =>
-                dispatch({ type: 'SET_START_DATE', payload: date! as Date })
-              }
-              initialFocus
+          <Label className="mb-2">Select preferred time slots</Label>
+          <div className="border rounded-lg">
+            <PreferredSlotSelect
+              selectedSlots={selectedSlots}
+              setSlots={setSelectedSlots}
             />
-          </PopoverContent>
-        </Popover>
-      </div>
+          </div>
 
-      <Button type="submit">Submit</Button>
-    </form>
+          <div>
+            <Label className="mb-2">Start from</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={'outline'}
+                  className={cn(
+                    'w-full justify-start text-left font-normal',
+                    !state.start_date && 'text-muted-foreground',
+                  )}
+                >
+                  <CalendarIcon />
+                  {state.start_date ? (
+                    format(state.start_date, 'PPP')
+                  ) : (
+                    <span>Pick a date</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  fromDate={new Date()}
+                  selected={state.start_date ?? new Date()}
+                  onSelect={date =>
+                    dispatch({ type: 'SET_START_DATE', payload: date! as Date })
+                  }
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+          <DialogFooter>
+            <Button type="submit">Save changes</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };
 

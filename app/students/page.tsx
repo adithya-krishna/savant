@@ -6,12 +6,10 @@ import { columns } from './columns';
 import StudentFormDialog from '@/components/student-form-dialog';
 
 const getStudents = cache(async () => {
-  const students = await db.student.findMany({
+  return await db.student.findMany({
     orderBy: { create_date: 'desc' },
     // include: {},
   });
-
-  return students;
 });
 
 export default async function StudentsPage() {

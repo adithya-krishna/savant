@@ -14,7 +14,7 @@ interface LeadProfileProps {
   params: Promise<{ id: string }>;
 }
 
-export const getLeads = cache(async (id: string) => {
+const getLeads = cache(async (id: string) => {
   const lead = await db.leads.findUnique({
     where: { id },
     include: {

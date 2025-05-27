@@ -7,7 +7,7 @@ import { columns } from '@/app/leads/columns';
 import { getFullName } from '@/lib/utils';
 
 const getLeadsWithFilters = cache(async () => {
-  const leads = await db.leads.findMany({
+  return await db.leads.findMany({
     orderBy: { create_date: 'desc' },
     include: {
       stage: true,
@@ -16,8 +16,6 @@ const getLeadsWithFilters = cache(async () => {
       // source: true,
     },
   });
-
-  return leads;
 });
 
 const getFilterOptions = cache(async () => {
