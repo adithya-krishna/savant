@@ -12,11 +12,15 @@ import EnrollmentForm from '@/components/enrollment-form';
 const items = [
   {
     title: 'Basic',
-    href: '/student/[id]',
+    href: '/students/[id]',
+  },
+  {
+    title: 'Enrollments',
+    href: '/students/[id]/enrollments',
   },
   {
     title: 'Account',
-    href: '/student/[id]/account',
+    href: '/students/[id]/account',
   },
 ];
 

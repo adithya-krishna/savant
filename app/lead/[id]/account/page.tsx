@@ -13,7 +13,7 @@ const getLead = cache(async (id: string) => {
 
   if (!lead) notFound();
 
-  return lead;
+  return { ...lead, expected_budget: lead.expected_budget.toString() };
 });
 
 export default async function LeadPage({ params }: PageProps) {

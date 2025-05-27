@@ -269,8 +269,14 @@ export function priceToInt(price: number): number {
  * Converts an integer price from the DB (e.g. 10000) into a decimal
  * (e.g. 100.00) for display/use in application.
  */
-export function priceFromInt(priceInt: number): number {
-  return priceInt / 100;
+
+const formatter = new Intl.NumberFormat('en-IN', {
+  style: 'currency',
+  currency: 'INR',
+});
+
+export function priceFromInt(priceInt: number): string {
+  return formatter.format(priceInt / 100) as unknown as string;
 }
 
 export function verifyAndCreateEntry<T extends string | number>(
