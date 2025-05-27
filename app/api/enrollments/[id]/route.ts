@@ -1,12 +1,15 @@
 import { db } from '@/db';
 import { omit, verifyAndCreateEntry } from '@/lib/utils';
 import { handleAPIError } from '@/lib/utils/api-error-handler';
-import { getIdFromReq } from '@/lib/utils/api-utils';
 import { EnrollmentUpdateSchema } from '@/lib/validators/enrollment';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function PUT(request: NextRequest) {
-  const id = getIdFromReq(request);
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+
   try {
     const body = await request.json();
     const validation = EnrollmentUpdateSchema.safeParse({ id, ...body });
@@ -29,21 +32,26 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-export async function DELETE(request: NextRequest) {
-  const id = getIdFromReq(request);
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+  const { searchParams } = new URL(request.url);
 
   try {
-    const { searchParams } = new URL(request.url);
-    const hardDelete = searchParams.get('hardDelete') === 'true';
-
-    const input = EnrollmentUpdateSchema.parse({ id });
+    const isHardDelete = searchParams.get('hardDelete') === 'true';
 
     let result;
-    if (hardDelete) {
-      result = db.enrollment.delete({ where: { id } });
+    const message = isHardDelete
+      ? 'Enrollment permanently deleted'
+      : 'Enrollment soft deleted successfully';
+
+    if (isHardDelete) {
+      result = await db.enrollment.delete({ where: { id } });
     } else {
       result = await db.enrollment.update({
-        where: { id: input.id },
+        where: { id },
         data: {
           is_deleted: true,
           deleted_at: new Date(),
@@ -54,9 +62,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: result,
-      message: hardDelete
-        ? 'Enrollment permanently deleted'
-        : 'Enrollment soft deleted successfully',
+      message,
     });
   } catch (error) {
     return handleAPIError(error);

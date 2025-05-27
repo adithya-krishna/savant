@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useEffect, useReducer, useState } from 'react';
+import { FormEvent, ReactNode, useEffect, useReducer, useState } from 'react';
 import PreferredSlotSelect from './preferred-slots-selection';
 import {
   CourseType,
@@ -34,6 +34,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { useRouter } from 'next/navigation';
 
 type FormState = {
   student_id: string;
@@ -42,6 +43,8 @@ type FormState = {
   status: string;
   start_date: Date | null;
   slots_remaining: number;
+  preferred_time_slots: TimeSlotSelection;
+  amount_paid: '0';
 };
 
 type Action =
@@ -49,7 +52,9 @@ type Action =
   | { type: 'SET_PLAN'; payload: string }
   | { type: 'SET_STATUS'; payload: string }
   | { type: 'SET_START_DATE'; payload: Date }
-  | { type: 'SET_SLOTS_REMAINING'; payload: number };
+  | { type: 'SET_SLOTS_REMAINING'; payload: number }
+  | { type: 'SET_PREFERRED_SLOT'; payload: TimeSlotSelection }
+  | { type: 'RESET_FORM'; payload: FormState };
 
 const reducer = (state: FormState, action: Action): FormState => {
   switch (action.type) {
@@ -63,9 +68,24 @@ const reducer = (state: FormState, action: Action): FormState => {
       return { ...state, start_date: action.payload };
     case 'SET_SLOTS_REMAINING':
       return { ...state, slots_remaining: action.payload };
+    case 'SET_PREFERRED_SLOT':
+      return { ...state, preferred_time_slots: action.payload };
+    case 'RESET_FORM':
+      return { ...state, ...action.payload };
     default:
       return state;
   }
+};
+
+const initialState: FormState = {
+  student_id: '',
+  course_id: '',
+  plan_code: '',
+  status: 'ACTIVE',
+  start_date: null,
+  slots_remaining: 0,
+  preferred_time_slots: {},
+  amount_paid: '0',
 };
 
 const EnrollmentForm = ({
@@ -77,16 +97,12 @@ const EnrollmentForm = ({
   studentName: string;
   children: ReactNode;
 }) => {
+  const router = useRouter();
   const [state, dispatch] = useReducer(reducer, {
+    ...initialState,
     student_id,
-    course_id: '',
-    plan_code: '',
-    status: 'ACTIVE',
-    start_date: null,
-    slots_remaining: 0,
   });
 
-  const [selectedSlots, setSelectedSlots] = useState<TimeSlotSelection>({});
   const [plans, setPlans] = useState<PlanType[]>([]);
   const [courses, setCourses] = useState<SelectOptionType[]>([]);
 
@@ -120,12 +136,32 @@ const EnrollmentForm = ({
     fetchData();
   }, []);
 
-  function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    console.log('Form Submission:', {
+    const postData = {
       ...state,
-      preferred_time_slots: selectedSlots,
-    });
+    };
+
+    try {
+      const res = await fetch('/api/enrollments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(postData),
+      });
+
+      if (res.ok) {
+        dispatch({
+          type: 'RESET_FORM',
+          payload: { ...initialState, student_id },
+        });
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+        router.refresh();
+      } else {
+        console.error('Failed to save lead');
+      }
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   return (
@@ -235,8 +271,10 @@ const EnrollmentForm = ({
           <Label className="mb-2">Select preferred time slots</Label>
           <div className="border rounded-lg">
             <PreferredSlotSelect
-              selectedSlots={selectedSlots}
-              setSlots={setSelectedSlots}
+              selectedSlots={state.preferred_time_slots}
+              setSlotsAction={slots =>
+                dispatch({ type: 'SET_PREFERRED_SLOT', payload: slots })
+              }
             />
           </div>
 

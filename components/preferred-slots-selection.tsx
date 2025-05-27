@@ -4,7 +4,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { getTimeSlots, getWeekDays } from '@/lib/utils';
 import { TimeSlotSelection } from '@/app/global-types';
-import { Dispatch, SetStateAction } from 'react';
 
 const days = getWeekDays({ weekStartOn: 1, filter: ['Monday'] });
 const timeSlots = getTimeSlots({ intervalMinutes: 60 });
@@ -12,35 +11,33 @@ const defaultSelected = '' + days[0].id;
 
 interface PreferredSlotSelectProps {
   selectedSlots: TimeSlotSelection;
-  setSlots: Dispatch<SetStateAction<TimeSlotSelection>>;
+  setSlotsAction: (slots: TimeSlotSelection) => void;
 }
 
 export default function PreferredSlotSelect({
   selectedSlots,
-  setSlots,
+  setSlotsAction,
 }: PreferredSlotSelectProps) {
   const handleDaySelect = (dayId: number) => {
     if (!selectedSlots[dayId]) {
-      setSlots(prev => ({
-        ...prev,
+      setSlotsAction({
+        ...selectedSlots,
         [dayId]: [],
-      }));
+      });
     }
   };
 
   const handleTimeSlotToggle = (dayId: number, slotId: string) => {
-    setSlots(prev => {
-      const currentDaySlots = prev[dayId] || [];
+    const currentDaySlots = selectedSlots[dayId] || [];
 
-      const newDaySlots = currentDaySlots.includes(slotId)
-        ? currentDaySlots.filter(id => id !== slotId)
-        : [...currentDaySlots, slotId];
-
-      return {
-        ...prev,
-        [dayId]: newDaySlots,
-      };
-    });
+    const newDaySlots = currentDaySlots.includes(slotId)
+      ? currentDaySlots.filter(id => id !== slotId)
+      : [...currentDaySlots, slotId];
+    const next = {
+      ...selectedSlots,
+      [dayId]: newDaySlots,
+    };
+    setSlotsAction(next);
   };
 
   return (

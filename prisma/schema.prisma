@@ -1,205 +1,205 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Leads {
-    id                         String        @id @db.VarChar(20)
-    first_name                 String        @db.VarChar(100)
-    last_name                  String?       @db.VarChar(100)
-    phone                      String        @db.VarChar(15)
-    email                      String?       @unique @db.VarChar(255)
-    area                       String?       @db.VarChar(255)
-    community                  String?       @db.VarChar(100)
-    walkin_date                DateTime?     @db.Date
-    expected_budget            Int           @default(0) @db.Integer
-    demo_taken                 Boolean?      @default(false)
-    number_of_contact_attempts Int?          @default(0) @db.Integer
-    last_contacted_date        DateTime?     @db.Timestamp(6)
-    next_followup              DateTime?     @db.Timestamp(6)
-    stage_id                   String?       @db.VarChar(20)
-    stage                      Stage?        @relation(fields: [stage_id], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_stage")
-    team_member_id             String?       @db.VarChar(20)
-    team_member                TeamMember?   @relation(fields: [team_member_id], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_team_member")
-    instruments                Instruments[] @relation("LeadInstrument")
-    source_id                  String?       @db.VarChar(20)
-    source                     Sources?      @relation(fields: [source_id], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_source")
-    student                    Student[]
-    create_date                DateTime?     @default(now()) @db.Timestamp(6)
-    updated_date               DateTime?     @default(now()) @updatedAt @db.Timestamp(6)
+  id                         String        @id @db.VarChar(20)
+  first_name                 String        @db.VarChar(100)
+  last_name                  String?       @db.VarChar(100)
+  phone                      String        @db.VarChar(15)
+  email                      String?       @unique @db.VarChar(255)
+  area                       String?       @db.VarChar(255)
+  community                  String?       @db.VarChar(100)
+  walkin_date                DateTime?     @db.Date
+  expected_budget            Int           @default(0) @db.Integer
+  demo_taken                 Boolean?      @default(false)
+  number_of_contact_attempts Int?          @default(0) @db.Integer
+  last_contacted_date        DateTime?     @db.Timestamp(6)
+  next_followup              DateTime?     @db.Timestamp(6)
+  stage_id                   String?       @db.VarChar(20)
+  stage                      Stage?        @relation(fields: [stage_id], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_stage")
+  team_member_id             String?       @db.VarChar(20)
+  team_member                TeamMember?   @relation(fields: [team_member_id], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_team_member")
+  instruments                Instruments[] @relation("LeadInstrument")
+  source_id                  String?       @db.VarChar(20)
+  source                     Sources?      @relation(fields: [source_id], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_source")
+  student                    Student[]
+  Notes                      Notes[]
+  create_date                DateTime?     @default(now()) @db.Timestamp(6)
+  updated_date               DateTime?     @default(now()) @updatedAt @db.Timestamp(6)
 
-    is_deleted Boolean   @default(false)
-    deleted_at DateTime? @db.Timestamp(6)
-    Notes      Notes[]
+  is_deleted Boolean   @default(false)
+  deleted_at DateTime? @db.Timestamp(6)
 
-    @@index([is_deleted])
+  @@index([is_deleted])
 }
 
 model Student {
-    id                String       @id @db.VarChar(20)
-    first_name        String       @db.VarChar(100)
-    last_name         String?      @db.VarChar(100)
-    parent_first_name String       @db.VarChar(100)
-    parent_last_name  String?      @db.VarChar(100)
-    parent_phone      String?      @db.VarChar(15)
-    address           String?      @db.Text
-    gmaps_place_id    String?      @db.VarChar(255)
-    gmaps_url         String?      @db.VarChar(1024)
-    gmaps_latitude    Decimal?     @db.Decimal(10, 8)
-    gmaps_longitude   Decimal?     @db.Decimal(11, 8)
-    dob               DateTime     @db.Date
-    gender            Gender       @default(UNDISCLOSED)
-    email             String?      @db.VarChar(100)
-    primary_contact   String       @db.VarChar(20)
-    secondary_contact String?      @db.VarChar(20)
-    intended_subject  String?      @db.VarChar(100)
-    learning_goal     String?      @db.VarChar(100)
-    create_date       DateTime     @default(now()) @db.Timestamp(6)
-    updated_date      DateTime     @default(now()) @updatedAt @db.Timestamp(6)
-    lead_id           String?      @db.VarChar(20)
-    lead              Leads?       @relation(fields: [lead_id], references: [id])
-    enrollments       Enrollment[]
+  id                String       @id @db.VarChar(20)
+  first_name        String       @db.VarChar(100)
+  last_name         String?      @db.VarChar(100)
+  parent_first_name String       @db.VarChar(100)
+  parent_last_name  String?      @db.VarChar(100)
+  parent_phone      String?      @db.VarChar(15)
+  address           String?      @db.Text
+  gmaps_place_id    String?      @db.VarChar(255)
+  gmaps_url         String?      @db.VarChar(1024)
+  gmaps_latitude    Decimal?     @db.Decimal(10, 8)
+  gmaps_longitude   Decimal?     @db.Decimal(11, 8)
+  dob               DateTime     @db.Date
+  gender            Gender       @default(UNDISCLOSED)
+  email             String?      @db.VarChar(100)
+  primary_contact   String       @db.VarChar(20)
+  secondary_contact String?      @db.VarChar(20)
+  intended_subject  String?      @db.VarChar(100)
+  learning_goal     String?      @db.VarChar(100)
+  create_date       DateTime     @default(now()) @db.Timestamp(6)
+  updated_date      DateTime     @default(now()) @updatedAt @db.Timestamp(6)
+  lead_id           String?      @db.VarChar(20)
+  lead              Leads?       @relation(fields: [lead_id], references: [id])
+  enrollments       Enrollment[]
 
-    is_deleted Boolean   @default(false)
-    deleted_at DateTime? @db.Timestamp(6)
+  is_deleted Boolean   @default(false)
+  deleted_at DateTime? @db.Timestamp(6)
 
-    @@index([lead_id, is_deleted])
+  @@index([lead_id, is_deleted])
 }
 
 model Enrollment {
-    id                   String           @id @db.VarChar(20)
-    amount_paid          Int              @default(0) @db.Integer
-    start_date           DateTime         @db.Date
-    preferred_time_slots Json?
-    slots_remaining      Int              @default(0) @db.Integer
-    student_id           String           @db.VarChar(20)
-    student              Student          @relation(fields: [student_id], references: [id], map: "fk_student")
-    plan_code            String           @db.VarChar(10)
-    plan_name            Plans            @relation(fields: [plan_code], references: [code], map: "fk_plan_name")
-    course_id            String           @db.VarChar(20)
-    course               Course           @relation(fields: [course_id], references: [id], map: "fk_course")
-    status               EnrollmentStatus @default(ACTIVE)
-    create_date          DateTime         @default(now()) @db.Timestamp(6)
-    updated_date         DateTime         @default(now()) @updatedAt @db.Timestamp(6)
+  id                   String           @id @db.VarChar(20)
+  amount_paid          Int              @default(0) @db.Integer
+  start_date           DateTime         @db.Date
+  preferred_time_slots Json?
+  slots_remaining      Int              @default(0) @db.Integer
+  student_id           String           @db.VarChar(20)
+  student              Student          @relation(fields: [student_id], references: [id], onDelete: Cascade, map: "fk_student")
+  plan_code            String           @db.VarChar(10)
+  plan_name            Plans            @relation(fields: [plan_code], references: [code], onDelete: Cascade, map: "fk_plan_name")
+  course_id            String           @db.VarChar(20)
+  course               Course           @relation(fields: [course_id], references: [id], onDelete: Cascade, map: "fk_course")
+  status               EnrollmentStatus @default(ACTIVE)
+  create_date          DateTime         @default(now()) @db.Timestamp(6)
+  updated_date         DateTime         @default(now()) @updatedAt @db.Timestamp(6)
 
-    is_deleted Boolean?  @default(false)
-    deleted_at DateTime? @db.Timestamp(6)
+  is_deleted Boolean?  @default(false)
+  deleted_at DateTime? @db.Timestamp(6)
 
-    @@index([student_id, course_id, is_deleted])
+  @@index([student_id, course_id, is_deleted])
 }
 
 model Course {
-    id            String            @id @db.VarChar(20)
-    name          String            @db.VarChar(100)
-    difficulty    CourseDifficulty? @default(FOUNDATION)
-    description   String?           @db.VarChar(255)
-    instrument_id String?           @db.VarChar(20)
-    instrument    Instruments?      @relation(fields: [instrument_id], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_instrument")
-    teacher_id    String?           @db.VarChar(20)
-    teacher       TeamMember?       @relation(fields: [teacher_id], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_teacher")
-    create_date   DateTime          @default(now()) @db.Timestamp(6)
-    updated_date  DateTime          @default(now()) @updatedAt @db.Timestamp(6)
-    enrollments   Enrollment[]
+  id            String            @id @db.VarChar(20)
+  name          String            @db.VarChar(100)
+  difficulty    CourseDifficulty? @default(FOUNDATION)
+  description   String?           @db.VarChar(255)
+  instrument_id String?           @db.VarChar(20)
+  instrument    Instruments?      @relation(fields: [instrument_id], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_instrument")
+  teacher_id    String?           @db.VarChar(20)
+  teacher       TeamMember?       @relation(fields: [teacher_id], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_teacher")
+  create_date   DateTime          @default(now()) @db.Timestamp(6)
+  updated_date  DateTime          @default(now()) @updatedAt @db.Timestamp(6)
+  enrollments   Enrollment[]
 
-    @@index([instrument_id, teacher_id])
+  @@index([instrument_id, teacher_id])
 }
 
 model Plans {
-    code         String       @id @db.VarChar(10)
-    name         String       @db.VarChar(20)
-    price        Int          @default(0) @db.Integer
-    total_slots  Int          @default(0) @db.Integer
-    description  String?      @db.VarChar(255)
-    create_date  DateTime     @default(now()) @db.Timestamp(6)
-    updated_date DateTime     @default(now()) @updatedAt @db.Timestamp(6)
-    enrollment   Enrollment[]
+  code         String       @id @db.VarChar(10)
+  name         String       @db.VarChar(20)
+  price        Int          @default(0) @db.Integer
+  total_slots  Int          @default(0) @db.Integer
+  description  String?      @db.VarChar(255)
+  create_date  DateTime     @default(now()) @db.Timestamp(6)
+  updated_date DateTime     @default(now()) @updatedAt @db.Timestamp(6)
+  enrollment   Enrollment[]
 }
 
 model Stage {
-    id    String  @id @db.VarChar(20)
-    name  String  @unique @db.VarChar(100)
-    color String? @default("#99a1af") @db.VarChar(10)
-    leads Leads[]
+  id    String  @id @db.VarChar(20)
+  name  String  @unique @db.VarChar(100)
+  color String? @default("#99a1af") @db.VarChar(10)
+  leads Leads[]
 }
 
 model Sources {
-    id          String  @id @db.VarChar(20)
-    source      String  @db.VarChar(100)
-    description String? @db.VarChar(255)
-    leads       Leads[]
+  id          String  @id @db.VarChar(20)
+  source      String  @db.VarChar(100)
+  description String? @db.VarChar(255)
+  leads       Leads[]
 }
 
 model Instruments {
-    id          String   @id @db.VarChar(20)
-    name        String   @unique @db.VarChar(50)
-    description String?  @db.VarChar(255)
-    leads       Leads[]  @relation("LeadInstrument")
-    courses     Course[]
+  id          String   @id @db.VarChar(20)
+  name        String   @unique @db.VarChar(50)
+  description String?  @db.VarChar(255)
+  leads       Leads[]  @relation("LeadInstrument")
+  courses     Course[]
 }
 
 model TeamMember {
-    id           String         @id @db.VarChar(20)
-    first_name   String         @db.VarChar(100)
-    last_name    String         @db.VarChar(100)
-    email        String?        @unique @db.VarChar(255)
-    phone        String         @db.VarChar(15)
-    role         TeamMemberRole @default(STAFF)
-    active       Boolean?       @default(false)
-    create_date  DateTime       @default(now()) @db.Timestamp(6)
-    updated_date DateTime       @default(now()) @updatedAt @db.Timestamp(6)
-    leads        Leads[]
-    Course       Course[]
+  id           String         @id @db.VarChar(20)
+  first_name   String         @db.VarChar(100)
+  last_name    String         @db.VarChar(100)
+  email        String?        @unique @db.VarChar(255)
+  phone        String         @db.VarChar(15)
+  role         TeamMemberRole @default(STAFF)
+  active       Boolean?       @default(false)
+  create_date  DateTime       @default(now()) @db.Timestamp(6)
+  updated_date DateTime       @default(now()) @updatedAt @db.Timestamp(6)
+  leads        Leads[]
+  Course       Course[]
 
-    is_deleted Boolean   @default(false)
-    deleted_at DateTime? @db.Timestamp(6)
-    Notes      Notes[]
+  is_deleted Boolean   @default(false)
+  deleted_at DateTime? @db.Timestamp(6)
+  Notes      Notes[]
 
-    @@index([is_deleted])
+  @@index([is_deleted])
 }
 
 model Notes {
-    id        String   @id @db.VarChar(20)
-    content   String   @db.Text
-    is_pinned Boolean? @db.Boolean
+  id        String   @id @db.VarChar(20)
+  content   String   @db.Text
+  is_pinned Boolean? @db.Boolean
 
-    author_id String     @db.VarChar(20)
-    author    TeamMember @relation(fields: [author_id], references: [id], map: "fk_author")
-    lead_id   String     @db.VarChar(20)
-    lead      Leads      @relation(fields: [lead_id], references: [id], map: "fk_lead")
+  author_id String     @db.VarChar(20)
+  author    TeamMember @relation(fields: [author_id], references: [id], map: "fk_author")
+  lead_id   String     @db.VarChar(20)
+  lead      Leads      @relation(fields: [lead_id], references: [id], map: "fk_lead")
 
-    create_at  DateTime @default(now()) @db.Timestamp(6)
-    updated_at DateTime @default(now()) @updatedAt @db.Timestamp(6)
+  create_at  DateTime @default(now()) @db.Timestamp(6)
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamp(6)
 
-    @@index([lead_id, author_id, create_at])
+  @@index([lead_id, author_id, create_at])
 }
 
 enum TeamMemberRole {
-    STAFF
-    INSTRUCTOR
-    ADMIN
-    SUPER_ADMIN
+  STAFF
+  INSTRUCTOR
+  ADMIN
+  SUPER_ADMIN
 }
 
 enum CourseDifficulty {
-    FOUNDATION
-    BEGINNER
-    INTERMEDIATE
-    ADVANCED
+  FOUNDATION
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
 }
 
 enum EnrollmentStatus {
-    ACTIVE
-    COMPLETED
-    CANCELLED
-    ON_HOLD
+  ACTIVE
+  COMPLETED
+  CANCELLED
+  ON_HOLD
 }
 
 enum Gender {
-    MALE
-    FEMALE
-    UNDISCLOSED
+  MALE
+  FEMALE
+  UNDISCLOSED
 }
