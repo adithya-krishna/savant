@@ -45,9 +45,6 @@ export default function PreferredSlotSelect({
 
   return (
     <div className="w-full">
-      <p className="text-sm font-medium leading-none mb-2">
-        Select preffered time slots.
-      </p>
       <Tabs defaultValue={defaultSelected} className="w-full">
         <TabsList className="grid w-full grid-cols-6">
           {days.map(day => (
