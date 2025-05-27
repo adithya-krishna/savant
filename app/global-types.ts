@@ -1,6 +1,11 @@
 import { Prisma } from '@prisma/client';
 
-export type SectionTypes = 'team-member' | 'lead' | 'stage' | 'students';
+export type SectionTypes =
+  | 'team-member'
+  | 'lead'
+  | 'stage'
+  | 'students'
+  | 'enrollments';
 
 export type TeamMemberType = Prisma.TeamMemberGetPayload<{
   select: { id: true; first_name: true; last_name: true };
@@ -43,3 +48,15 @@ export type TimeSlotSelection = {
 };
 
 export type SelectOptionType = { label: string; value: string };
+
+export type EnrollmentsGetType = Prisma.EnrollmentGetPayload<{
+  include: {
+    student: {
+      select: {
+        id: true;
+        first_name: true;
+        last_name: true;
+      };
+    };
+  };
+}>;

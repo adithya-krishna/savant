@@ -18,7 +18,7 @@ interface StudentEnrollmentsProps {
 }
 
 const getStudentProfile = cache(async (id: string) => {
-  const enrollments = await db.student.findUnique({
+  const student = await db.student.findUnique({
     where: { id },
     include: {
       enrollments: {
@@ -34,9 +34,9 @@ const getStudentProfile = cache(async (id: string) => {
     },
   });
 
-  if (!enrollments) notFound();
+  if (!student) notFound();
 
-  return enrollments;
+  return student;
 });
 
 const LeadStudents = async ({ params }: StudentEnrollmentsProps) => {

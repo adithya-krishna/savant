@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/sidebar';
 import {
   CalendarClock,
+  ClipboardList,
   HelpCircleIcon,
   Home,
   Rocket,
@@ -42,6 +43,11 @@ const navMain = [
     title: 'Slots',
     href: '/slots',
     icon: CalendarClock,
+  },
+  {
+    title: 'Enrollments',
+    href: '/enrollments',
+    icon: ClipboardList,
   },
 ];
 
