@@ -75,6 +75,7 @@ export default function StudentFormDialog({
         body: JSON.stringify({
           ...values,
           lead_id: lead_id === 'new' ? null : lead_id,
+          dob: format(values.dob, 'yyyy-MM-dd'),
         }),
       });
       if (res.ok) {
@@ -268,7 +269,7 @@ export default function StudentFormDialog({
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
-                            <SelectLabel>Select </SelectLabel>
+                            <SelectLabel>Select Gender</SelectLabel>
                             {Object.values(Gender).map((g, gi) => (
                               <SelectItem key={`${g}_${gi}`} value={g}>
                                 {g}

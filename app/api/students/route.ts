@@ -8,10 +8,16 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET() {
   const leads = await db.student.findMany({
     orderBy: { create_date: 'desc' },
-    // include: {
-    //   // lead: true,
-    //   // enrollments: true,
-    // },
+    include: {
+      lead: true,
+      enrollments: {
+        include: {
+          course: true,
+          plan_name: true,
+          student: true,
+        },
+      },
+    },
   });
   return NextResponse.json(leads);
 }

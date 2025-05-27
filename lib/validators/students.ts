@@ -128,9 +128,17 @@ export const createStudentSchema = studentBaseSchema
     lead_id: true,
   });
 
-export const updateStudentSchema = studentBaseSchema.partial().required({
-  id: true,
-});
+export const updateStudentSchema = studentBaseSchema
+  .omit({
+    gmaps_place_id: true,
+    gmaps_url: true,
+    gmaps_latitude: true,
+    gmaps_longitude: true,
+  })
+  .partial()
+  .required({
+    id: true,
+  });
 
 export type CreateStudentInput = z.infer<typeof createStudentSchema>;
 export type UpdateStudentInput = z.infer<typeof updateStudentSchema>;

@@ -17,9 +17,7 @@ const PreferredTimeSlotSchema = z
 const EnrollmentBaseSchema = z.object({
   id: idSchema,
   amount_paid: priceSchema.optional(),
-  start_date: dateSchema.refine(date => date > new Date(), {
-    message: 'Start date must be in the future',
-  }),
+  start_date: dateSchema,
   preferred_time_slots: PreferredTimeSlotSchema,
   slots_remaining: z
     .number()

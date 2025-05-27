@@ -19,6 +19,7 @@ import {
   isBefore,
   addMinutes,
   startOfWeek,
+  differenceInYears,
 } from 'date-fns';
 
 export function cn(...inputs: ClassValue[]) {
@@ -291,4 +292,26 @@ export function verifyAndCreateEntry<T extends string | number>(
     return { [key]: priceToInt(Number(value)) };
   }
   return {};
+}
+
+/**
+ * Calculates the age in years given a birth date.
+ * @param birthDate - The date of birth as a Date object.
+ * @returns Age in years as a number.
+ */
+export function calculateAge(birthDate: Date): number {
+  const today = new Date();
+  let age = differenceInYears(today, birthDate);
+
+  const thisYearBirthday = new Date(
+    today.getFullYear(),
+    birthDate.getMonth(),
+    birthDate.getDate(),
+  );
+
+  if (isBefore(today, thisYearBirthday)) {
+    age--;
+  }
+
+  return age;
 }

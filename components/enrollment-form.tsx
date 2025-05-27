@@ -140,6 +140,7 @@ const EnrollmentForm = ({
     e.preventDefault();
     const postData = {
       ...state,
+      start_date: format(state.start_date!, 'yyyy-MM-dd'),
     };
 
     try {
@@ -302,9 +303,12 @@ const EnrollmentForm = ({
                   mode="single"
                   fromDate={new Date()}
                   selected={state.start_date ?? new Date()}
-                  onSelect={date =>
-                    dispatch({ type: 'SET_START_DATE', payload: date! as Date })
-                  }
+                  onSelect={date => {
+                    dispatch({
+                      type: 'SET_START_DATE',
+                      payload: date! as Date,
+                    });
+                  }}
                   initialFocus
                 />
               </PopoverContent>

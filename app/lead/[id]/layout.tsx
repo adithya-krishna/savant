@@ -69,7 +69,7 @@ const LeadProfileLayout = async ({
   }));
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-[12rem_auto] h-full">
+    <div className="grid grid-cols-1 md:grid-cols-[12rem_auto]">
       <SidebarNav items={formattedItems} />
       <main className="p-4 w-full max-w-6xl mx-auto">
         <div className="flex w-full px-2 mb-6 justify-between">

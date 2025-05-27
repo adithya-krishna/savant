@@ -64,18 +64,12 @@ const LeadStudents = async ({ params }: StudentEnrollmentsProps) => {
           <TableBody>
             {student.enrollments.map(e => (
               <TableRow key={e.id}>
-                <TableCell className="w-full">{e.course.name}</TableCell>
-                <TableCell className="w-full">{e.plan_name.name}</TableCell>
-                <TableCell className="w-full">{e.status}</TableCell>
-                <TableCell className="w-full">
-                  {priceFromInt(e.plan_name.price)}
-                </TableCell>
-                <TableCell className="w-full">
-                  {format(e.start_date, 'do MMM')}
-                </TableCell>
-                <TableCell className="space-x-2">
-                  {format(e.create_date, 'do MMM')}
-                </TableCell>
+                <TableCell>{e.course.name}</TableCell>
+                <TableCell>{e.plan_name.name}</TableCell>
+                <TableCell>{e.status}</TableCell>
+                <TableCell>{priceFromInt(e.plan_name.price)}</TableCell>
+                <TableCell>{format(e.start_date, 'do MMM')}</TableCell>
+                <TableCell>{format(e.create_date, 'do MMM')}</TableCell>
               </TableRow>
             ))}
           </TableBody>
