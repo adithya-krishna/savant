@@ -93,8 +93,13 @@ export function connectManyIfDefined<T>(
   key: string,
   ids: T[] | null | undefined,
 ) {
-  if (!Array.isArray(ids) || ids.length === 0) return undefined;
+  if (!Array.isArray(ids)) return undefined;
   return { [key]: { connect: ids.map(id => ({ id })) } };
+}
+
+export function setManyIfDefined<T>(key: string, ids: T[] | null | undefined) {
+  if (!Array.isArray(ids)) return undefined;
+  return { [key]: { set: ids.map(id => ({ id })) } };
 }
 
 export function getFullName<
