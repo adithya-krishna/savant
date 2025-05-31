@@ -1,7 +1,7 @@
 'use client';
 
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
-import { EnrollmentsGetType } from '../global-types';
+import { EnrollmentsGetType } from '@/app/global-types';
 import TableDropdownMenu from '@/components/table-dropdown';
 import { DataTableColumnHeader } from '@/components/data-tables';
 import { getFullName } from '@/lib/utils';

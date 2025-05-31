@@ -1,9 +1,6 @@
 import type { Metadata } from 'next';
 import { DM_Sans, Lora, IBM_Plex_Mono } from 'next/font/google';
-import './globals.css';
-import Header from '@/components/ui/header';
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { AppSidebar } from '@/components/app-sidebar';
+import '@/app/globals.css';
 import { ThemeProvider } from 'next-themes';
 import { ReactNode } from 'react';
 
@@ -30,7 +27,7 @@ export const metadata: Metadata = {
   description: 'Client resource management dashboard',
 };
 
-export default function RootLayout({
+export default async function AuthLayout({
   children,
 }: Readonly<{
   children: ReactNode;
@@ -46,13 +43,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SidebarProvider>
-            <AppSidebar />
-            <SidebarInset>
-              <Header />
-              <main className="flex flex-1 flex-col h-full">{children}</main>
-            </SidebarInset>
-          </SidebarProvider>
+          <main className="flex flex-1 flex-col h-full">{children}</main>
         </ThemeProvider>
       </body>
     </html>

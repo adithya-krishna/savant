@@ -34,7 +34,7 @@ export default async function NotesPage({ params }: PageProps) {
             </div>
             <div className="justify-end items-center inline-flex mb-2.5">
               <h6 className="text-gray-500 text-xs font-normal leading-4 py-1">
-                {format(n.create_at, 'p')}
+                {format(n.created_at, 'p')}
               </h6>
             </div>
           </div>

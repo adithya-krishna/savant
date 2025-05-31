@@ -63,6 +63,7 @@ model Student {
   lead_id           String?      @db.VarChar(20)
   lead              Leads?       @relation(fields: [lead_id], references: [id])
   enrollments       Enrollment[]
+  User              User?
 
   is_deleted Boolean   @default(false)
   deleted_at DateTime? @db.Timestamptz(6)
@@ -86,11 +87,10 @@ model Enrollment {
   events               Event[]          @relation("EventGuests")
   event_series         EventSeries[]
 
-  create_date   DateTime  @default(now()) @db.Timestamptz(6)
-  updated_date  DateTime  @updatedAt @db.Timestamptz(6)
-  is_deleted    Boolean?  @default(false)
-  deleted_at    DateTime? @db.Timestamptz(6)
-  eventSeriesId String    @db.VarChar(20)
+  create_date  DateTime  @default(now()) @db.Timestamptz(6)
+  updated_date DateTime  @updatedAt @db.Timestamptz(6)
+  is_deleted   Boolean?  @default(false)
+  deleted_at   DateTime? @db.Timestamptz(6)
 
   @@index([student_id])
   @@index([course_id])
@@ -106,20 +106,22 @@ model Course {
   instrument    Instruments?      @relation(fields: [instrument_id], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_instrument")
   teacher_id    String?           @db.VarChar(20)
   teacher       TeamMember?       @relation(fields: [teacher_id], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_teacher")
-  create_date   DateTime          @default(now()) @db.Timestamptz(6)
-  updated_date  DateTime          @updatedAt @db.Timestamptz(6)
   enrollments   Enrollment[]
+
+  create_date  DateTime @default(now()) @db.Timestamptz(6)
+  updated_date DateTime @updatedAt @db.Timestamptz(6)
 }
 
 model Plans {
-  code         String       @id @db.VarChar(10)
-  name         String       @db.VarChar(20)
-  price        Int          @default(0) @db.Integer
-  total_slots  Int          @default(0) @db.Integer
-  description  String?      @db.VarChar(255)
-  create_date  DateTime     @default(now()) @db.Timestamptz(6)
-  updated_date DateTime     @updatedAt @db.Timestamptz(6)
-  enrollment   Enrollment[]
+  code        String       @id @db.VarChar(10)
+  name        String       @db.VarChar(20)
+  price       Int          @default(0) @db.Integer
+  total_slots Int          @default(0) @db.Integer
+  description String?      @db.VarChar(255)
+  enrollment  Enrollment[]
+
+  create_date  DateTime @default(now()) @db.Timestamptz(6)
+  updated_date DateTime @updatedAt @db.Timestamptz(6)
 }
 
 model Stage {
@@ -145,27 +147,30 @@ model Instruments {
 }
 
 model TeamMember {
-  id           String         @id @db.VarChar(20)
-  first_name   String         @db.VarChar(100)
-  last_name    String         @db.VarChar(100)
-  email        String?        @unique @db.VarChar(255)
-  bio          String?        @db.Text
-  avatar       String?        @db.VarChar(255)
-  phone        String         @db.VarChar(15)
-  role         TeamMemberRole @default(STAFF)
-  active       Boolean?       @default(false)
-  create_date  DateTime       @default(now()) @db.Timestamptz(6)
-  updated_date DateTime       @updatedAt @db.Timestamptz(6)
-  leads        Leads[]
-  course       Course[]
+  id         String         @id @db.VarChar(20)
+  first_name String         @db.VarChar(100)
+  last_name  String         @db.VarChar(100)
+  email      String?        @unique @db.VarChar(255)
+  bio        String?        @db.Text
+  avatar     String?        @db.VarChar(255)
+  phone      String         @db.VarChar(15)
+  role       TeamMemberRole @default(STAFF)
+  active     Boolean?       @default(false)
+  leads      Leads[]
+  course     Course[]
+
+  Notes Notes[]
+
+  hosted_events  Event[]       @relation("HostedEvents")
+  created_events Event[]       @relation("CreatedEvents")
+  event_series   EventSeries[]
+  User           User?
+
+  create_date  DateTime @default(now()) @db.Timestamptz(6)
+  updated_date DateTime @updatedAt @db.Timestamptz(6)
 
   is_deleted Boolean   @default(false)
   deleted_at DateTime? @db.Timestamptz(6)
-  Notes      Notes[]
-
-  event_series   EventSeries[]
-  hosted_events  Event[]       @relation("HostedEvents")
-  created_events Event[]       @relation("CreatedEvents")
 
   @@index([is_deleted])
 }
@@ -245,6 +250,46 @@ model Exclusion {
   created_at DateTime @default(now())
 
   @@unique([series_id, event_id])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime? @map("email_verified")
+  image         String?
+  password      String?
+  accounts      Account[]
+
+  // Link to TeamMember
+  team_member    TeamMember? @relation(fields: [team_member_id], references: [id])
+  team_member_id String?     @unique
+
+  // Link to Student 
+  student    Student? @relation(fields: [student_id], references: [id])
+  student_id String?  @unique
+
+  @@map("users")
 }
 
 enum TeamMemberRole {

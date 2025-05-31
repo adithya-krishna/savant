@@ -3,8 +3,8 @@ import { db } from '@/db';
 import { Button } from '@/components/ui/button';
 import LeadFormDialog from '@/components/lead-form-dialog';
 import { DataTable } from '@/components/data-tables';
-import { columns } from '@/app/leads/columns';
 import { getFullName } from '@/lib/utils';
+import { columns } from './columns';
 
 const getLeadsWithFilters = cache(async () => {
   return await db.leads.findMany({

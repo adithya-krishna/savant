@@ -4,7 +4,7 @@ import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { getFullName } from '@/lib/utils';
 import { DataTableColumnHeader } from '@/components/data-tables';
 import TableDropdownMenu from '@/components/table-dropdown';
-import { StudentsGetType } from '../global-types';
+import { StudentsGetType } from '@/app/global-types';
 import { format } from 'date-fns';
 
 const columnHelper = createColumnHelper<StudentsGetType>();
