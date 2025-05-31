@@ -63,7 +63,6 @@ model Student {
   lead_id           String?      @db.VarChar(20)
   lead              Leads?       @relation(fields: [lead_id], references: [id])
   enrollments       Enrollment[]
-  events            Event[]      @relation("EventGuests")
 
   is_deleted Boolean   @default(false)
   deleted_at DateTime? @db.Timestamptz(6)
@@ -84,11 +83,14 @@ model Enrollment {
   course_id            String           @db.VarChar(20)
   course               Course           @relation(fields: [course_id], references: [id], onDelete: Cascade, map: "fk_course")
   status               EnrollmentStatus @default(ACTIVE)
-  create_date          DateTime         @default(now()) @db.Timestamptz(6)
-  updated_date         DateTime         @updatedAt @db.Timestamptz(6)
+  events               Event[]          @relation("EventGuests")
+  event_series         EventSeries[]
 
-  is_deleted Boolean?  @default(false)
-  deleted_at DateTime? @db.Timestamptz(6)
+  create_date   DateTime  @default(now()) @db.Timestamptz(6)
+  updated_date  DateTime  @updatedAt @db.Timestamptz(6)
+  is_deleted    Boolean?  @default(false)
+  deleted_at    DateTime? @db.Timestamptz(6)
+  eventSeriesId String    @db.VarChar(20)
 
   @@index([student_id])
   @@index([course_id])
@@ -147,6 +149,8 @@ model TeamMember {
   first_name   String         @db.VarChar(100)
   last_name    String         @db.VarChar(100)
   email        String?        @unique @db.VarChar(255)
+  bio          String?        @db.Text
+  avatar       String?        @db.VarChar(255)
   phone        String         @db.VarChar(15)
   role         TeamMemberRole @default(STAFF)
   active       Boolean?       @default(false)
@@ -159,7 +163,7 @@ model TeamMember {
   deleted_at DateTime? @db.Timestamptz(6)
   Notes      Notes[]
 
-  EventSeries    EventSeries[]
+  event_series   EventSeries[]
   hosted_events  Event[]       @relation("HostedEvents")
   created_events Event[]       @relation("CreatedEvents")
 
@@ -195,12 +199,11 @@ model Event {
   series    EventSeries? @relation(fields: [series_id], references: [id], onDelete: Cascade)
   exclusion Exclusion[]
 
-  host_id String?
-  host    TeamMember? @relation("HostedEvents", fields: [host_id], references: [id])
-  guests  Student[]   @relation("EventGuests")
-
+  host_id       String?
+  host          TeamMember?  @relation("HostedEvents", fields: [host_id], references: [id])
+  guests        Enrollment[] @relation("EventGuests")
   created_by_id String?
-  created_by    TeamMember? @relation("CreatedEvents", fields: [created_by_id], references: [id])
+  created_by    TeamMember?  @relation("CreatedEvents", fields: [created_by_id], references: [id])
 
   created_at DateTime @default(now()) @db.Timestamptz(6)
   updated_at DateTime @updatedAt @db.Timestamptz(6)
@@ -216,10 +219,11 @@ model EventSeries {
   recurrence_rule String    @db.Text
   start_date      DateTime  @db.Timestamptz(6)
   end_date        DateTime? @db.Timestamptz(6)
-  is_active       Boolean   @default(true)
 
-  host_id String?     @db.VarChar(20)
-  host    TeamMember? @relation(fields: [host_id], references: [id])
+  host_id       String?     @db.VarChar(20)
+  host          TeamMember? @relation(fields: [host_id], references: [id])
+  enrollment_id String?     @db.VarChar(20)
+  enrollment    Enrollment? @relation(fields: [enrollment_id], references: [id])
 
   exclusions Exclusion[]
   events     Event[]

@@ -16,6 +16,8 @@ export const TeamMemberSchema = z.object({
   id: idSchema,
   first_name: nameSchema,
   last_name: z.string().max(100).nonempty('Last name is required'),
+  bio: z.string().trim().optional().nullable(),
+  avatar: z.string().optional().nullable(),
   email: z.string().max(255).email('Invalid email').optional().nullable(),
   phone: z
     .string()

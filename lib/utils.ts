@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { RRule, Weekday } from 'rrule';
 
 import {
   startOfISOWeek,
@@ -21,6 +22,7 @@ import {
   startOfWeek,
   differenceInYears,
 } from 'date-fns';
+import { TimeSlotSelection } from '@/app/global-types';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -213,7 +215,7 @@ export function getTimeSlots({
     current.getTime() === endTime.getTime()
   ) {
     const label = format(current, 'hh:mm a');
-    const id = format(current, 'hh:mm');
+    const id = format(current, 'HH:mm');
 
     if (!filter.includes(label)) {
       slots.push({ label, id });
@@ -319,4 +321,90 @@ export function calculateAge(birthDate: Date): number {
   }
 
   return age;
+}
+
+/**
+ * Converts a TimeSlotSelection object into a single weekly RRule.
+ *
+ * This function assumes all selected times across days are identical
+ * (e.g., all times are "16:00"). It collects all applicable weekdays
+ * and builds one RRule with a shared time.
+ *
+ * Throws an error if multiple different times are found.
+ *
+ * Params:
+ * - timeSlotSelection: An object mapping day numbers (0 = Sunday, 6 = Saturday)
+ *   to an array of time strings in "HH:mm" format.
+ * - dtstart: The start Date of the recurrence rule.
+ * - count: (Optional) The number of occurrences to generate. Default is 96.
+ * - wkst: (Optional) The week start day for the RRULE. Default is Monday.
+ *
+ * Returns:
+ * - A single RRule object representing the weekly recurrence pattern.
+ */
+const dayNumberToRRuleWeekday: { [key: number]: Weekday } = {
+  0: RRule.SU,
+  1: RRule.MO,
+  2: RRule.TU,
+  3: RRule.WE,
+  4: RRule.TH,
+  5: RRule.FR,
+  6: RRule.SA,
+};
+
+type RRuleOptionsInput = {
+  timeSlotSelection: TimeSlotSelection;
+  dtstart: Date;
+  count?: number;
+  wkst?: Weekday;
+};
+
+export function timeSlotSelectionToRRule({
+  timeSlotSelection,
+  dtstart,
+  count = 24,
+  wkst = RRule.MO,
+}: RRuleOptionsInput): RRule {
+  const byweekday: Weekday[] = [];
+  let targetHour: number | null = null;
+  let targetMinute: number | null = null;
+
+  for (const [dayStr, times] of Object.entries(timeSlotSelection)) {
+    const dayNum = parseInt(dayStr, 10);
+    const weekday = dayNumberToRRuleWeekday[dayNum];
+    if (!weekday) continue;
+
+    for (const time of times) {
+      const [hourStr, minuteStr] = time.split(':');
+      const hour = parseInt(hourStr, 10);
+      const minute = parseInt(minuteStr, 10);
+
+      // Validate all times are the same
+      if (targetHour === null && targetMinute === null) {
+        targetHour = hour;
+        targetMinute = minute;
+      } else if (hour !== targetHour || minute !== targetMinute) {
+        throw new Error(
+          `Inconsistent times found. All times must be the same to create a single RRULE.`,
+        );
+      }
+
+      byweekday.push(weekday);
+    }
+  }
+
+  if (targetHour === null || targetMinute === null) {
+    throw new Error(`No valid time slots provided.`);
+  }
+
+  return new RRule({
+    freq: RRule.WEEKLY,
+    dtstart,
+    count,
+    wkst,
+    byweekday,
+    byhour: targetHour,
+    byminute: targetMinute,
+    bysecond: 0,
+  });
 }

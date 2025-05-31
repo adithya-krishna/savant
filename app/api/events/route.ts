@@ -3,7 +3,6 @@ import { connectIfDefined, connectManyIfDefined, omit } from '@/lib/utils';
 import { handleAPIError } from '@/lib/utils/api-error-handler';
 import { createEventSchema } from '@/lib/validators/events';
 import { nanoid } from 'nanoid';
-// import { connectIfDefined, connectManyIfDefined } from '@/lib/utils';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {

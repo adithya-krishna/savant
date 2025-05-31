@@ -1,0 +1,1 @@
+-- This is a fake migration to baseline the current DB state
