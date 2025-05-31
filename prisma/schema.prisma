@@ -280,16 +280,23 @@ model User {
   image         String?
   password      String?
   accounts      Account[]
+  role          UserRoles @default(DEFAULT)
 
-  // Link to TeamMember
   team_member    TeamMember? @relation(fields: [team_member_id], references: [id])
   team_member_id String?     @unique
 
-  // Link to Student 
   student    Student? @relation(fields: [student_id], references: [id])
   student_id String?  @unique
 
   @@map("users")
+}
+
+enum UserRoles {
+  DEFAULT
+  STAFF
+  INSTRUCTOR
+  ADMIN
+  SUPER_ADMIN
 }
 
 enum TeamMemberRole {
