@@ -128,6 +128,20 @@ export function getInitials<
   return `${first!.charAt(0)}${last!.charAt(0)}`.toUpperCase();
 }
 
+export function getInitialsFromName<T extends { name?: string | null }>(
+  user?: T | null,
+): string {
+  const name = user?.name?.trim();
+  if (!name) return '-';
+
+  const parts = name.split(' ').filter(Boolean); // filter out empty parts
+  if (parts.length === 0) return '-';
+  if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+
+  const [first, last] = parts;
+  return `${first.charAt(0)}${last.charAt(0)}`.toUpperCase();
+}
+
 export function omit<T extends object, K extends keyof T>(
   obj: T,
   keys: readonly K[],

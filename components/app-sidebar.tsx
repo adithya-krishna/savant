@@ -22,8 +22,9 @@ import Link from 'next/link';
 import NavMain from './nav-main';
 import { NavSecondary } from './nav-secondary';
 import { ComponentProps } from 'react';
-import { auth } from '@/auth';
 import { NavUser } from './nav-user';
+import { auth } from '@/auth';
+import { User } from '@prisma/client';
 
 const navMain = [
   {
@@ -68,6 +69,12 @@ const navSecondary = [
 
 export async function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
   const session = await auth();
+
+  let user = null;
+  if (session && session.user) {
+    user = session.user as User;
+  }
+
   return (
     <Sidebar variant="inset" collapsible="icon" {...props}>
       <SidebarHeader>
@@ -90,16 +97,11 @@ export async function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
         <NavSecondary items={navSecondary} className="mt-auto" />
         <SidebarGroup />
       </SidebarContent>
-      <SidebarFooter>
-        {session?.user && (
-          <NavUser
-            user={{
-              email: session.user.email ?? '',
-              name: session.user.name ?? '',
-            }}
-          />
-        )}
-      </SidebarFooter>
+      {user && (
+        <SidebarFooter>
+          <NavUser user={user} />
+        </SidebarFooter>
+      )}
     </Sidebar>
   );
 }

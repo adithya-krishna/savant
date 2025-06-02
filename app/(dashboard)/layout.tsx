@@ -6,6 +6,7 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
 import { ThemeProvider } from 'next-themes';
 import { ReactNode } from 'react';
+import { SessionProvider } from 'next-auth/react';
 
 const DMSans = DM_Sans({
   weight: ['400', '500', '600', '700'],
@@ -40,20 +41,22 @@ export default async function RootLayout({
       <body
         className={`${DMSans.variable} ${loraSerif.variable} ${IBMMono.variable} antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <SidebarProvider>
-            <AppSidebar />
-            <SidebarInset>
-              <Header />
-              <main className="flex flex-1 flex-col h-full">{children}</main>
-            </SidebarInset>
-          </SidebarProvider>
-        </ThemeProvider>
+        <SessionProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <SidebarProvider>
+              <AppSidebar />
+              <SidebarInset>
+                <Header />
+                <main className="flex flex-1 flex-col h-full">{children}</main>
+              </SidebarInset>
+            </SidebarProvider>
+          </ThemeProvider>
+        </SessionProvider>
       </body>
     </html>
   );
