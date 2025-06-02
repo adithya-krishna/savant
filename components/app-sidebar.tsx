@@ -22,6 +22,8 @@ import Link from 'next/link';
 import NavMain from './nav-main';
 import { NavSecondary } from './nav-secondary';
 import { ComponentProps } from 'react';
+import { auth } from '@/auth';
+import { NavUser } from './nav-user';
 
 const navMain = [
   {
@@ -64,7 +66,8 @@ const navSecondary = [
   },
 ];
 
-export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
+export async function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
+  const session = await auth();
   return (
     <Sidebar variant="inset" collapsible="icon" {...props}>
       <SidebarHeader>
@@ -87,7 +90,16 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
         <NavSecondary items={navSecondary} className="mt-auto" />
         <SidebarGroup />
       </SidebarContent>
-      <SidebarFooter />
+      <SidebarFooter>
+        {session?.user && (
+          <NavUser
+            user={{
+              email: session.user.email ?? '',
+              name: session.user.name ?? '',
+            }}
+          />
+        )}
+      </SidebarFooter>
     </Sidebar>
   );
 }
