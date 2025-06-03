@@ -75,7 +75,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({ initialData, id }) => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col p-2 md:p-5 w-full mx-auto gap-2"
+        className="flex flex-col p-2 md:p-5 w-xl mx-auto gap-6"
       >
         <div className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2">
           <FormField

@@ -48,7 +48,7 @@ const LeadStudents = async ({ params }: StudentEnrollmentsProps) => {
       <h2 className="text-2xl font-semibold">Enrollments</h2>
       <Separator />
 
-      <div className="mt-6 rounded-md border">
+      <div className="mt-6 rounded-md border bg-card shadow-md">
         <Table>
           <TableHeader>
             <TableRow>

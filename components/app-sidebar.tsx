@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/sidebar';
 import {
   CalendarClock,
-  ClipboardList,
+  ClipboardPenLine,
   HelpCircleIcon,
   Home,
   Rocket,
@@ -50,7 +50,7 @@ const navMain = [
   {
     title: 'Enrollments',
     href: '/enrollments',
-    icon: ClipboardList,
+    icon: ClipboardPenLine,
   },
 ];
 

@@ -59,7 +59,7 @@ export function DataTable<TData, TValue>({
   return (
     <>
       <DataTableToolbar table={table} filterOptions={filterOptions} />
-      <div className="rounded-md border">
+      <div className="rounded-md border bg-card shadow-md">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map(headerGroup => (

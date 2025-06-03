@@ -1,4 +1,5 @@
 import Credentials from 'next-auth/providers/credentials';
+import Google from 'next-auth/providers/google';
 import { type NextAuthConfig } from 'next-auth';
 import { LoginSchema } from '@/lib/validators/login';
 import { getUserByEmail } from '@/data/auth/user';
@@ -19,6 +20,15 @@ export default {
           if (passwordMatch) return user;
         }
         return null;
+      },
+    }),
+    Google({
+      authorization: {
+        params: {
+          prompt: 'consent',
+          access_type: 'offline',
+          response_type: 'code',
+        },
       },
     }),
   ],
