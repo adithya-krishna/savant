@@ -4,20 +4,26 @@ import NoteForm from '@/components/note-form';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { format } from 'date-fns';
+import { auth } from '@/auth';
+import { User } from '@prisma/client';
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
 const getNotes = cache(async (id: string) => {
-  const notes = await db.notes.findMany({ where: { lead_id: id } });
-
-  return notes;
+  return await db.notes.findMany({ where: { lead_id: id } });
 });
 
 export default async function NotesPage({ params }: PageProps) {
   const { id } = await params;
   const notes = await getNotes(id);
+  const session = await auth();
+
+  let user = null;
+  if (session && session.user) {
+    user = session.user as User;
+  }
 
   return (
     <section className="mt-12 px-2">
@@ -40,7 +46,7 @@ export default async function NotesPage({ params }: PageProps) {
           </div>
         ))}
       </ScrollArea>
-      <NoteForm leadId={id} />
+      {user && <NoteForm leadId={id} userId={user.id} />}
     </section>
   );
 }

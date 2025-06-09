@@ -2,6 +2,7 @@ import { db } from '@/db';
 import { omit, verifyAndCreateEntry } from '@/lib/utils';
 import { handleAPIError } from '@/lib/utils/api-error-handler';
 import { EnrollmentUpdateSchema } from '@/lib/validators/enrollment';
+import { EnrollmentStatus } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function PUT(
@@ -53,6 +54,7 @@ export async function DELETE(
       result = await db.enrollment.update({
         where: { id },
         data: {
+          status: EnrollmentStatus.CANCELLED,
           is_deleted: true,
           deleted_at: new Date(),
         },

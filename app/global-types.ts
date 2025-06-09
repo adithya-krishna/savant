@@ -4,11 +4,15 @@ export type SectionTypes =
   | 'team-member'
   | 'lead'
   | 'stage'
-  | 'students'
-  | 'enrollments';
+  | 'student'
+  | 'enrollment';
 
 export type TeamMemberType = Prisma.TeamMemberGetPayload<{
   select: { id: true; first_name: true; last_name: true };
+}>;
+
+export type TeamMembersWithCourseIdType = Prisma.TeamMemberGetPayload<{
+  include: { course: { select: { id: true } } };
 }>;
 
 export type InstrumentType = Prisma.InstrumentsGetPayload<{

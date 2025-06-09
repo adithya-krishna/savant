@@ -16,14 +16,20 @@ import { CreateNoteSchema, NoteCreateInput } from '@/lib/validators/note';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 
-export default function NoteForm({ leadId }: { leadId: string }) {
+export default function NoteForm({
+  leadId,
+  userId,
+}: {
+  leadId: string;
+  userId: string;
+}) {
   const router = useRouter();
   const form = useForm<NoteCreateInput>({
     resolver: zodResolver(CreateNoteSchema),
     defaultValues: {
       content: '',
       lead_id: leadId,
-      author_id: 'NH4FttC4cjY7Y9',
+      author_id: userId,
       is_pinned: false,
     },
   });

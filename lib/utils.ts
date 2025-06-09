@@ -258,20 +258,23 @@ type AllDays =
 type GetWeekDayParams = {
   filter?: AllDays[];
   weekStartOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6; // 0 = Sunday
+  formatOptions?: { label?: string };
 };
 
 export function getWeekDays({
   filter = [],
   weekStartOn = 0,
+  formatOptions,
 }: GetWeekDayParams): WeekDay[] {
   const weekStart = startOfWeek(new Date(), { weekStartsOn: weekStartOn });
+  const labelFormat = formatOptions?.label || 'EEE';
 
   return Array.from({ length: 7 }).reduce<WeekDay[]>((acc, _, i) => {
     const date = addDays(weekStart, i);
     const dayName = format(date, 'EEEE');
     if (!filter.includes(dayName as AllDays)) {
       acc.push({
-        label: format(date, 'EEE'),
+        label: format(date, labelFormat),
         id: i,
       });
     }

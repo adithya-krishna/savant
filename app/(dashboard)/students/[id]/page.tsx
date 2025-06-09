@@ -24,6 +24,7 @@ const getStudentProfile = cache(async (id: string) => {
     where: { id },
     include: {
       enrollments: {
+        where: { is_deleted: false },
         include: {
           course: {
             include: {

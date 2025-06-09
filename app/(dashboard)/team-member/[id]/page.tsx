@@ -1,18 +1,35 @@
 import { db } from '@/db';
 import { notFound } from 'next/navigation';
 import TeamMemberForm from '@/components/team-member-form';
+import { cache } from 'react';
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
+const getAllCourses = cache(async () => {
+  const courses = await db.course.findMany({
+    select: { name: true, id: true },
+  });
+  return courses.map(c => ({ label: c.name, value: c.id }));
+});
+
+const getTeamMemberById = cache(async (id: string) => {
+  const teamMember = await db.teamMember.findUnique({
+    where: { id },
+    include: { course: { select: { id: true } } },
+  });
+  if (!teamMember) notFound();
+  return teamMember;
+});
+
 export default async function TeamMemberPage({ params }: PageProps) {
   const { id } = await params;
   let teamMember = null;
   if (id !== 'new') {
-    teamMember = await db.teamMember.findUnique({ where: { id } });
-    if (!teamMember) notFound();
+    teamMember = await getTeamMemberById(id);
   }
+  const allCourses = await getAllCourses();
 
   return (
     <div className="flex h-screen w-full flex-col md:flex-row">
@@ -26,7 +43,11 @@ export default async function TeamMemberPage({ params }: PageProps) {
         </p>
       </div>
       <div className="flex h-full w-full md:h-auto p-4">
-        <TeamMemberForm initialData={teamMember} id={id} />
+        <TeamMemberForm
+          initialData={teamMember}
+          allCourses={allCourses}
+          id={id}
+        />
       </div>
     </div>
   );

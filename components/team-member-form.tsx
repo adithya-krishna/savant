@@ -20,7 +20,6 @@ import {
   FormLabel,
   FormMessage,
 } from './ui/form';
-import type { TeamMember } from '@prisma/client';
 import { TeamMemberRole } from '@/lib/enums';
 import {
   Select,
@@ -32,13 +31,20 @@ import {
   SelectValue,
 } from './ui/select';
 import { PhoneInput } from './phone-input';
+import { MultiSelect, MultiSelectOption } from './multi-select';
+import { TeamMembersWithCourseIdType } from '@/app/global-types';
 
 interface TeamMemberFormProps {
-  initialData: TeamMember | null;
+  initialData: TeamMembersWithCourseIdType | null;
+  allCourses: MultiSelectOption[];
   id: string;
 }
 
-const TeamMemberForm: React.FC<TeamMemberFormProps> = ({ initialData, id }) => {
+const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
+  initialData,
+  allCourses,
+  id,
+}) => {
   const router = useRouter();
   const isNew = id === 'new';
 
@@ -49,6 +55,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({ initialData, id }) => {
       last_name: initialData?.last_name ?? '',
       email: initialData?.email ?? '',
       phone: initialData?.phone ?? '',
+      courseIds: initialData?.course.map(c => c.id) ?? [],
       role: initialData?.role ?? TeamMemberRole.STAFF,
       active: initialData?.active ?? false,
     },
@@ -200,6 +207,28 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({ initialData, id }) => {
             );
           }}
         />
+
+        {form.watch('role') === TeamMemberRole.INSTRUCTOR && (
+          <FormField
+            control={form.control}
+            name="courseIds"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Associated Courses</FormLabel>
+                <FormControl>
+                  <MultiSelect
+                    modalPopover={false}
+                    options={allCourses}
+                    onValueChange={field.onChange}
+                    defaultValue={field.value ?? []}
+                    placeholder="Select Courses"
+                    maxCount={3}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        )}
 
         <FormField
           control={form.control}

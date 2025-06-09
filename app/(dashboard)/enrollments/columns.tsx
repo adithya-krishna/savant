@@ -37,7 +37,7 @@ export const columns = [
     id: 'actions',
     header: 'Actions',
     cell: info => (
-      <TableDropdownMenu id={info.row.original.id} type={'enrollments'} />
+      <TableDropdownMenu id={info.row.original.id} type={'enrollment'} />
     ),
     enableSorting: false,
     enableHiding: false,

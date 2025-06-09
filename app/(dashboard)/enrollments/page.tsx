@@ -5,6 +5,7 @@ import { cache } from 'react';
 
 const getEnrollments = cache(async () => {
   return await db.enrollment.findMany({
+    where: { is_deleted: false },
     orderBy: { create_date: 'desc' },
     include: {
       student: {

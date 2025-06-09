@@ -3,16 +3,24 @@ import { db } from '@/db';
 import { updateTeamMemberSchema } from '@/lib/validators/team-member';
 import { handleAPIError } from '@/lib/utils/api-error-handler';
 import { getIdFromReq } from '@/lib/utils/api-utils';
+import { omit, setManyIfDefined } from '@/lib/utils';
 
 export async function PUT(request: NextRequest) {
   const id = getIdFromReq(request);
   try {
     const body = await request.json();
-    const data = updateTeamMemberSchema.parse({ id, ...body });
+    const validation = updateTeamMemberSchema.safeParse({ id, ...body });
+
+    if (!validation.success) {
+      return validation.error;
+    }
 
     const teamMember = await db.teamMember.update({
       where: { id },
-      data,
+      data: {
+        ...omit(validation.data, ['courseIds']),
+        ...setManyIfDefined('course', validation.data.courseIds),
+      },
     });
 
     return NextResponse.json(teamMember);
