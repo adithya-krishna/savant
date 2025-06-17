@@ -55,7 +55,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
       last_name: initialData?.last_name ?? '',
       email: initialData?.email ?? '',
       phone: initialData?.phone ?? '',
-      courseIds: initialData?.course.map(c => c.id) ?? [],
+      courseIds: initialData?.courses.map(c => c.id) ?? [],
       role: initialData?.role ?? TeamMemberRole.STAFF,
       active: initialData?.active ?? false,
     },

@@ -19,6 +19,15 @@ export function DataTableToolbar<TData>({
   filterOptions,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
+  const getOptionalColumn = (id: string) =>
+    table.getAllFlatColumns().find(col => col.id === id);
+
+  const filterField =
+    getOptionalColumn('full_name') || getOptionalColumn('name');
+  const stageFilter = getOptionalColumn('stage');
+  const instrumentFilter =
+    getOptionalColumn('instruments') || getOptionalColumn('instrument');
+  const teamMemberFilter = getOptionalColumn('team_member');
 
   function getFilters() {
     if (!filterOptions) {
@@ -27,23 +36,23 @@ export function DataTableToolbar<TData>({
 
     return (
       <>
-        {table.getColumn('stage') && (
+        {stageFilter && (
           <DataTableFacetedFilter
-            column={table.getColumn('stage')}
+            column={stageFilter}
             title="Stage"
             options={filterOptions.stages}
           />
         )}
-        {table.getColumn('instruments') && (
+        {instrumentFilter && (
           <DataTableFacetedFilter
-            column={table.getColumn('instruments')}
+            column={instrumentFilter}
             title="Instruments"
             options={filterOptions.instruments}
           />
         )}
-        {table.getColumn('team_member') && (
+        {teamMemberFilter && (
           <DataTableFacetedFilter
-            column={table.getColumn('team_member')}
+            column={teamMemberFilter}
             title="Team Members"
             options={filterOptions.teamMembers}
           />
@@ -57,12 +66,8 @@ export function DataTableToolbar<TData>({
       <div className="flex flex-1 items-center space-x-2">
         <Input
           placeholder="Filter names..."
-          value={
-            (table.getColumn('full_name')?.getFilterValue() as string) ?? ''
-          }
-          onChange={event =>
-            table.getColumn('full_name')?.setFilterValue(event.target.value)
-          }
+          value={(filterField?.getFilterValue() as string) ?? ''}
+          onChange={event => filterField?.setFilterValue(event.target.value)}
           className="h-8 w-[150px] lg:w-[250px] bg-card"
         />
         {getFilters()}

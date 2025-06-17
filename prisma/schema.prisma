@@ -63,7 +63,7 @@ model Student {
   lead_id           String?      @db.VarChar(20)
   lead              Leads?       @relation(fields: [lead_id], references: [id])
   enrollments       Enrollment[]
-  User              User?
+  user              User?
 
   is_deleted Boolean   @default(false)
   deleted_at DateTime? @db.Timestamptz(6)
@@ -78,14 +78,13 @@ model Enrollment {
   preferred_time_slots Json?
   slots_remaining      Int              @default(0) @db.Integer
   student_id           String           @db.VarChar(20)
-  student              Student          @relation(fields: [student_id], references: [id], onDelete: Cascade, map: "fk_student")
+  student              Student          @relation(fields: [student_id], references: [id])
   plan_code            String           @db.VarChar(10)
-  plan_name            Plans            @relation(fields: [plan_code], references: [code], onDelete: Cascade, map: "fk_plan_name")
+  plan_name            Plans            @relation(fields: [plan_code], references: [code])
   course_id            String           @db.VarChar(20)
-  course               Course           @relation(fields: [course_id], references: [id], onDelete: Cascade, map: "fk_course")
+  course               Course           @relation(fields: [course_id], references: [id])
   status               EnrollmentStatus @default(ACTIVE)
   events               Event[]          @relation("EventGuests")
-  event_series         EventSeries[]
 
   create_date  DateTime  @default(now()) @db.Timestamptz(6)
   updated_date DateTime  @updatedAt @db.Timestamptz(6)
@@ -98,14 +97,13 @@ model Enrollment {
 }
 
 model Course {
-  id            String            @id @db.VarChar(20)
-  name          String            @db.VarChar(100)
-  difficulty    CourseDifficulty? @default(FOUNDATION)
-  description   String?           @db.VarChar(255)
-  instrument_id String?           @db.VarChar(20)
-  instrument    Instruments?      @relation(fields: [instrument_id], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_instrument")
-  teacher_id    String?           @db.VarChar(20)
-  teacher       TeamMember?       @relation(fields: [teacher_id], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_teacher")
+  id            String           @id @db.VarChar(20)
+  name          String           @unique @db.VarChar(100)
+  difficulty    CourseDifficulty @default(FOUNDATION)
+  description   String?          @db.VarChar(255)
+  instrument_id String?          @db.VarChar(20)
+  instrument    Instruments?     @relation(fields: [instrument_id], references: [id])
+  teachers      TeamMember[]     @relation("TeacherCourses")
   enrollments   Enrollment[]
 
   create_date  DateTime @default(now()) @db.Timestamptz(6)
@@ -156,13 +154,12 @@ model TeamMember {
   phone      String         @db.VarChar(15)
   role       TeamMemberRole @default(STAFF)
   active     Boolean?       @default(false)
+  courses    Course[]       @relation("TeacherCourses")
   leads      Leads[]
-  course     Course[]
 
-  hosted_events  Event[]       @relation("HostedEvents")
-  created_events Event[]       @relation("CreatedEvents")
-  event_series   EventSeries[]
-  User           User?
+  hosted_events  Event[] @relation("HostedEvents")
+  created_events Event[] @relation("CreatedEvents")
+  user           User?
 
   create_date  DateTime @default(now()) @db.Timestamptz(6)
   updated_date DateTime @updatedAt @db.Timestamptz(6)
@@ -198,12 +195,8 @@ model Event {
   start_date_time DateTime @db.Timestamptz(6)
   end_date_time   DateTime @db.Timestamptz(6)
 
-  series_id String?      @db.VarChar(20)
-  series    EventSeries? @relation(fields: [series_id], references: [id], onDelete: Cascade)
-  exclusion Exclusion[]
-
-  host_id       String?
-  host          TeamMember?  @relation("HostedEvents", fields: [host_id], references: [id])
+  host_id       String
+  host          TeamMember   @relation("HostedEvents", fields: [host_id], references: [id])
   guests        Enrollment[] @relation("EventGuests")
   created_by_id String?
   created_by    TeamMember?  @relation("CreatedEvents", fields: [created_by_id], references: [id])
@@ -211,43 +204,8 @@ model Event {
   created_at DateTime @default(now()) @db.Timestamptz(6)
   updated_at DateTime @updatedAt @db.Timestamptz(6)
 
-  @@index([series_id])
   @@index([host_id])
   @@index([start_date_time])
-}
-
-model EventSeries {
-  id              String    @id @db.VarChar(20)
-  title           String    @db.VarChar(255)
-  recurrence_rule String    @db.Text
-  start_date      DateTime  @db.Timestamptz(6)
-  end_date        DateTime? @db.Timestamptz(6)
-
-  host_id       String?     @db.VarChar(20)
-  host          TeamMember? @relation(fields: [host_id], references: [id])
-  enrollment_id String?     @db.VarChar(20)
-  enrollment    Enrollment? @relation(fields: [enrollment_id], references: [id])
-
-  exclusions Exclusion[]
-  events     Event[]
-
-  created_at DateTime @default(now()) @db.Timestamptz(6)
-  updated_at DateTime @updatedAt @db.Timestamptz(6)
-
-  @@index([host_id])
-}
-
-model Exclusion {
-  id        String      @id @db.VarChar(20)
-  series_id String      @db.VarChar(20)
-  series    EventSeries @relation(fields: [series_id], references: [id])
-  event_id  String      @db.VarChar(20)
-  event     Event       @relation(fields: [event_id], references: [id])
-  reason    String?     @db.VarChar(255)
-
-  created_at DateTime @default(now())
-
-  @@unique([series_id, event_id])
 }
 
 model Account {

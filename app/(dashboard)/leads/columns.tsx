@@ -5,7 +5,7 @@ import { getFullName } from '@/lib/utils';
 import { DataTableColumnHeader } from '@/components/data-tables';
 import TableDropdownMenu from '@/components/table-dropdown';
 import { Badge } from '@/components/ui/badge';
-import { InstrumentType, LeadsWithAllInclusions } from '../global-types';
+import { InstrumentType, LeadsWithAllInclusions } from '@/app/global-types';
 
 const columnHelper = createColumnHelper<LeadsWithAllInclusions>();
 

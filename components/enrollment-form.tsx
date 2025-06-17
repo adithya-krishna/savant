@@ -35,12 +35,14 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { useRouter } from 'next/navigation';
+import { EnrollmentStatus } from '@prisma/client';
+import { enroll } from '@/actions/enrollment';
 
 type FormState = {
   student_id: string;
   course_id: string;
   plan_code: string;
-  status: string;
+  status: EnrollmentStatus;
   start_date: Date | null;
   slots_remaining: number;
   preferred_time_slots: TimeSlotSelection;
@@ -50,7 +52,7 @@ type FormState = {
 type Action =
   | { type: 'SET_COURSE'; payload: string }
   | { type: 'SET_PLAN'; payload: string }
-  | { type: 'SET_STATUS'; payload: string }
+  | { type: 'SET_STATUS'; payload: EnrollmentStatus }
   | { type: 'SET_START_DATE'; payload: Date }
   | { type: 'SET_SLOTS_REMAINING'; payload: number }
   | { type: 'SET_PREFERRED_SLOT'; payload: TimeSlotSelection }
@@ -140,17 +142,13 @@ const EnrollmentForm = ({
     e.preventDefault();
     const postData = {
       ...state,
-      start_date: format(state.start_date!, 'yyyy-MM-dd'),
+      start_date: state.start_date ?? new Date(),
     };
 
     try {
-      const res = await fetch('/api/enrollments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(postData),
-      });
+      const res = await enroll(postData);
 
-      if (res.ok) {
+      if (!res.error) {
         dispatch({
           type: 'RESET_FORM',
           payload: { ...initialState, student_id },

@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { nanoid } from 'nanoid';
+// import { nanoid } from 'nanoid';
 const prisma = new PrismaClient();
 
 async function seedStages() {
@@ -213,38 +213,62 @@ async function seedPlans() {
   console.log('Seeding plans completed.');
 }
 
-async function seedCourses() {
-  const instruments = await prisma.instruments.findMany();
+// async function seedTeamMembers() {
+//   const id = nanoid(14);
 
-  const difficulties = ['FOUNDATION', 'BEGINNER', 'INTERMEDIATE', 'ADVANCED'];
+//   const teamMember = await prisma.teamMember.create({
+//     data: {
+//       id,
+//       first_name: 'DUMMY',
+//       last_name: 'INSTRUCTOR',
+//       phone: '+910000000000',
+//       active: true,
+//       role: 'INSTRUCTOR',
+//     },
+//   });
 
-  for (const instrument of instruments) {
-    for (const difficulty of difficulties) {
-      const courseName = `${instrument.name} | ${difficulty.charAt(0) + difficulty.slice(1).toLowerCase()}`;
+//   console.log(
+//     `Created team member: ${teamMember.first_name} ${teamMember.last_name} (${teamMember.id})`,
+//   );
+// }
 
-      const course = await prisma.course.create({
-        data: {
-          id: nanoid(14),
-          name: courseName,
-          difficulty,
-          description: `${difficulty.charAt(0) + difficulty.slice(1).toLowerCase()} course for the ${instrument.name.toLowerCase()}`,
-          instrument_id: instrument.id,
-          teacher_id: null,
-        },
-      });
-      console.log(`Created course: ${course.name} (${course.id})`);
-    }
-  }
+// async function seedCourses() {
+//   const instruments = await prisma.instruments.findMany();
+//   const instructor = await prisma.teamMember.findFirst({
+//     where: { first_name: 'DUMMY', role: 'INSTRUCTOR' },
+//     select: { id: true },
+//   });
 
-  console.log('Seeding completed.');
-}
+//   const difficulties = ['FOUNDATION', 'BEGINNER', 'INTERMEDIATE', 'ADVANCED'];
+
+//   for (const instrument of instruments) {
+//     for (const difficulty of difficulties) {
+//       const courseName = `${instrument.name} | ${difficulty.charAt(0) + difficulty.slice(1).toLowerCase()}`;
+
+//       const course = await prisma.course.create({
+//         data: {
+//           id: nanoid(14),
+//           name: courseName,
+//           difficulty,
+//           description: `${difficulty.charAt(0) + difficulty.slice(1).toLowerCase()} course for the ${instrument.name.toLowerCase()}`,
+//           instrument_id: instrument.id,
+//           teacher_id: instructor.id,
+//         },
+//       });
+//       console.log(`Created course: ${course.name} (${course.id})`);
+//     }
+//   }
+
+//   console.log('Seeding completed.');
+// }
 
 async function main() {
   await seedStages();
   await seedSources();
   await seedInstruments();
   await seedPlans();
-  await seedCourses();
+  // await seedTeamMembers();
+  // await seedCourses();
 }
 
 main()

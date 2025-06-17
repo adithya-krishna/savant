@@ -13,6 +13,7 @@ import {
   ClipboardPenLine,
   HelpCircleIcon,
   Home,
+  LibraryBig,
   Rocket,
   SettingsIcon,
   UserRound,
@@ -51,6 +52,11 @@ const navMain = [
     title: 'Enrollments',
     href: '/enrollments',
     icon: ClipboardPenLine,
+  },
+  {
+    title: 'Courses',
+    href: '/courses',
+    icon: LibraryBig,
   },
 ];
 

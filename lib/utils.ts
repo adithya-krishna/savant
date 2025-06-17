@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { RRule, Weekday } from 'rrule';
+import { RRule } from 'rrule';
+import type { Weekday } from 'rrule';
 
 import {
   startOfISOWeek,
@@ -21,8 +22,8 @@ import {
   addMinutes,
   startOfWeek,
   differenceInYears,
+  set,
 } from 'date-fns';
-import { TimeSlotSelection } from '@/app/global-types';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -340,88 +341,116 @@ export function calculateAge(birthDate: Date): number {
   return age;
 }
 
+const WEEKDAY_MAP: Record<number, Weekday> = {
+  0: RRule.MO,
+  1: RRule.TU,
+  2: RRule.WE,
+  3: RRule.TH,
+  4: RRule.FR,
+  5: RRule.SA,
+  6: RRule.SU,
+};
+
 /**
- * Converts a TimeSlotSelection object into a single weekly RRule.
+ * Compute an array of event datetimes (start + end) based on:
+ *  - totalSlots: total number of sessions needed
+ *  - preferred_time_slots: { [weekdayNumber: string]: string[] }
+ *       e.g. { "1": ["14:00"], "3": ["15:00", "18:30"] }
+ *  - enrollmentStartDate: a Date object representing the earliest possible date
+ *  - durationMinutes: how long each session lasts
  *
- * This function assumes all selected times across days are identical
- * (e.g., all times are "16:00"). It collects all applicable weekdays
- * and builds one RRule with a shared time.
- *
- * Throws an error if multiple different times are found.
- *
- * Params:
- * - timeSlotSelection: An object mapping day numbers (0 = Sunday, 6 = Saturday)
- *   to an array of time strings in "HH:mm" format.
- * - dtstart: The start Date of the recurrence rule.
- * - count: (Optional) The number of occurrences to generate. Default is 96.
- * - wkst: (Optional) The week start day for the RRULE. Default is Monday.
- *
- * Returns:
- * - A single RRule object representing the weekly recurrence pattern.
+ * Returns array of length totalSlots of objects { start: Date, end: Date }, sorted ascending by start.
  */
-const dayNumberToRRuleWeekday: { [key: number]: Weekday } = {
-  0: RRule.SU,
-  1: RRule.MO,
-  2: RRule.TU,
-  3: RRule.WE,
-  4: RRule.TH,
-  5: RRule.FR,
-  6: RRule.SA,
-};
+export function computeEventTimes(
+  totalSlots: number,
+  preferred_time_slots: Record<string, string[]>,
+  enrollmentStartDate: Date,
+  durationMinutes: number = 60,
+): { start: Date; end: Date }[] {
+  const rules: RRule[] = [];
+  const startDate = enrollmentStartDate;
 
-type RRuleOptionsInput = {
-  timeSlotSelection: TimeSlotSelection;
-  dtstart: Date;
-  count?: number;
-  wkst?: Weekday;
-};
-
-export function timeSlotSelectionToRRule({
-  timeSlotSelection,
-  dtstart,
-  count = 24,
-  wkst = RRule.MO,
-}: RRuleOptionsInput): RRule {
-  const byweekday: Weekday[] = [];
-  let targetHour: number | null = null;
-  let targetMinute: number | null = null;
-
-  for (const [dayStr, times] of Object.entries(timeSlotSelection)) {
-    const dayNum = parseInt(dayStr, 10);
-    const weekday = dayNumberToRRuleWeekday[dayNum];
+  for (const [dayKey, times] of Object.entries(preferred_time_slots)) {
+    const weekdayNum = Number(dayKey);
+    if (
+      Number.isNaN(weekdayNum) ||
+      weekdayNum < 0 ||
+      weekdayNum > 6 ||
+      !Array.isArray(times)
+    ) {
+      continue;
+    }
+    const weekday = WEEKDAY_MAP[weekdayNum];
     if (!weekday) continue;
 
-    for (const time of times) {
-      const [hourStr, minuteStr] = time.split(':');
-      const hour = parseInt(hourStr, 10);
-      const minute = parseInt(minuteStr, 10);
-
-      // Validate all times are the same
-      if (targetHour === null && targetMinute === null) {
-        targetHour = hour;
-        targetMinute = minute;
-      } else if (hour !== targetHour || minute !== targetMinute) {
-        throw new Error(
-          `Inconsistent times found. All times must be the same to create a single RRULE.`,
-        );
+    for (const timeStr of times) {
+      const [hhStr, mmStr] = timeStr.split(':');
+      const hh = Number(hhStr);
+      const mm = Number(mmStr);
+      if (
+        Number.isNaN(hh) ||
+        Number.isNaN(mm) ||
+        hh < 0 ||
+        hh > 23 ||
+        mm < 0 ||
+        mm > 59
+      ) {
+        continue;
       }
-
-      byweekday.push(weekday);
+      // Build a candidate date at enrollmentStartDate's year/month/day but at hh:mm local time
+      let first = set(startDate, {
+        hours: hh,
+        minutes: mm,
+        seconds: 0,
+        milliseconds: 0,
+      });
+      // Determine the weekday of enrollmentStartDate in local time
+      const startWeekday = getDay(startDate); // 0-6
+      let deltaDays = (weekdayNum - startWeekday + 7) % 7;
+      // If same day but time earlier than enrollmentStartDate, push to next week
+      if (deltaDays === 0 && isBefore(first, startDate)) {
+        deltaDays = 7;
+      }
+      if (deltaDays > 0) {
+        first = addDays(first, deltaDays);
+      }
+      // Now 'first' is the first occurrence for this weekday/time
+      const rule = new RRule({
+        freq: RRule.WEEKLY,
+        dtstart: first,
+        byweekday: [weekday],
+      });
+      rules.push(rule);
     }
   }
 
-  if (targetHour === null || targetMinute === null) {
-    throw new Error(`No valid time slots provided.`);
+  if (rules.length === 0) {
+    throw new Error(
+      'No valid preferred_time_slots entries found to build recurrence rules.',
+    );
   }
 
-  return new RRule({
-    freq: RRule.WEEKLY,
-    dtstart,
-    count,
-    wkst,
-    byweekday,
-    byhour: targetHour,
-    byminute: targetMinute,
-    bysecond: 0,
-  });
+  // Gather occurrences from all rules
+  const allDates: Date[] = [];
+  for (const rule of rules) {
+    const occ = rule.all().slice(0, totalSlots);
+    allDates.push(...occ);
+  }
+  if (allDates.length === 0) {
+    throw new Error('RRule generated no occurrences.');
+  }
+  // Sort ascending
+  allDates.sort((a, b) => a.getTime() - b.getTime());
+  // Take first totalSlots
+  const selected = allDates.slice(0, totalSlots);
+  if (selected.length < totalSlots) {
+    throw new Error(
+      `Could only compute ${selected.length} occurrences, fewer than totalSlots=${totalSlots}`,
+    );
+  }
+  // Build result with end times
+  return selected.map(dt => ({
+    start: dt,
+    end: addMinutes(dt, durationMinutes),
+  }));
 }

@@ -17,7 +17,7 @@ const getAllCourses = cache(async () => {
 const getTeamMemberById = cache(async (id: string) => {
   const teamMember = await db.teamMember.findUnique({
     where: { id },
-    include: { course: { select: { id: true } } },
+    include: { courses: { select: { id: true } } },
   });
   if (!teamMember) notFound();
   return teamMember;

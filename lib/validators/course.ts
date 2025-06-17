@@ -15,28 +15,27 @@ const CourseBaseSchema = z.object({
     .string()
     .min(2, { message: 'Name is required' })
     .max(100, { message: 'Name must be 100 characters or less' }),
-  difficulty: difficultySchema.optional(),
+  difficulty: difficultySchema.default('FOUNDATION'),
   description: z
     .string()
     .max(255, { message: 'Description must be 255 characters or less' })
     .optional(),
-  instrument_id: idSchema.optional(),
-  teacher_id: idSchema.optional(),
+  instrument_id: z.string().length(14, 'Select an Instrument').optional(),
+  teachers: z.array(idSchema),
   create_date: dateSchema.default(new Date()),
   updated_date: dateSchema.default(new Date()),
 });
 
 const CourseCreateSchema = CourseBaseSchema.omit({
   id: true,
+  name: true,
   create_date: true,
   updated_date: true,
 })
-  .extend({
-    difficulty: difficultySchema.default('FOUNDATION'),
-  })
   .required({
-    name: true,
-  });
+    teachers: true,
+  })
+  .partial();
 
 const CourseUpdateSchema = CourseBaseSchema.partial().required({ id: true });
 

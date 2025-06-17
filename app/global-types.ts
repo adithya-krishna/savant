@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 export type SectionTypes =
   | 'team-member'
   | 'lead'
+  | 'course'
   | 'stage'
   | 'student'
   | 'enrollment';
@@ -12,7 +13,7 @@ export type TeamMemberType = Prisma.TeamMemberGetPayload<{
 }>;
 
 export type TeamMembersWithCourseIdType = Prisma.TeamMemberGetPayload<{
-  include: { course: { select: { id: true } } };
+  include: { courses: { select: { id: true } } };
 }>;
 
 export type InstrumentType = Prisma.InstrumentsGetPayload<{
@@ -62,5 +63,12 @@ export type EnrollmentsGetType = Prisma.EnrollmentGetPayload<{
         last_name: true;
       };
     };
+  };
+}>;
+
+export type CoursesGetType = Prisma.CourseGetPayload<{
+  include: {
+    teachers: { select: { id: true; first_name: true; last_name: true } };
+    instrument: { select: { id: true; name: true } };
   };
 }>;

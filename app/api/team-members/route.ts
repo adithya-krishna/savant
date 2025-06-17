@@ -3,19 +3,28 @@ import { db } from '@/db';
 import { createTeamMemberSchema } from '@/lib/validators/team-member';
 import { nanoid } from 'nanoid';
 import { handleAPIError } from '@/lib/utils/api-error-handler';
+import { connectManyIfDefined, omit } from '@/lib/utils';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const data = createTeamMemberSchema.parse(body);
+    const validation = createTeamMemberSchema.safeParse(body);
+
+    if (!validation.success) {
+      throw validation.error;
+    }
 
     const id = nanoid(14);
 
     const teamMember = await db.teamMember.create({
-      data: { id, ...data },
+      data: {
+        id,
+        ...omit(validation.data, ['courseIds']),
+        ...connectManyIfDefined('courses', validation.data.courseIds),
+      },
     });
 
-    return NextResponse.json(teamMember, { status: 201 });
+    return NextResponse.json(teamMember);
   } catch (error) {
     return handleAPIError(error);
   }

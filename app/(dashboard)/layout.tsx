@@ -7,6 +7,7 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { ThemeProvider } from 'next-themes';
 import { ReactNode } from 'react';
 import { SessionProvider } from 'next-auth/react';
+import { Toaster } from '@/components/ui/sonner';
 
 const DMSans = DM_Sans({
   weight: ['400', '500', '600', '700'],
@@ -57,6 +58,7 @@ export default async function RootLayout({
             </SidebarProvider>
           </ThemeProvider>
         </SessionProvider>
+        <Toaster />
       </body>
     </html>
   );

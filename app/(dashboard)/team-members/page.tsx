@@ -15,6 +15,7 @@ import TableDropdownMenu from '@/components/table-dropdown';
 const getTeamMembers = cache(async () => {
   return await db.teamMember.findMany({
     orderBy: { create_date: 'desc' },
+    where: { first_name: { not: 'DUMMY' } },
   });
 });
 
