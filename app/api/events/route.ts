@@ -4,6 +4,14 @@ import { handleAPIError } from '@/lib/utils/api-error-handler';
 import { createEventSchema } from '@/lib/validators/events';
 import { nanoid } from 'nanoid';
 import { NextRequest, NextResponse } from 'next/server';
+import { toZonedTime } from 'date-fns-tz';
+import { formatISO } from 'date-fns';
+
+function toZonedISOString(date: Date | string, timeZone: string): string {
+  const utcDate = typeof date === 'string' ? new Date(date) : date;
+  const zonedDate = toZonedTime(utcDate, timeZone);
+  return formatISO(zonedDate, { representation: 'complete' });
+}
 
 export async function GET(request: NextRequest) {
   const page = Number(request.nextUrl.searchParams.get('page') ?? 1);
@@ -22,8 +30,18 @@ export async function GET(request: NextRequest) {
     db.event.count(),
   ]);
 
+  const timeZone =
+    request.nextUrl.searchParams.get('tz') ||
+    Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  const result = events.map(event => ({
+    ...event,
+    start_date_time: toZonedISOString(event.start_date_time, timeZone),
+    end_date_time: toZonedISOString(event.end_date_time, timeZone),
+  }));
+
   return NextResponse.json({
-    data: events,
+    data: result,
     meta: { page, pageSize, total },
   });
 }
@@ -40,14 +58,8 @@ export async function POST(request: NextRequest) {
     const event = await db.event.create({
       data: {
         id: nanoid(14),
-        ...omit(validation.data, [
-          'host_id',
-          'series_id',
-          'created_by_id',
-          'guests',
-        ]),
-        ...connectIfDefined('host', validation.data.host_id),
-        ...connectIfDefined('series', validation.data.series_id),
+        ...omit(validation.data, ['host_id', 'created_by_id', 'guests']),
+        host: { connect: { id: validation.data.host_id } },
         ...connectIfDefined('created_by', validation.data.created_by_id),
         ...connectManyIfDefined('guests', validation.data.guests),
       },

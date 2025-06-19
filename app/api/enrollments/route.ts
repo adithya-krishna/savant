@@ -1,14 +1,39 @@
 import { db } from '@/db';
-import { omit, verifyAndCreateEntry } from '@/lib/utils';
+import {
+  computeEventTimes,
+  omit,
+  removeEmptyArrays,
+  setManyIfDefined,
+  verifyAndCreateEntry,
+} from '@/lib/utils';
 import { handleAPIError } from '@/lib/utils/api-error-handler';
+import { EnrollmentError } from '@/lib/utils/api-utils';
 import { EnrollmentCreateSchema } from '@/lib/validators/enrollment';
+import { EnrollmentStatus, Prisma } from '@prisma/client';
 import { nanoid } from 'nanoid';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET() {
+function getFirstElementIfDefined(arr: string[]) {
+  if (Array.isArray(arr) && arr.length > 0 && arr[0] !== undefined) {
+    return arr[0];
+  }
+  return undefined;
+}
+
+export async function GET(request: NextRequest) {
+  const url = request.nextUrl;
+  const studentId = url.searchParams.get('studentId');
+
+  const where: Prisma.EnrollmentWhereInput = {};
+
+  if (studentId) {
+    where.student_id = studentId;
+  }
+
   try {
     const enrollment = await db.enrollment.findMany({
       orderBy: { create_date: 'desc' },
+      where,
     });
     return NextResponse.json(enrollment);
   } catch (error) {
@@ -25,15 +50,146 @@ export async function POST(request: NextRequest) {
       throw validation.error;
     }
 
-    const enrollment = await db.enrollment.create({
-      data: {
-        id: nanoid(14),
-        ...omit(validation.data, ['amount_paid']),
-        ...verifyAndCreateEntry('amount_paid', validation.data.amount_paid),
+    const existingEnrollment = await db.enrollment.findFirst({
+      where: {
+        student_id: validation.data.student_id,
+        course_id: validation.data.course_id,
+        plan_code: validation.data.plan_code,
+        status: EnrollmentStatus.ACTIVE,
       },
+      include: { student: { select: { first_name: true } } },
     });
 
-    return NextResponse.json(enrollment, { status: 201 });
+    if (existingEnrollment) {
+      throw new EnrollmentError(
+        `An active enrollment already exists for ${existingEnrollment.student.first_name}, with selected plan and course`,
+        409,
+      );
+    }
+
+    const { plan_code, start_date, preferred_time_slots } = validation.data;
+    if (!preferred_time_slots) {
+      throw new EnrollmentError('Time slots required for event creation', 400);
+    }
+    const preferredTimeSlots = removeEmptyArrays(preferred_time_slots);
+
+    if (isNaN(start_date.getTime())) {
+      throw new EnrollmentError('Invalid start_date format', 400);
+    }
+
+    const plan = await db.plans.findUnique({
+      where: { code: plan_code },
+      select: { total_slots: true },
+    });
+
+    if (!plan) {
+      throw new EnrollmentError(
+        `Plan with code "${plan_code}" not found.`,
+        400,
+      );
+    }
+    const totalSlots = plan.total_slots;
+
+    let eventTimes: { start: Date; end: Date }[];
+    try {
+      eventTimes = computeEventTimes(
+        totalSlots,
+        preferredTimeSlots,
+        start_date,
+      );
+    } catch {
+      throw new EnrollmentError('Unable to compute event times', 400);
+    }
+
+    const result = await db.$transaction(async tx => {
+      const enrollmentData = {
+        id: nanoid(14),
+        ...omit(validation.data, ['amount_paid', 'slots_remaining']),
+        slots_remaining: totalSlots,
+        ...verifyAndCreateEntry('amount_paid', validation.data.amount_paid),
+      };
+
+      const currentCourse = await tx.course.findUnique({
+        where: { id: enrollmentData.course_id },
+        include: { teachers: { select: { id: true } } },
+      });
+      if (!currentCourse) {
+        throw new EnrollmentError('Course not found.', 400);
+      }
+      const teacherIds = currentCourse.teachers.map(t => t.id) || [];
+      const firstTeacher = getFirstElementIfDefined(teacherIds);
+      if (!firstTeacher) {
+        throw new EnrollmentError(
+          'An instructor is required to create an event',
+          400,
+        );
+      }
+
+      const createdEnrollment = await tx.enrollment.create({
+        data: enrollmentData,
+        include: {
+          student: { select: { id: true, first_name: true, last_name: true } },
+        },
+      });
+
+      for (let i = 0; i < eventTimes.length; i++) {
+        const { start, end } = eventTimes[i];
+        const existingEvent = await tx.event.findFirst({
+          where: {
+            host_id: {
+              in: teacherIds,
+            },
+            start_date_time: start,
+            end_date_time: end,
+          },
+          include: {
+            guests: { select: { id: true } },
+          },
+        });
+
+        let eventId: string;
+        if (existingEvent) {
+          eventId = existingEvent.id;
+          await tx.event.update({
+            where: { id: eventId },
+            data: {
+              ...setManyIfDefined('guests', [
+                ...existingEvent.guests.map(g => g.id),
+                createdEnrollment.id,
+              ]),
+            },
+          });
+        } else {
+          eventId = nanoid(20);
+          const title = `Session ${i + 1} | ${currentCourse.name}`;
+          const description = `Auto-generated session ${i + 1} for enrollment`;
+          await tx.event.create({
+            data: {
+              id: eventId,
+              title,
+              description,
+              start_date_time: start,
+              end_date_time: end,
+              host: {
+                connect: {
+                  id: firstTeacher,
+                },
+              },
+              guests: {
+                connect: [{ id: createdEnrollment.id }],
+              },
+            },
+          });
+        }
+      }
+
+      return { createdEnrollment, totalEventsProcessed: eventTimes.length };
+    });
+
+    return NextResponse.json({
+      message: 'Enrollment created and linked to events',
+      ...result,
+    });
   } catch (error) {
     return handleAPIError(error);
   }

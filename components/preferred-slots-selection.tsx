@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { getTimeSlots, getWeekDays } from '@/lib/utils';
 import { TimeSlotSelection } from '@/app/global-types';
 
-const days = getWeekDays({ weekStartOn: 1, filter: ['Monday'] });
+const days = getWeekDays({ weekStartOn: 0, filter: ['Monday'] });
 const timeSlots = getTimeSlots({ intervalMinutes: 60 });
 const defaultSelected = '' + days[0].id;
 

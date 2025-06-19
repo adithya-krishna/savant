@@ -7,13 +7,6 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-const getAllCourses = cache(async () => {
-  const courses = await db.course.findMany({
-    select: { name: true, id: true },
-  });
-  return courses.map(c => ({ label: c.name, value: c.id }));
-});
-
 const getTeamMemberById = cache(async (id: string) => {
   const teamMember = await db.teamMember.findUnique({
     where: { id },
@@ -29,7 +22,6 @@ export default async function TeamMemberPage({ params }: PageProps) {
   if (id !== 'new') {
     teamMember = await getTeamMemberById(id);
   }
-  const allCourses = await getAllCourses();
 
   return (
     <div className="flex h-screen w-full flex-col md:flex-row">
@@ -43,11 +35,7 @@ export default async function TeamMemberPage({ params }: PageProps) {
         </p>
       </div>
       <div className="flex h-full w-full md:h-auto p-4">
-        <TeamMemberForm
-          initialData={teamMember}
-          allCourses={allCourses}
-          id={id}
-        />
+        <TeamMemberForm initialData={teamMember} id={id} />
       </div>
     </div>
   );

@@ -61,3 +61,13 @@ export async function fetchEndpointsParallel<T = unknown>(
     }));
   }
 }
+
+// enrollment error
+export class EnrollmentError extends Error {
+  status: number;
+  constructor(message: string, status: number = 400) {
+    super(message);
+    this.name = 'EnrollmentError';
+    this.status = status;
+  }
+}

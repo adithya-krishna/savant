@@ -4,6 +4,7 @@ import { db } from '@/db';
 import {
   computeEventTimes,
   omit,
+  removeEmptyArrays,
   setManyIfDefined,
   verifyAndCreateEntry,
 } from '@/lib/utils';
@@ -11,7 +12,15 @@ import {
   EnrollmentCreateInput,
   EnrollmentCreateSchema,
 } from '@/lib/validators/enrollment';
+import { EnrollmentStatus } from '@prisma/client';
 import { nanoid } from 'nanoid';
+
+function getFirstElementIfDefined(arr: string[]) {
+  if (Array.isArray(arr) && arr.length > 0 && arr[0] !== undefined) {
+    return arr[0];
+  }
+  return undefined;
+}
 
 export async function enroll(values: EnrollmentCreateInput) {
   const validation = EnrollmentCreateSchema.safeParse(values);
@@ -20,11 +29,27 @@ export async function enroll(values: EnrollmentCreateInput) {
     throw validation.error;
   }
 
-  const { plan_code, start_date, preferred_time_slots } = validation.data;
+  const existingEnrollment = await db.enrollment.findFirst({
+    where: {
+      student_id: validation.data.student_id,
+      course_id: validation.data.course_id,
+      plan_code: validation.data.plan_code,
+      status: EnrollmentStatus.ACTIVE,
+    },
+    include: { student: { select: { first_name: true } } },
+  });
 
+  if (existingEnrollment) {
+    return {
+      error: `An active enrollment already exists for ${existingEnrollment.student.first_name}, with selected plan and course`,
+    };
+  }
+
+  const { plan_code, start_date, preferred_time_slots } = validation.data;
   if (!preferred_time_slots) {
     return { error: 'time slots required for event creation' };
   }
+  const preferredTimeSlots = removeEmptyArrays(preferred_time_slots);
 
   if (isNaN(start_date.getTime())) {
     return { error: 'Invalid start_date format' };
@@ -41,11 +66,7 @@ export async function enroll(values: EnrollmentCreateInput) {
 
   let eventTimes: { start: Date; end: Date }[];
   try {
-    eventTimes = computeEventTimes(
-      totalSlots,
-      preferred_time_slots,
-      start_date,
-    );
+    eventTimes = computeEventTimes(totalSlots, preferredTimeSlots, start_date);
   } catch {
     return { error: 'unable to compute event times' };
   }
@@ -53,7 +74,8 @@ export async function enroll(values: EnrollmentCreateInput) {
   const result = await db.$transaction(async tx => {
     const enrollmentData = {
       id: nanoid(14),
-      ...omit(validation.data, ['amount_paid']),
+      ...omit(validation.data, ['amount_paid', 'slots_remaining']),
+      slots_remaining: totalSlots,
       ...verifyAndCreateEntry('amount_paid', validation.data.amount_paid),
     };
 
@@ -65,9 +87,18 @@ export async function enroll(values: EnrollmentCreateInput) {
       return { error: `Course not found.` };
     }
     const teacherIds = currentCourse.teachers.map(t => t.id) || [];
+    const firstTeacher = getFirstElementIfDefined(teacherIds);
+    if (!firstTeacher) {
+      return {
+        error: 'An instructor is required to create an event',
+      };
+    }
 
     const createdEnrollment = await tx.enrollment.create({
       data: enrollmentData,
+      include: {
+        student: { select: { id: true, first_name: true, last_name: true } },
+      },
     });
 
     for (let i = 0; i < eventTimes.length; i++) {
@@ -93,7 +124,7 @@ export async function enroll(values: EnrollmentCreateInput) {
           data: {
             ...setManyIfDefined('guests', [
               ...existingEvent.guests.map(g => g.id),
-              validation.data.student_id,
+              createdEnrollment.id,
             ]),
           },
         });
@@ -108,8 +139,14 @@ export async function enroll(values: EnrollmentCreateInput) {
             description,
             start_date_time: start,
             end_date_time: end,
-            host_id: teacherIds[0],
-            ...setManyIfDefined('guests', [validation.data.student_id]),
+            host: {
+              connect: {
+                id: firstTeacher,
+              },
+            },
+            guests: {
+              connect: [{ id: createdEnrollment.id }],
+            },
           },
         });
       }

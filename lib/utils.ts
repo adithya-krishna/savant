@@ -342,21 +342,21 @@ export function calculateAge(birthDate: Date): number {
 }
 
 const WEEKDAY_MAP: Record<number, Weekday> = {
-  0: RRule.MO,
-  1: RRule.TU,
-  2: RRule.WE,
-  3: RRule.TH,
-  4: RRule.FR,
-  5: RRule.SA,
-  6: RRule.SU,
+  0: RRule.SU,
+  1: RRule.MO,
+  2: RRule.TU,
+  3: RRule.WE,
+  4: RRule.TH,
+  5: RRule.FR,
+  6: RRule.SA,
 };
 
 /**
  * Compute an array of event datetimes (start + end) based on:
  *  - totalSlots: total number of sessions needed
  *  - preferred_time_slots: { [weekdayNumber: string]: string[] }
- *       e.g. { "1": ["14:00"], "3": ["15:00", "18:30"] }
- *  - enrollmentStartDate: a Date object representing the earliest possible date
+ *       keys must be JS-style getDay() numbers (0=Sunday..6=Saturday)
+ *  - enrollmentStartDate: an ISO date string (e.g. "2025-06-20")
  *  - durationMinutes: how long each session lasts
  *
  * Returns array of length totalSlots of objects { start: Date, end: Date }, sorted ascending by start.
@@ -364,11 +364,15 @@ const WEEKDAY_MAP: Record<number, Weekday> = {
 export function computeEventTimes(
   totalSlots: number,
   preferred_time_slots: Record<string, string[]>,
-  enrollmentStartDate: Date,
+  enrollmentStartDate: Date | string,
   durationMinutes: number = 60,
 ): { start: Date; end: Date }[] {
+  const startDate: Date =
+    enrollmentStartDate instanceof Date
+      ? enrollmentStartDate
+      : parseISO(enrollmentStartDate);
+
   const rules: RRule[] = [];
-  const startDate = enrollmentStartDate;
 
   for (const [dayKey, times] of Object.entries(preferred_time_slots)) {
     const weekdayNum = Number(dayKey);
@@ -380,13 +384,14 @@ export function computeEventTimes(
     ) {
       continue;
     }
+
     const weekday = WEEKDAY_MAP[weekdayNum];
     if (!weekday) continue;
 
     for (const timeStr of times) {
       const [hhStr, mmStr] = timeStr.split(':');
-      const hh = Number(hhStr);
-      const mm = Number(mmStr);
+      const hh = Number(hhStr),
+        mm = Number(mmStr);
       if (
         Number.isNaN(hh) ||
         Number.isNaN(mm) ||
@@ -397,30 +402,32 @@ export function computeEventTimes(
       ) {
         continue;
       }
-      // Build a candidate date at enrollmentStartDate's year/month/day but at hh:mm local time
+
       let first = set(startDate, {
         hours: hh,
         minutes: mm,
         seconds: 0,
         milliseconds: 0,
       });
-      // Determine the weekday of enrollmentStartDate in local time
-      const startWeekday = getDay(startDate); // 0-6
+
+      const startWeekday = getDay(startDate);
       let deltaDays = (weekdayNum - startWeekday + 7) % 7;
-      // If same day but time earlier than enrollmentStartDate, push to next week
+
       if (deltaDays === 0 && isBefore(first, startDate)) {
         deltaDays = 7;
       }
       if (deltaDays > 0) {
         first = addDays(first, deltaDays);
       }
-      // Now 'first' is the first occurrence for this weekday/time
-      const rule = new RRule({
-        freq: RRule.WEEKLY,
-        dtstart: first,
-        byweekday: [weekday],
-      });
-      rules.push(rule);
+
+      rules.push(
+        new RRule({
+          freq: RRule.WEEKLY,
+          dtstart: first,
+          byweekday: [weekday],
+          count: totalSlots,
+        }),
+      );
     }
   }
 
@@ -430,27 +437,35 @@ export function computeEventTimes(
     );
   }
 
-  // Gather occurrences from all rules
   const allDates: Date[] = [];
   for (const rule of rules) {
-    const occ = rule.all().slice(0, totalSlots);
-    allDates.push(...occ);
+    allDates.push(...rule.all().slice(0, totalSlots));
   }
-  if (allDates.length === 0) {
-    throw new Error('RRule generated no occurrences.');
-  }
-  // Sort ascending
   allDates.sort((a, b) => a.getTime() - b.getTime());
-  // Take first totalSlots
+
   const selected = allDates.slice(0, totalSlots);
   if (selected.length < totalSlots) {
     throw new Error(
       `Could only compute ${selected.length} occurrences, fewer than totalSlots=${totalSlots}`,
     );
   }
-  // Build result with end times
+
   return selected.map(dt => ({
     start: dt,
     end: addMinutes(dt, durationMinutes),
   }));
+}
+
+export function removeEmptyArrays(
+  obj: Record<string, string[]>,
+): Record<string, string[]> {
+  const result: Record<string, string[]> = {};
+
+  for (const key in obj) {
+    if (Array.isArray(obj[key]) && obj[key].length > 0) {
+      result[key] = obj[key];
+    }
+  }
+
+  return result;
 }

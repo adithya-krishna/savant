@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
 import { db } from '@/db';
 import { Prisma } from '@prisma/client';
+import { EnrollmentError } from './api-utils';
 
 export class APIError extends Error {
   status: number;
@@ -14,6 +15,13 @@ export class APIError extends Error {
 }
 
 export const handleAPIError = (error: unknown) => {
+  if (error instanceof EnrollmentError) {
+    return NextResponse.json(
+      { error: error.message },
+      { status: error.status },
+    );
+  }
+
   if (error instanceof ZodError) {
     return NextResponse.json(
       {

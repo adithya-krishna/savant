@@ -19,6 +19,10 @@ export async function createCourse(values: CourseCreateInput) {
     throw new CourseError(issue.path[0] as string, issue.message);
   }
 
+  console.log('+++++++++++++++');
+  console.log('validation', validation.data);
+  console.log('+++++++++++++++');
+
   const { difficulty, instrument_id, description } = validation.data;
   let name: string;
 
@@ -37,7 +41,7 @@ export async function createCourse(values: CourseCreateInput) {
   const existing = await db.course.findUnique({ where: { name } });
   if (existing) throw new CourseError('name', 'Course name must be unique');
 
-  await db.course.create({
+  const course = await db.course.create({
     data: {
       id: nanoid(14),
       ...omit(validation.data, ['instrument_id', 'teachers']),
@@ -49,7 +53,7 @@ export async function createCourse(values: CourseCreateInput) {
     },
   });
 
-  return { message: 'Course created successfully' };
+  return { message: 'Course created successfully', course };
 }
 
 export async function updateCourse(values: CourseUpdateInput & { id: string }) {
