@@ -175,7 +175,7 @@ model Notes {
   content   String   @db.Text
   is_pinned Boolean? @db.Boolean
 
-  author_id String @db.VarChar(20)
+  author_id String
   author    User   @relation(fields: [author_id], references: [id])
   lead_id   String @db.VarChar(20)
   lead      Leads  @relation(fields: [lead_id], references: [id])

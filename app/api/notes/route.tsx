@@ -7,7 +7,7 @@ import { NextResponse } from 'next/server';
 export async function GET() {
   try {
     const enrollment = await db.notes.findMany({
-      orderBy: { create_at: 'desc' },
+      orderBy: { created_at: 'desc' },
     });
     return NextResponse.json(enrollment);
   } catch (error) {

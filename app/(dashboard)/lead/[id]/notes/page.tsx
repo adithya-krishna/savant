@@ -5,7 +5,6 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { format } from 'date-fns';
 import { auth } from '@/auth';
-import { User } from '@prisma/client';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -22,7 +21,7 @@ export default async function NotesPage({ params }: PageProps) {
 
   let user = null;
   if (session && session.user) {
-    user = session.user as User;
+    user = session.user;
   }
 
   return (
@@ -46,7 +45,7 @@ export default async function NotesPage({ params }: PageProps) {
           </div>
         ))}
       </ScrollArea>
-      {user && <NoteForm leadId={id} userId={user.id} />}
+      {user && user.id && <NoteForm leadId={id} userId={user.id} />}
     </section>
   );
 }

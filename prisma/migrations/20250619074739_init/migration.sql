@@ -94,7 +94,6 @@ CREATE TABLE "Course" (
     "difficulty" "CourseDifficulty" NOT NULL DEFAULT 'FOUNDATION',
     "description" VARCHAR(255),
     "instrument_id" VARCHAR(20),
-    "teacher_id" VARCHAR(20) NOT NULL,
     "create_date" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_date" TIMESTAMPTZ(6) NOT NULL,
 
@@ -231,6 +230,14 @@ CREATE TABLE "_EventGuests" (
 );
 
 -- CreateTable
+CREATE TABLE "_TeacherCourses" (
+    "A" VARCHAR(20) NOT NULL,
+    "B" VARCHAR(20) NOT NULL,
+
+    CONSTRAINT "_TeacherCourses_AB_pkey" PRIMARY KEY ("A","B")
+);
+
+-- CreateTable
 CREATE TABLE "_LeadInstrument" (
     "A" VARCHAR(20) NOT NULL,
     "B" VARCHAR(20) NOT NULL,
@@ -255,6 +262,9 @@ CREATE INDEX "Enrollment_course_id_idx" ON "Enrollment"("course_id");
 
 -- CreateIndex
 CREATE INDEX "Enrollment_is_deleted_idx" ON "Enrollment"("is_deleted");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Course_name_key" ON "Course"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Stage_name_key" ON "Stage"("name");
@@ -302,6 +312,9 @@ CREATE UNIQUE INDEX "users_student_id_key" ON "users"("student_id");
 CREATE INDEX "_EventGuests_B_index" ON "_EventGuests"("B");
 
 -- CreateIndex
+CREATE INDEX "_TeacherCourses_B_index" ON "_TeacherCourses"("B");
+
+-- CreateIndex
 CREATE INDEX "_LeadInstrument_B_index" ON "_LeadInstrument"("B");
 
 -- AddForeignKey
@@ -317,19 +330,16 @@ ALTER TABLE "Leads" ADD CONSTRAINT "fk_source" FOREIGN KEY ("source_id") REFEREN
 ALTER TABLE "Student" ADD CONSTRAINT "Student_lead_id_fkey" FOREIGN KEY ("lead_id") REFERENCES "Leads"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Enrollment" ADD CONSTRAINT "fk_student" FOREIGN KEY ("student_id") REFERENCES "Student"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Enrollment" ADD CONSTRAINT "Enrollment_student_id_fkey" FOREIGN KEY ("student_id") REFERENCES "Student"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Enrollment" ADD CONSTRAINT "fk_plan_name" FOREIGN KEY ("plan_code") REFERENCES "Plans"("code") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Enrollment" ADD CONSTRAINT "Enrollment_plan_code_fkey" FOREIGN KEY ("plan_code") REFERENCES "Plans"("code") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Enrollment" ADD CONSTRAINT "fk_course" FOREIGN KEY ("course_id") REFERENCES "Course"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Enrollment" ADD CONSTRAINT "Enrollment_course_id_fkey" FOREIGN KEY ("course_id") REFERENCES "Course"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Course" ADD CONSTRAINT "fk_instrument" FOREIGN KEY ("instrument_id") REFERENCES "Instruments"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Course" ADD CONSTRAINT "fk_teacher" FOREIGN KEY ("teacher_id") REFERENCES "TeamMember"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Course" ADD CONSTRAINT "Course_instrument_id_fkey" FOREIGN KEY ("instrument_id") REFERENCES "Instruments"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Notes" ADD CONSTRAINT "Notes_author_id_fkey" FOREIGN KEY ("author_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -357,6 +367,12 @@ ALTER TABLE "_EventGuests" ADD CONSTRAINT "_EventGuests_A_fkey" FOREIGN KEY ("A"
 
 -- AddForeignKey
 ALTER TABLE "_EventGuests" ADD CONSTRAINT "_EventGuests_B_fkey" FOREIGN KEY ("B") REFERENCES "Event"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_TeacherCourses" ADD CONSTRAINT "_TeacherCourses_A_fkey" FOREIGN KEY ("A") REFERENCES "Course"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_TeacherCourses" ADD CONSTRAINT "_TeacherCourses_B_fkey" FOREIGN KEY ("B") REFERENCES "TeamMember"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_LeadInstrument" ADD CONSTRAINT "_LeadInstrument_A_fkey" FOREIGN KEY ("A") REFERENCES "Instruments"("id") ON DELETE CASCADE ON UPDATE CASCADE;

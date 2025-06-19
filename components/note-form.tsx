@@ -15,6 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { CreateNoteSchema, NoteCreateInput } from '@/lib/validators/note';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
+import { createNote } from '@/actions/notes';
 
 export default function NoteForm({
   leadId,
@@ -35,14 +36,9 @@ export default function NoteForm({
   });
 
   const onSubmit = async (values: NoteCreateInput) => {
-    console.log(values);
-    const res = await fetch('/api/notes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(values),
-    });
+    const res = await createNote(values);
 
-    if (res.ok) {
+    if (res.success) {
       form.reset();
       router.refresh();
     } else {
@@ -53,6 +49,8 @@ export default function NoteForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <input type="hidden" {...form.register('lead_id')} value={leadId} />
+        <input type="hidden" {...form.register('author_id')} value={userId} />
         <FormField
           control={form.control}
           name="content"

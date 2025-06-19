@@ -10,16 +10,16 @@ const NoteBaseSchema = z.object({
 
   is_pinned: z.boolean().optional().default(false),
 
-  author_id: idSchema,
+  author_id: z.string(),
   lead_id: idSchema,
 
-  create_at: dateSchema.default(new Date()),
+  created_at: dateSchema.default(new Date()),
   updated_at: dateSchema.default(new Date()),
 });
 
 const CreateNoteSchema = NoteBaseSchema.omit({
   id: true,
-  create_at: true,
+  created_at: true,
   updated_at: true,
 })
   .required({ content: true, author_id: true, lead_id: true })
