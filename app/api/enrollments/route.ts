@@ -3,13 +3,16 @@ import {
   computeEventTimes,
   omit,
   removeEmptyArrays,
-  setManyIfDefined,
   verifyAndCreateEntry,
 } from '@/lib/utils';
 import { handleAPIError } from '@/lib/utils/api-error-handler';
-import { EnrollmentError } from '@/lib/utils/api-utils';
-import { EnrollmentCreateSchema } from '@/lib/validators/enrollment';
-import { EnrollmentStatus, Prisma } from '@prisma/client';
+import {
+  EnrollmentError,
+  getPrerequisites,
+  guard,
+  parseBody,
+} from '@/lib/utils/api-utils';
+import { Prisma } from '@prisma/client';
 import { nanoid } from 'nanoid';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -41,72 +44,11 @@ export async function GET(request: NextRequest) {
   }
 }
 
-function parseBody(body: unknown) {
-  const validation = EnrollmentCreateSchema.safeParse(body);
-  if (!validation.success) throw validation.error;
-  return validation.data;
-}
-
-async function getPrerequisites(
-  tx: Prisma.TransactionClient,
-  data: ReturnType<typeof parseBody>,
-) {
-  const [existing, plan, course] = await Promise.all([
-    tx.enrollment.findFirst({
-      where: {
-        student_id: data.student_id,
-        course_id: data.course_id,
-        plan_code: data.plan_code,
-        status: EnrollmentStatus.ACTIVE,
-      },
-      include: { student: { select: { first_name: true } } },
-    }),
-    tx.plans.findUnique({
-      where: { code: data.plan_code },
-      select: { total_slots: true },
-    }),
-    tx.course.findUnique({
-      where: { id: data.course_id },
-      include: { teachers: { select: { id: true } } },
-    }),
-  ]);
-
-  return { existing, plan, course };
-}
-
-function guard(
-  prereq: Awaited<ReturnType<typeof getPrerequisites>>,
-  data: ReturnType<typeof parseBody>,
-) {
-  const { existing, plan, course } = prereq;
-  if (existing) {
-    throw new EnrollmentError(
-      `An active enrollment already exists for ${existing.student.first_name}, with selected plan and course`,
-      409,
-    );
-  }
-  if (!plan) {
-    throw new EnrollmentError(
-      `Plan with code "${data.plan_code}" not found.`,
-      400,
-    );
-  }
-  if (!course) {
-    throw new EnrollmentError('Course not found.', 400);
-  }
-  if (!course.teachers.length) {
-    throw new EnrollmentError(
-      'An instructor is required to create an event',
-      400,
-    );
-  }
-}
-
-async function TEMP(request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const data = parseBody(await request.json());
 
-    if (!data.preferred_time_slots?.length)
+    if (!data.preferred_time_slots)
       throw new EnrollmentError('Time slots required for event creation', 400);
 
     const preferredTimeSlots = removeEmptyArrays(data.preferred_time_slots);
@@ -119,9 +61,9 @@ async function TEMP(request: NextRequest) {
       const { plan, course } = prereq;
       guard(prereq, data);
 
-      const totalSlots = plan.total_slots;
+      const totalSlots = plan!.total_slots;
       const firstTeacher = getFirstElementIfDefined(
-        course.teachers.map(t => t.id) || [],
+        course!.teachers.map(t => t.id),
       );
 
       const eventTimes = computeEventTimes(
@@ -131,7 +73,7 @@ async function TEMP(request: NextRequest) {
       );
 
       const enrollmentId = nanoid(14);
-      const createdEnrollment = await tx.enrollment.create({
+      await tx.enrollment.create({
         data: {
           id: enrollmentId,
           ...omit(data, ['amount_paid']),
@@ -143,13 +85,11 @@ async function TEMP(request: NextRequest) {
         },
       });
 
-      // Build create / update payloads first, then run Promise.all for speed.
       const eventPromises = eventTimes.map(({ start, end }, i) =>
         tx.event.upsert({
           where: {
-            // requires a composite unique index on (start_date_time, end_date_time, host_id)
             host_id_start_date_time_end_date_time: {
-              host_id: firstTeacher,
+              host_id: firstTeacher!,
               start_date_time: start,
               end_date_time: end,
             },
@@ -166,7 +106,6 @@ async function TEMP(request: NextRequest) {
           update: {
             guests: { connect: [{ id: enrollmentId }] },
           },
-          include: { id: true },
         }),
       );
 
@@ -175,161 +114,7 @@ async function TEMP(request: NextRequest) {
 
     return NextResponse.json({
       message: 'Enrollment created and linked to events',
-      ...result,
-    });
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-
-    const validation = EnrollmentCreateSchema.safeParse(body);
-    if (!validation.success) {
-      throw validation.error;
-    }
-
-    const existingEnrollment = await db.enrollment.findFirst({
-      where: {
-        student_id: validation.data.student_id,
-        course_id: validation.data.course_id,
-        plan_code: validation.data.plan_code,
-        status: EnrollmentStatus.ACTIVE,
-      },
-      include: { student: { select: { first_name: true } } },
-    });
-
-    if (existingEnrollment) {
-      throw new EnrollmentError(
-        `An active enrollment already exists for ${existingEnrollment.student.first_name}, with selected plan and course`,
-        409,
-      );
-    }
-
-    const { plan_code, start_date, preferred_time_slots } = validation.data;
-    if (!preferred_time_slots) {
-      throw new EnrollmentError('Time slots required for event creation', 400);
-    }
-    const preferredTimeSlots = removeEmptyArrays(preferred_time_slots);
-
-    if (isNaN(start_date.getTime())) {
-      throw new EnrollmentError('Invalid start_date format', 400);
-    }
-
-    const plan = await db.plans.findUnique({
-      where: { code: plan_code },
-      select: { total_slots: true },
-    });
-
-    if (!plan) {
-      throw new EnrollmentError(
-        `Plan with code "${plan_code}" not found.`,
-        400,
-      );
-    }
-    const totalSlots = plan.total_slots;
-
-    let eventTimes: { start: Date; end: Date }[];
-    try {
-      eventTimes = computeEventTimes(
-        totalSlots,
-        preferredTimeSlots,
-        start_date,
-      );
-    } catch {
-      throw new EnrollmentError('Unable to compute event times', 400);
-    }
-
-    const result = await db.$transaction(async tx => {
-      const enrollmentData = {
-        id: nanoid(14),
-        ...omit(validation.data, ['amount_paid', 'slots_remaining']),
-        slots_remaining: totalSlots,
-        ...verifyAndCreateEntry('amount_paid', validation.data.amount_paid),
-      };
-
-      const currentCourse = await tx.course.findUnique({
-        where: { id: enrollmentData.course_id },
-        include: { teachers: { select: { id: true } } },
-      });
-      if (!currentCourse) {
-        throw new EnrollmentError('Course not found.', 400);
-      }
-      const teacherIds = currentCourse.teachers.map(t => t.id) || [];
-      const firstTeacher = getFirstElementIfDefined(teacherIds);
-      if (!firstTeacher) {
-        throw new EnrollmentError(
-          'An instructor is required to create an event',
-          400,
-        );
-      }
-
-      const createdEnrollment = await tx.enrollment.create({
-        data: enrollmentData,
-        include: {
-          student: { select: { id: true, first_name: true, last_name: true } },
-        },
-      });
-
-      for (let i = 0; i < eventTimes.length; i++) {
-        const { start, end } = eventTimes[i];
-        const existingEvent = await tx.event.findFirst({
-          where: {
-            host_id: {
-              in: teacherIds,
-            },
-            start_date_time: start,
-            end_date_time: end,
-          },
-          include: {
-            guests: { select: { id: true } },
-          },
-        });
-
-        let eventId: string;
-        if (existingEvent) {
-          eventId = existingEvent.id;
-          await tx.event.update({
-            where: { id: eventId },
-            data: {
-              ...setManyIfDefined('guests', [
-                ...existingEvent.guests.map(g => g.id),
-                createdEnrollment.id,
-              ]),
-            },
-          });
-        } else {
-          eventId = nanoid(20);
-          const title = `Session ${i + 1} | ${currentCourse.name}`;
-          const description = `Auto-generated session ${i + 1} for enrollment`;
-          await tx.event.create({
-            data: {
-              id: eventId,
-              title,
-              description,
-              start_date_time: start,
-              end_date_time: end,
-              host: {
-                connect: {
-                  id: firstTeacher,
-                },
-              },
-              guests: {
-                connect: [{ id: createdEnrollment.id }],
-              },
-            },
-          });
-        }
-      }
-
-      return { createdEnrollment, totalEventsProcessed: eventTimes.length };
-    });
-
-    return NextResponse.json({
-      message: 'Enrollment created and linked to events',
-      ...result,
+      enrollment: result,
     });
   } catch (error) {
     return handleAPIError(error);

@@ -1,5 +1,9 @@
 import { NextRequest } from 'next/server';
 import { APIError } from './api-error-handler';
+import { EnrollmentCreateSchema } from '../validators/enrollment';
+import { EnrollmentStatus, Prisma } from '@prisma/client';
+import { toZonedTime } from 'date-fns-tz';
+import { formatISO } from 'date-fns';
 
 export const getIdFromReq = (request: NextRequest) => {
   const id = request.nextUrl.pathname.split('/').pop();
@@ -70,4 +74,74 @@ export class EnrollmentError extends Error {
     this.name = 'EnrollmentError';
     this.status = status;
   }
+}
+
+export function parseBody(body: unknown) {
+  const validation = EnrollmentCreateSchema.safeParse(body);
+  if (!validation.success) throw validation.error;
+  return validation.data;
+}
+
+export async function getPrerequisites(
+  tx: Prisma.TransactionClient,
+  data: ReturnType<typeof parseBody>,
+) {
+  const [existing, plan, course] = await Promise.all([
+    tx.enrollment.findFirst({
+      where: {
+        student_id: data.student_id,
+        course_id: data.course_id,
+        plan_code: data.plan_code,
+        status: EnrollmentStatus.ACTIVE,
+      },
+      include: { student: { select: { first_name: true } } },
+    }),
+    tx.plans.findUnique({
+      where: { code: data.plan_code },
+      select: { total_slots: true },
+    }),
+    tx.course.findUnique({
+      where: { id: data.course_id },
+      include: { teachers: { select: { id: true } } },
+    }),
+  ]);
+
+  return { existing, plan, course };
+}
+
+export function guard(
+  prereq: Awaited<ReturnType<typeof getPrerequisites>>,
+  data: ReturnType<typeof parseBody>,
+) {
+  const { existing, plan, course } = prereq;
+  if (existing) {
+    throw new EnrollmentError(
+      `An active enrollment already exists for ${existing.student.first_name}, with selected plan and course`,
+      409,
+    );
+  }
+  if (!plan) {
+    throw new EnrollmentError(
+      `Plan with code "${data.plan_code}" not found.`,
+      400,
+    );
+  }
+  if (!course) {
+    throw new EnrollmentError('Course not found.', 400);
+  }
+  if (!course.teachers.length) {
+    throw new EnrollmentError(
+      'An instructor is required to create an event',
+      400,
+    );
+  }
+}
+
+export function toZonedISOString(
+  date: Date | string,
+  timeZone: string,
+): string {
+  const utcDate = typeof date === 'string' ? new Date(date) : date;
+  const zonedDate = toZonedTime(utcDate, timeZone);
+  return formatISO(zonedDate, { representation: 'complete' });
 }

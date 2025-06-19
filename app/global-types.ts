@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { Enrollment, Event, Prisma } from '@prisma/client';
 
 export type SectionTypes =
   | 'team-member'
@@ -72,3 +72,11 @@ export type CoursesGetType = Prisma.CourseGetPayload<{
     instrument: { select: { id: true; name: true } };
   };
 }>;
+
+export type ModifiedEventType = Omit<
+  Event,
+  'start_date_time' | 'end_date_time'
+> & { guests: Enrollment[] } & {
+  start_date_time: string;
+  end_date_time: string;
+};

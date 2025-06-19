@@ -5,14 +5,10 @@ import {
   computeEventTimes,
   omit,
   removeEmptyArrays,
-  setManyIfDefined,
   verifyAndCreateEntry,
 } from '@/lib/utils';
-import {
-  EnrollmentCreateInput,
-  EnrollmentCreateSchema,
-} from '@/lib/validators/enrollment';
-import { EnrollmentStatus } from '@prisma/client';
+import { getPrerequisites, parseBody } from '@/lib/utils/api-utils';
+import { EnrollmentCreateInput } from '@/lib/validators/enrollment';
 import { nanoid } from 'nanoid';
 
 function getFirstElementIfDefined(arr: string[]) {
@@ -23,137 +19,92 @@ function getFirstElementIfDefined(arr: string[]) {
 }
 
 export async function enroll(values: EnrollmentCreateInput) {
-  const validation = EnrollmentCreateSchema.safeParse(values);
-
-  if (!validation.success) {
-    throw validation.error;
-  }
-
-  const existingEnrollment = await db.enrollment.findFirst({
-    where: {
-      student_id: validation.data.student_id,
-      course_id: validation.data.course_id,
-      plan_code: validation.data.plan_code,
-      status: EnrollmentStatus.ACTIVE,
-    },
-    include: { student: { select: { first_name: true } } },
-  });
-
-  if (existingEnrollment) {
-    return {
-      error: `An active enrollment already exists for ${existingEnrollment.student.first_name}, with selected plan and course`,
-    };
-  }
-
-  const { plan_code, start_date, preferred_time_slots } = validation.data;
-  if (!preferred_time_slots) {
-    return { error: 'time slots required for event creation' };
-  }
-  const preferredTimeSlots = removeEmptyArrays(preferred_time_slots);
-
-  if (isNaN(start_date.getTime())) {
-    return { error: 'Invalid start_date format' };
-  }
-
-  const plan = await db.plans.findUnique({
-    where: { code: plan_code },
-    select: { total_slots: true },
-  });
-  if (!plan) {
-    return { error: `Plan with code "${plan_code}" not found.` };
-  }
-  const totalSlots = plan.total_slots;
-
-  let eventTimes: { start: Date; end: Date }[];
   try {
-    eventTimes = computeEventTimes(totalSlots, preferredTimeSlots, start_date);
-  } catch {
-    return { error: 'unable to compute event times' };
-  }
+    const data = parseBody(values);
 
-  const result = await db.$transaction(async tx => {
-    const enrollmentData = {
-      id: nanoid(14),
-      ...omit(validation.data, ['amount_paid', 'slots_remaining']),
-      slots_remaining: totalSlots,
-      ...verifyAndCreateEntry('amount_paid', validation.data.amount_paid),
-    };
+    if (!data.preferred_time_slots)
+      return { error: 'Time slots required for event creation' };
 
-    const currentCourse = await tx.course.findUnique({
-      where: { id: enrollmentData.course_id },
-      include: { teachers: { select: { id: true } } },
-    });
-    if (!currentCourse) {
-      return { error: `Course not found.` };
-    }
-    const teacherIds = currentCourse.teachers.map(t => t.id) || [];
-    const firstTeacher = getFirstElementIfDefined(teacherIds);
-    if (!firstTeacher) {
-      return {
-        error: 'An instructor is required to create an event',
-      };
-    }
+    const preferredTimeSlots = removeEmptyArrays(data.preferred_time_slots);
 
-    const createdEnrollment = await tx.enrollment.create({
-      data: enrollmentData,
-      include: {
-        student: { select: { id: true, first_name: true, last_name: true } },
-      },
-    });
+    if (Number.isNaN(data.start_date.getTime()))
+      return { error: 'Invalid start_date format' };
 
-    for (let i = 0; i < eventTimes.length; i++) {
-      const { start, end } = eventTimes[i];
-      const existingEvent = await tx.event.findFirst({
-        where: {
-          host_id: {
-            in: teacherIds,
-          },
-          start_date_time: start,
-          end_date_time: end,
+    const result = await db.$transaction(async tx => {
+      const prereq = await getPrerequisites(tx, data);
+      const { existing, plan, course } = prereq;
+
+      if (existing) {
+        return {
+          error: `An active enrollment already exists for ${existing.student.first_name}, with selected plan and course`,
+        };
+      }
+      if (!plan) {
+        return { error: `Plan with code "${data.plan_code}" not found.` };
+      }
+      if (!course) {
+        return { error: 'Course not found.' };
+      }
+      if (!course.teachers.length) {
+        return { error: 'An instructor is required to create an event' };
+      }
+
+      const totalSlots = plan!.total_slots;
+      const firstTeacher = getFirstElementIfDefined(
+        course!.teachers.map(t => t.id),
+      );
+
+      const eventTimes = computeEventTimes(
+        totalSlots,
+        preferredTimeSlots,
+        data.start_date,
+      );
+
+      const enrollmentId = nanoid(14);
+      await tx.enrollment.create({
+        data: {
+          id: enrollmentId,
+          ...omit(data, ['amount_paid']),
+          ...verifyAndCreateEntry('amount_paid', data.amount_paid),
+          slots_remaining: totalSlots,
         },
         include: {
-          guests: { select: { id: true } },
+          student: { select: { id: true, first_name: true, last_name: true } },
         },
       });
 
-      let eventId: string;
-      if (existingEvent) {
-        eventId = existingEvent.id;
-        await tx.event.update({
-          where: { id: eventId },
-          data: {
-            ...setManyIfDefined('guests', [
-              ...existingEvent.guests.map(g => g.id),
-              createdEnrollment.id,
-            ]),
+      const eventPromises = eventTimes.map(({ start, end }, i) =>
+        tx.event.upsert({
+          where: {
+            host_id_start_date_time_end_date_time: {
+              host_id: firstTeacher!,
+              start_date_time: start,
+              end_date_time: end,
+            },
           },
-        });
-      } else {
-        eventId = nanoid(20);
-        const title = `Session ${i + 1}`;
-        const description = `Auto-generated session ${i + 1} for enrollment`;
-        await tx.event.create({
-          data: {
-            id: eventId,
-            title,
-            description,
+          create: {
+            id: nanoid(20),
+            title: `Session ${i + 1} | ${prereq.course!.name}`,
+            description: `Auto-generated session ${i + 1} for enrollment`,
             start_date_time: start,
             end_date_time: end,
-            host: {
-              connect: {
-                id: firstTeacher,
-              },
-            },
-            guests: {
-              connect: [{ id: createdEnrollment.id }],
-            },
+            host: { connect: { id: firstTeacher } },
+            guests: { connect: [{ id: enrollmentId }] },
           },
-        });
-      }
-    }
+          update: {
+            guests: { connect: [{ id: enrollmentId }] },
+          },
+        }),
+      );
 
-    return { createdEnrollment, totalEventsProcessed: eventTimes.length };
-  });
+      await Promise.all(eventPromises);
+    });
 
-  return { message: 'Enrollment created and linked to events', ...result };
+    return {
+      message: 'Enrollment created and linked to events',
+      enrollment: result,
+    };
+  } catch (error) {
+    return { error };
+  }
 }

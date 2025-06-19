@@ -1,17 +1,10 @@
 import { db } from '@/db';
 import { connectIfDefined, connectManyIfDefined, omit } from '@/lib/utils';
 import { handleAPIError } from '@/lib/utils/api-error-handler';
+import { toZonedISOString } from '@/lib/utils/api-utils';
 import { createEventSchema } from '@/lib/validators/events';
 import { nanoid } from 'nanoid';
 import { NextRequest, NextResponse } from 'next/server';
-import { toZonedTime } from 'date-fns-tz';
-import { formatISO } from 'date-fns';
-
-function toZonedISOString(date: Date | string, timeZone: string): string {
-  const utcDate = typeof date === 'string' ? new Date(date) : date;
-  const zonedDate = toZonedTime(utcDate, timeZone);
-  return formatISO(zonedDate, { representation: 'complete' });
-}
 
 export async function GET(request: NextRequest) {
   const page = Number(request.nextUrl.searchParams.get('page') ?? 1);

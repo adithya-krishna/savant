@@ -23,7 +23,6 @@ export const TeamMemberSchema = z.object({
     .string()
     .regex(phoneRegex, 'Please enter a valid phone number')
     .nonempty('Phone number is required'),
-  courseIds: z.string().array().optional().nullable(),
   role: TeamMemberRoleEnum.default('STAFF'),
   active: z.boolean().optional().default(true),
   create_date: z.date().optional().default(new Date()),
