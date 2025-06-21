@@ -11,10 +11,8 @@ import {
   FormMessage,
 } from './ui/form';
 import { Input } from './ui/input';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Button } from './ui/button';
 import { format } from 'date-fns';
-import { Calendar as CalendarIcon } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -30,10 +28,9 @@ import {
 } from '@/lib/validators/students';
 import { PhoneInput } from './phone-input';
 import { Textarea } from './ui/textarea';
-import { cn } from '@/lib/utils';
-import { Calendar } from './ui/calendar';
 import { Gender } from '@/lib/enums';
 import { useRouter } from 'next/navigation';
+import { CalendarInput } from './calendar-input';
 
 interface StudentFormProps {
   initialData: UpdateStudentInput;
@@ -271,34 +268,13 @@ export default function StudentForm({ initialData }: StudentFormProps) {
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Date of birth</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={'outline'}
-                          className={cn(
-                            'w-full pl-3 text-left font-normal',
-                            !field.value && 'text-muted-foreground',
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, 'PPP')
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <CalendarInput
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    disabled={{
+                      after: new Date(),
+                    }}
+                  />
 
                   <FormMessage />
                 </FormItem>
