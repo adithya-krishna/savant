@@ -16,17 +16,22 @@ interface UserProfileCardProps {
 }
 
 export function UserProfileCard({ data, className }: UserProfileCardProps) {
-  const { name, avatarUrl, info, phone, whatsapp, email, tags, alerts } = data;
+  const {
+    name,
+    avatarUrl,
+    initials,
+    info,
+    phone,
+    whatsapp,
+    email,
+    tags,
+    alerts,
+  } = data;
 
   return (
-    <Card
-      className={cn(
-        'flex flex-col gap-6 sticky top-0 max-h-screen overflow-y-auto p-2 max-w-sm',
-        className,
-      )}
-    >
+    <Card className={cn('flex flex-col gap-6 max-h-full max-w-sm', className)}>
       <CardHeader className="items-center pb-6">
-        <AvatarName name={name} avatarUrl={avatarUrl} />
+        <AvatarName name={name} initials={initials} avatarUrl={avatarUrl} />
       </CardHeader>
 
       <CardContent className="space-y-6">

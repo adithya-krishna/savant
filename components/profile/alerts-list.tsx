@@ -12,7 +12,7 @@ export function AlertsList({ alerts = [] }: AlertsListProps) {
   if (!alerts.length) return null;
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 mt-auto">
       <h3 className="text-sm font-medium">Alerts</h3>
       <ScrollArea className="h-40 pr-2">
         <div className="space-y-2">

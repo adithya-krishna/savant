@@ -4,15 +4,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface AvatarNameProps {
   name: string;
+  initials: string;
   avatarUrl?: string;
 }
 
-export function AvatarName({ name, avatarUrl }: AvatarNameProps) {
-  const initials = name
-    .split(' ')
-    .map(n => n[0])
-    .join('');
-
+export function AvatarName({ name, initials, avatarUrl }: AvatarNameProps) {
   return (
     <div className="flex flex-col items-center gap-2">
       <Avatar className="h-24 w-24">

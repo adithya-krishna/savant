@@ -15,6 +15,7 @@ export interface AlertItem {
 export interface UserProfileData {
   name: string;
   avatarUrl?: string;
+  initials: string;
   info: InfoItem[];
   phone?: string;
   whatsapp?: string;

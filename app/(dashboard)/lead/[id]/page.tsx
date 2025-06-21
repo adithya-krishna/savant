@@ -1,43 +1,73 @@
-import { UserProfileData } from '@/app/types/user';
+import { cache } from 'react';
+
 import { UserProfileCard } from '@/components/profile/user-profile-card';
+import { getLead } from '@/actions/leads';
 
-const user: UserProfileData = {
-  name: 'John Doe',
-  avatarUrl: '/avatars/john.png',
-  info: [
-    { label: 'Community/Area', value: 'Item 1' },
-    { label: 'Age', value: 'Item 2' },
-    { label: 'Source', value: 'Item 3' },
-  ],
-  phone: '+91-XXXXXXXXXX',
-  whatsapp: '+91-XXXXXXXXXX',
-  email: 'john@email.com',
-  tags: ['Lead', 'High Value'],
-  alerts: [
-    {
-      id: 1,
-      type: 'info',
-      title: 'Item moved to "General" folder',
-    },
-    {
-      id: 2,
-      type: 'success',
-      title: 'Action completed successfully',
-    },
-    {
-      id: 3,
-      type: 'error',
-      title: 'An error has occurred',
-    },
-  ],
-};
+const getCachedLeads = cache(async (id: string) => getLead(id));
 
-export default function Page() {
+import { Leads, Instruments, Sources, Stage } from '@prisma/client';
+import { UserProfileData } from '@/app/types/user';
+import { computeAlerts } from '@/lib/alerts';
+import { notFound } from 'next/navigation';
+import { getFullName, getInitials } from '@/lib/utils';
+
+export function leadToProfileData(
+  lead: Leads & {
+    instruments: Instruments[];
+    source: Sources | null;
+    stage: Stage | null;
+  },
+): UserProfileData {
+  const fullName = getFullName(lead);
+
+  return {
+    name: fullName,
+    avatarUrl: undefined, // supply avatar if stored
+    initials: getInitials(lead),
+    info: [
+      {
+        label: 'Community/Area',
+        value: lead.community ?? lead.area ?? '-',
+      },
+      {
+        label: 'Stage',
+        value: lead.stage?.name ?? '-',
+      },
+      {
+        label: 'Expected Budget',
+        value:
+          lead.expected_budget > 0
+            ? `₹${lead.expected_budget}`
+            : 'Not specified',
+      },
+    ],
+    phone: lead.phone,
+    whatsapp: lead.phone,
+    email: lead.email ?? undefined,
+    tags: [...lead.instruments.map(i => i.name)],
+    alerts: computeAlerts(lead),
+  };
+}
+
+export default async function LeadsPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const lead = await getCachedLeads(id);
+
+  if (!lead) {
+    return notFound();
+  }
+
+  const profileData = leadToProfileData(lead);
+
   return (
-    <div className="grid grid-cols-2 gap-6">
+    <div className="grid grid-cols-2 gap-6 p-4">
       {/* dynamic notes/status column here */}
       <div />
-      <UserProfileCard data={user} />
+      <UserProfileCard data={profileData} />
     </div>
   );
 }

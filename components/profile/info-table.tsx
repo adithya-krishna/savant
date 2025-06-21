@@ -14,7 +14,7 @@ export function InfoTable({ data }: InfoTableProps) {
       <Table>
         <TableBody>
           {data.map(item => (
-            <TableRow key={item.label}>
+            <TableRow key={item.label} className={'border-b-0'}>
               <TableCell className="font-medium text-muted-foreground">
                 {item.label}
               </TableCell>

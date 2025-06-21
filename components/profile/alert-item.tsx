@@ -14,15 +14,8 @@ const iconMap = {
 export function AlertItem({ type, title, description }: AlertItemType) {
   const Icon = iconMap[type];
   return (
-    <Alert
-      className={cn(
-        'border-l-4',
-        type === 'info' && 'border-blue-500',
-        type === 'success' && 'border-green-500',
-        type === 'error' && 'border-red-500',
-      )}
-    >
-      <Icon className="h-4 w-4" />
+    <Alert variant={type === 'error' ? 'destructive' : 'default'}>
+      <Icon />
       <AlertTitle>{title}</AlertTitle>
       {description && <AlertDescription>{description}</AlertDescription>}
     </Alert>
